@@ -20,7 +20,7 @@ const { id, title, subtitle, href, emptyMessage = '暂无笔记', tiled = false 
 </dialog>
 <script>import '../scripts/folder-gallery';</script>
 <style is:global>
-  html:has(.folder-stage[open]) { overflow: hidden; scrollbar-gutter: stable; }
+  html:has(.folder-stage[open]) { overflow: hidden; }
   .folder-stage { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0; border: none; overflow: hidden; color: var(--ink); background: transparent; }
   .folder-stage::backdrop { background: #f5f8f3db; -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); transition: opacity 300ms ease; }
   .folder-stage.is-closing::backdrop { opacity: 0; }
