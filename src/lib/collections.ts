@@ -35,10 +35,15 @@ function record(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function entries(value: unknown, label: string): unknown[] {
+function entries(value: unknown, label: string): Array<{ item: unknown; index: number }> {
   const items = record(value, label).items;
   if (!Array.isArray(items)) throw new Error(`${label}.items must be a list.`);
-  return items;
+  // CMS repeaters can save untouched rows as empty objects. Keep original row numbers for errors.
+  return items.flatMap((item, index) => {
+    const blank = item !== null && typeof item === 'object' && !Array.isArray(item)
+      && Object.values(item).every(field => field == null || (typeof field === 'string' && !field.trim()));
+    return blank ? [] : [{ item, index }];
+  });
 }
 
 function text(value: unknown, label: string): string {
@@ -81,7 +86,7 @@ function dimension(value: unknown, label: string, fallback: number): number {
 
 export function parsePhotos(value: unknown): Photo[] {
   const ids = new Set<string>();
-  return entries(value, 'Photos').map((item, index) => {
+  return entries(value, 'Photos').map(({ item, index }) => {
     const label = `Photo ${index + 1}`;
     const photo = record(item, label);
     const id = text(photo.id, `${label}.id`);
@@ -107,7 +112,7 @@ export function parsePhotos(value: unknown): Photo[] {
 }
 
 export function parseFriends(value: unknown): Friend[] {
-  return entries(value, 'Friends').map((item, index) => {
+  return entries(value, 'Friends').map(({ item, index }) => {
     const label = `Friend ${index + 1}`;
     const friend = record(item, label);
     const avatar = optionalText(friend.avatar, `${label}.avatar`);
@@ -123,7 +128,7 @@ export function parseFriends(value: unknown): Friend[] {
 
 export function parseWorks(value: unknown): Work[] {
   const ids = new Set<string>();
-  return entries(value, 'Works').map((item, index) => {
+  return entries(value, 'Works').map(({ item, index }) => {
     const label = `Work ${index + 1}`;
     const work = record(item, label);
     const id = optionalText(work.id, `${label}.id`);

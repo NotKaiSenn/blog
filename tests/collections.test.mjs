@@ -15,6 +15,30 @@ const { parsePhotos, parseFriends, parseWorks } = collectionModule;
 
 const photo = { id: 'window', title: '窗边', date: '2026-09-21', src: '/uploads/window.webp', alt: '窗外的树', width: 1600, height: 900 };
 
+test('untouched CMS list rows are ignored without changing populated entries', () => {
+  const blankRows = [{}, { title: '', url: null, icon: undefined }, { name: ' \n\t ', width: null }];
+  for (const [parse, populated] of [
+    [parseWorks, [{ title: '作品一', url: '/one/' }, { title: '作品二', url: '/two/' }]],
+    [parseFriends, [{ name: '朋友一', url: 'https://one.example.com/' }, { name: '朋友二', url: 'https://two.example.com/' }]],
+    [parsePhotos, [photo, { ...photo, id: 'another', date: '2026-09-20' }]],
+  ]) {
+    assert.deepEqual(parse({ items: blankRows }), []);
+    assert.deepEqual(parse({ items: [blankRows[0], populated[0], blankRows[1], populated[1], blankRows[2]] }), parse({ items: populated }));
+  }
+});
+
+test('blank-row handling still rejects invalid and partially filled entries at their original positions', () => {
+  for (const parse of [parseWorks, parseFriends, parsePhotos]) {
+    for (const item of [null, [], '', 0, false, { title: 0 }, { title: false }, { title: {} }, { title: [] }]) {
+      assert.throws(() => parse({ items: [{}, item] }), /2\b/);
+    }
+  }
+  assert.throws(() => parseWorks({ items: [{}, { title: '未填写链接' }] }), /Work 2\.url/);
+  assert.throws(() => parseFriends({ items: [{}, { name: '未填写链接' }] }), /Friend 2\.url/);
+  assert.throws(() => parsePhotos({ items: [{}, { ...photo, src: '' }] }), /Photo 2\.src/);
+  assert.throws(() => parseWorks({ items: [{}, { title: '非法链接', url: 'javascript:alert(1)' }] }), /Work 2\.url/);
+});
+
 test('photo data rejects duplicate routes, invalid calendar dates and missing image sources', () => {
   assert.throws(() => parsePhotos({ items: [photo, { ...photo, title: '另一个标题' }] }), /Duplicate photo id/);
   for (const date of ['2026-02-29', '2026-04-31', '2026-13-01', 'not-a-date']) {

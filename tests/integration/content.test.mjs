@@ -321,6 +321,25 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(read('index.html'), /<img[^>]*src="https:\/\/avatars.example.com\/live-avatar.webp"[^>]*data-avatar-image/);
   });
 
+  await t.test('CMS blank rows build empty folders without blocking published notes', () => {
+    const collections = [[worksPath, fixtureWorks], [photosPath, fixturePhotos], [friendsPath, fixtureFriends]];
+    try {
+      for (const [path] of collections) writeFileSync(path, JSON.stringify({ items: [{}] }));
+      build();
+      const home = read('index.html');
+      for (const [category, message, unit] of [['works', '暂无作品', '项'], ['photos', '暂无照片', '张'], ['friends', '暂无链接', '位']]) {
+        assert.match(home, new RegExp(`href="/${category}/">全部 0 ${unit}`));
+        assert.match(read(`${category}/index.html`), new RegExp(message));
+      }
+      assert.match(home, /data-href="\/posts\/note-13\/"/);
+      assert.match(read('posts/note-13/index.html'), /修改过的标题/);
+      assert.match(read('rss.xml'), /note-13/);
+      assert.doesNotMatch(read('sitemap-0.xml'), /photo-window/);
+    } finally {
+      for (const [path, items] of collections) writeFileSync(path, JSON.stringify({ items }));
+    }
+  });
+
   await t.test('empty collections and all-draft notes keep usable lists and folder fallbacks', () => {
     const originals = readdirSync(content).map(file => [file, readFileSync(join(content, file), 'utf8')]);
     try {
