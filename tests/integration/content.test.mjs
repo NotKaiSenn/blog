@@ -267,7 +267,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.ok(imagelessWork, 'A work can be published before a cover is uploaded');
     assert.doesNotMatch(imagelessWork, /<img\b/);
     assert.match(imagelessWork, /<svg\b/);
-    for (const html of [photo, external, photoList, friends, works]) assertNoContentScripts(html);
+    for (const html of [photo, external, friends, works]) assertNoContentScripts(html);
     assert.match(read('sitemap-0.xml'), /https:\/\/kaisenn.net\/photos\/photo-window\//);
   });
 

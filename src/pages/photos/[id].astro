@@ -12,12 +12,12 @@ const { photo } = Astro.props;
 ---
 <SiteLayout title={photo.title} description={photo.description ?? photo.alt} breadcrumbs={[{ label: '照片', href: '/photos/' }, { label: photo.title }]} wide>
   <article class="photo-detail">
-    <header class="page-heading"><time class="eyebrow" datetime={photo.date}>{displayDate(new Date(`${photo.date}T00:00:00Z`))}</time><h1>{photo.title}</h1></header>
+    <header class="page-heading detail-heading"><h1>{photo.title}</h1><time datetime={photo.date}>{displayDate(new Date(`${photo.date}T00:00:00Z`))}</time></header>
     <figure>
       <div class="photo-frame"><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} decoding="async" /></div>
       {photo.description && <figcaption>{photo.description}</figcaption>}
     </figure>
-    <a class="back-link" href="/photos/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回照片</a>
+    <div class="photo-return"><a class="back-link" href="/photos/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回照片</a></div>
   </article>
 </SiteLayout>
 <style>
@@ -25,5 +25,6 @@ const { photo } = Astro.props;
   .photo-frame { padding: 9px; border-radius: 14px; background: #fff; box-shadow: 0 2px 5px #2633210a, 0 12px 26px #2633210a; }
   img { width: 100%; height: auto; border-radius: 5px; }
   figcaption { margin-top: 22px; color: var(--body); font-size: .9375rem; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
-  .back-link { margin-top: 35px; }
+  figcaption, .photo-return { width: min(640px, 100%); margin-inline: auto; }
+  .photo-return { margin-top: 35px; }
 </style>

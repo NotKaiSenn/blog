@@ -35,38 +35,32 @@ export function gridPoses(cards: CardSize[], width: number): { poses: CardPose[]
   const offsets = [.02, .16, .07, .12, 0, .18];
   const shifts = [-.3, .3, -.15, .3, -.25, .15];
   const poses: CardPose[] = [];
-  let rowTop = padding;
+  const usedColumns = Math.min(columns, cards.length);
+  const gridLeft = (width - (cellWidth * usedColumns + gap * (usedColumns - 1))) / 2;
+  const columnBottoms = Array<number>(usedColumns).fill(padding);
 
-  for (let start = 0; start < cards.length; start += columns) {
-    const count = Math.min(columns, cards.length - start);
-    const rowLeft = (width - (cellWidth * count + gap * (count - 1))) / 2;
-    let rowHeight = 0;
+  for (let index = 0; index < cards.length; index++) {
+    const column = columnBottoms.indexOf(Math.min(...columnBottoms));
+    const card = cards[index];
+    const pattern = index % rotations.length;
+    const rotation = rotations[pattern];
+    const angle = Math.abs(rotation) * Math.PI / 180;
+    const rotatedWidth = card.width * Math.cos(angle) + card.height * Math.sin(angle);
+    const rotatedHeight = card.height * Math.cos(angle) + card.width * Math.sin(angle);
+    const scale = cellWidth * sizes[pattern] / rotatedWidth;
+    const boundsWidth = rotatedWidth * scale;
+    const boundsHeight = rotatedHeight * scale;
+    const top = columnBottoms[column] + cellWidth * offsets[pattern];
 
-    for (let column = 0; column < count; column++) {
-      const index = start + column;
-      const card = cards[index];
-      const pattern = index % rotations.length;
-      const rotation = rotations[pattern];
-      const angle = Math.abs(rotation) * Math.PI / 180;
-      const rotatedWidth = card.width * Math.cos(angle) + card.height * Math.sin(angle);
-      const rotatedHeight = card.height * Math.cos(angle) + card.width * Math.sin(angle);
-      const scale = cellWidth * sizes[pattern] / rotatedWidth;
-      const boundsWidth = rotatedWidth * scale;
-      const boundsHeight = rotatedHeight * scale;
-      const offset = cellWidth * offsets[pattern];
-
-      poses.push({
-        x: rowLeft + column * (cellWidth + gap) + cellWidth / 2 + (cellWidth - boundsWidth) * shifts[pattern],
-        y: rowTop + offset + boundsHeight / 2,
-        rotation,
-        scale,
-        opacity: 1,
-      });
-      rowHeight = Math.max(rowHeight, offset + boundsHeight);
-    }
-
-    rowTop += rowHeight + gap;
+    poses.push({
+      x: cards.length === 1 ? width / 2 : gridLeft + column * (cellWidth + gap) + cellWidth / 2 + (cellWidth - boundsWidth) * shifts[pattern],
+      y: top + boundsHeight / 2,
+      rotation,
+      scale,
+      opacity: 1,
+    });
+    columnBottoms[column] = top + boundsHeight + gap;
   }
 
-  return { poses, height: rowTop - gap + padding };
+  return { poses, height: Math.max(...columnBottoms) - gap + padding };
 }

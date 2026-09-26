@@ -86,11 +86,60 @@ test('spread photos use two columns on phones and three on large viewports with 
     assert.deepEqual(layout, gridPoses(photos, width));
     const boxes = layout.poses.map((pose, index) => bounds(photos[index], pose));
     for (let i = 1; i < columns; i++) assert.ok(boxes[i].left > boxes[i - 1].right);
-    assert.ok(boxes[columns].top > Math.max(...boxes.slice(0, columns).map(box => box.bottom)));
     assert.notEqual(boxes[0].top, boxes[1].top);
     assert.notEqual(boxes[0].right - boxes[0].left, boxes[1].right - boxes[1].left);
     assert.ok(layout.poses.some(pose => pose.rotation < 0));
     assert.ok(layout.poses.some(pose => pose.rotation > 0));
+  }
+});
+
+test('mixed photo sizes fill space beside tall photos without increasing the tallest column', () => {
+  const mixed = [
+    { width: 100, height: 1400, kind: 'photo' },
+    { width: 1400, height: 100, kind: 'photo' },
+    { width: 500, height: 100, kind: 'photo' },
+    { width: 100, height: 100, kind: 'photo' },
+    { width: 1000, height: 100, kind: 'photo' },
+  ];
+  for (const [width, columns] of [[343, 2], [900, 3]]) {
+    const { poses, height } = gridPoses(mixed, width);
+    const boxes = poses.map((pose, index) => bounds(mixed[index], pose));
+    const next = boxes[columns];
+    assert.ok(next.top < boxes[0].bottom, `next photo fills the space beside the portrait at ${width}`);
+    assert.ok(next.left > boxes[0].right, `next photo stays out of the portrait column at ${width}`);
+    assert.ok(boxes.slice(1, columns).some(box => next.top > box.bottom && next.left < box.right && next.right > box.left));
+    assert.equal(height, gridPoses(mixed.slice(0, columns), width).height);
+    assert.ok(height > Math.max(...boxes.map(box => box.bottom)));
+    assert.ok(height - Math.max(...boxes.map(box => box.bottom)) <= 28);
+  }
+});
+
+test('extreme portrait and panorama mixes remain inside the canvas without overlapping', () => {
+  const mixed = [
+    { width: 100, height: 1800, kind: 'photo' },
+    { width: 2400, height: 100, kind: 'photo' },
+    { width: 100, height: 100, kind: 'photo' },
+    { width: 100, height: 2400, kind: 'photo' },
+    { width: 1800, height: 100, kind: 'photo' },
+    { width: 100, height: 300, kind: 'photo' },
+    { width: 300, height: 100, kind: 'photo' },
+  ];
+  for (const width of [240, 280, 343, 759, 760, 900]) {
+    const { poses, height } = gridPoses(mixed, width);
+    const boxes = poses.map((pose, index) => bounds(mixed[index], pose));
+    assert.ok(Number.isFinite(height) && height > 0);
+    for (const box of boxes) {
+      assert.ok(box.left > 0 && box.right < width);
+      assert.ok(box.top > 0 && box.bottom < height);
+    }
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const b = boxes[j];
+        assert.ok(a.right < b.left || b.right < a.left || a.bottom < b.top || b.bottom < a.top, `cards ${i} and ${j} overlap at ${width}`);
+      }
+    }
+    assert.ok(height - Math.max(...boxes.map(box => box.bottom)) <= 28);
   }
 });
 
@@ -99,6 +148,7 @@ test('empty and single-photo spreads have no unused rows', () => {
   for (const width of [343, 900]) {
     const { poses, height } = gridPoses(photos.slice(0, 1), width);
     assert.equal(poses.length, 1);
+    assert.equal(poses[0].x, width / 2);
     const box = bounds(photos[0], poses[0]);
     assert.ok(box.left > width * .2 && box.right < width * .8);
     assert.ok(height - box.bottom <= 28);

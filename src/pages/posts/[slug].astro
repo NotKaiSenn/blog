@@ -14,7 +14,7 @@ const { Content } = await render(post);
 ---
 <SiteLayout title={post.data.title} description={postDescription(post)} articleDate={post.data.pubDate.toISOString()} breadcrumbs={[{ label: '笔记', href: '/posts/' }, { label: post.data.title }]}>
   <article>
-    <header class="page-heading article-heading">
+    <header class="page-heading detail-heading">
       <h1>{post.data.title}</h1>
       <time datetime={post.data.pubDate.toISOString().slice(0, 10)}>{displayDate(post.data.pubDate)}</time>
     </header>
@@ -23,8 +23,5 @@ const { Content } = await render(post);
   </article>
 </SiteLayout>
 <style>
-  .article-heading { margin-bottom: 32px; }
-  .article-heading h1 { margin-top: 0; font-size: clamp(1.625rem, 4vw, 1.875rem); }
-  time { display: block; margin-top: 14px; color: var(--muted); font-size: .8125rem; }
   .article-end { margin-top: 53px; padding-top: 26px; border-top: 1px solid var(--line); }
 </style>
