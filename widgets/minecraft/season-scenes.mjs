@@ -25,15 +25,15 @@ export const SEASONS = {
     textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.summer, 'block/melon_side', 'block/melon_top', 'item/melon_slice', 'block/sand', 'block/lily_pad', 'block/sugar_cane', 'item/sugar_cane', 'entity/fish/cod', 'block/cornflower', 'block/oxeye_daisy'],
   },
   autumn: {
-    label: 'Autumn', grassClimate: { temperature: .8, downfall: .4 }, waterTint: '#3f76e4',
+    label: 'Autumn', grassClimate: { temperature: .8, downfall: .4 },
     actionId: 'autumn:pumpkin', actionLabel: 'Toggle pumpkin light',
     actions: [{ id: 'autumn:mushroom', label: 'Pick mushroom' }],
     cameraTarget: [1.9, .3, 1.4], halfHeight: 2.7,
     plots: [],
-    textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.autumn, 'colormap/dry_foliage', 'block/leaf_litter', 'block/coarse_dirt', 'block/oak_log', 'block/oak_log_top', 'block/pumpkin_side', 'block/pumpkin_top', 'block/carved_pumpkin', 'block/jack_o_lantern', 'block/dead_bush', 'block/fern', 'block/mossy_cobblestone', 'block/brown_mushroom', 'block/red_mushroom'],
+    textures: [...SEASON_PARTICLE_TEXTURES.autumn, 'colormap/dry_foliage', 'block/leaf_litter', 'block/coarse_dirt', 'block/oak_log', 'block/oak_log_top', 'block/pumpkin_side', 'block/pumpkin_top', 'block/carved_pumpkin', 'block/jack_o_lantern', 'block/fern', 'block/mossy_cobblestone', 'block/brown_mushroom', 'block/red_mushroom'],
   },
   winter: {
-    label: 'Winter', grassClimate: { temperature: .25, downfall: .8 }, waterTint: '#286be9',
+    label: 'Winter', waterTint: '#286be9',
     actionId: 'winter:campfire', actionLabel: 'Toggle campfire',
     actions: [{ id: 'winter:ice', label: 'Break ice' }],
     cameraTarget: [2.15, .38, 1.15], halfHeight: 3.05,
@@ -233,8 +233,8 @@ export function buildSeasonScenery(view, seasonId, state) {
   }
 
   function leaf(x, y, z, kind, tint) {
-    leafSources.push({ x, y, z });
-    weatherHeights.set(key(x, z), Math.max(weatherHeights.get(key(x, z)) ?? 0, y + 1.125));
+    if (seasonId === 'spring') leafSources.push({ x, y, z });
+    if (seasonId === 'winter') weatherHeights.set(key(x, z), Math.max(weatherHeights.get(key(x, z)) ?? 0, y + 1.125));
     addBox(x + .5, y + .5, z + .5, faceMaterials(`${kind}_leaves`, `${kind}_leaves`, `${kind}_leaves`, tint, { side: THREE.DoubleSide }));
   }
 
@@ -434,14 +434,7 @@ export function buildSeasonScenery(view, seasonId, state) {
   const groundAt = (x, z) => groundHeights.get(key(Math.floor(x), Math.floor(z))) ?? 0;
   const particles = createSeasonParticles(view, {
     season: seasonId,
-    leaves: leafSources.filter(source => seasonId === 'spring' && (source.x !== 0 || source.z !== 0)),
-    leafMode: seasonId === 'autumn' ? 'wind' : 'falling',
-    leafInterval: 1050,
-    leafWindDirection: [1, 0],
-    leafWindBounds: { minX: -.8, maxX: 4.8, minZ: .05, maxZ: 3.2 },
-    leafWindHeight: 1.7,
-    leafWindHeightSpread: .7,
-    leafWindSpeed: 3.8,
+    leaves: leafSources.filter(source => source.x !== 0 || source.z !== 0),
     groundAt,
     weatherGroundAt: (x, z) => weatherHeights.get(key(Math.floor(x), Math.floor(z))) ?? groundAt(x, z),
     weatherCells: [...groundHeights.keys()].map(cell => cell.split(':').map(Number)),

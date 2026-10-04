@@ -9,7 +9,6 @@ const contentTypes = {
   '.png': 'image/png',
   '.ogg': 'audio/ogg',
   '.json': 'application/json',
-  '.mcmeta': 'application/json',
 };
 
 function isInside(root, file) {

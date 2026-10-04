@@ -19,8 +19,7 @@ export function createBreakableIce(view, {
   cells, waterMap, waterTint = '#3f76e4', waterOpacity = .83,
   refreezeMs = 8000, solidBoxes = [], onSurfaceChange,
 }) {
-  const allCells = new Map(cells.map(([x, z]) => [key(x, z), [x, z]]));
-  const remaining = new Map(allCells);
+  const remaining = new Map(cells.map(([x, z]) => [key(x, z), [x, z]]));
   const melted = new Map();
   const freezeAt = new Map();
   const ice = new THREE.Mesh(view.own(createConnectedWaterGeometry(cells, TOP, BOTTOM)), view.material(view.textures['block/ice'], 1, {

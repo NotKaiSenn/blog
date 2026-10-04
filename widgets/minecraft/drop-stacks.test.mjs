@@ -34,8 +34,7 @@ test('merges respect actual distance, initial toss time, pickup state and stack 
 });
 
 test('a whole-patch harvest merges then collects every harvested unit exactly once', () => {
-  const state = createFarmState();
-  state.plots.forEach(plot => { plot.stage = 7; });
+  const state = createFarmState(0, [{ x: 1, z: 0, stage: 7 }, { x: 2, z: 0, stage: 7 }, { x: 3, z: 0, stage: 7 }, { x: 2, z: 1, stage: 7 }]);
   const harvest = interactWithPatch(state, '2:0', 100, () => .5);
   assert.equal(harvest.actions.length, 4);
   assert.equal(harvest.drops.length, 8);

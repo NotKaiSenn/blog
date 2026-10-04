@@ -6,7 +6,7 @@ import { resolve, extname, sep } from 'node:path';
 const root = fileURLToPath(new URL('.', import.meta.url));
 const threeBuild = new URL('./', import.meta.resolve('three'));
 const port = Number(process.env.PORT || 4175);
-const mime = { '.html': 'text/html; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.mcmeta': 'application/json', '.png': 'image/png', '.ogg': 'audio/ogg', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+const mime = { '.html': 'text/html; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.ogg': 'audio/ogg', '.css': 'text/css; charset=utf-8' };
 
 createServer(async (request, response) => {
   try {

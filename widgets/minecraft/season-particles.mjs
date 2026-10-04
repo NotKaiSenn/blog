@@ -50,18 +50,16 @@ function quadGeometry(view, capacity) {
   return geometry;
 }
 
-function createLeaves(view, { season, leaves, groundAt, leafTint, leafInterval }) {
-  const cherry = season === 'spring';
-  const atlas = particleAtlas(view, SEASON_PARTICLE_TEXTURES[season]);
+function createLeaves(view, { leaves, groundAt, leafInterval }) {
+  const atlas = particleAtlas(view, SEASON_PARTICLE_TEXTURES.spring);
   const geometry = quadGeometry(view, LEAF_CAPACITY);
   const material = view.material(atlas.map, 1, {
-    color: season === 'spring' ? '#ffffff' : leafTint,
     side: THREE.DoubleSide,
     alphaTest: .1,
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.frustumCulled = false;
-  mesh.name = `${season}-falling-leaves`;
+  mesh.name = 'spring-falling-leaves';
   view.scene.add(mesh);
   const particles = [];
   const right = new THREE.Vector3();
@@ -82,13 +80,12 @@ function createLeaves(view, { season, leaves, groundAt, leafTint, leafInterval }
       const z = point.z + .1 + random(seed + 3) * .8;
       particles.push({
         x, y, z, previousX: x, previousY: y, previousZ: z,
-        vx: 0, vy: cherry ? 0 : -.021, vz: 0, age: 0,
+        vx: 0, vy: 0, vz: 0, age: 0,
         roll: 0, previousRoll: 0,
         rotationSpeed: (random(seed + 4) < .5 ? -1 : 1) * Math.PI / 6,
         spinAcceleration: (random(seed + 5) < .5 ? -1 : 1) * Math.PI / 36,
         windAngle: random(seed + 6) * Math.PI / 3,
-        swirlPeriod: (1000 + random(seed + 6) * 3000) * Math.PI / 180,
-        size: (cherry ? 1 : 2) * (random(seed + 7) < .5 ? .05 : .075),
+        size: random(seed + 7) < .5 ? .05 : .075,
         sprite: Math.floor(random(seed + 8) * 12),
       });
     }
@@ -104,11 +101,11 @@ function createLeaves(view, { season, leaves, groundAt, leafTint, leafInterval }
       particle.age++;
       // The vanilla leaf is a rolling camera-facing sprite, accelerated once per game tick.
       const progress = Math.min(particle.age / 300, 1);
-      const wind = cherry ? 2 * Math.pow(progress, 1.25) * .0025 : progress * 10 * .0025;
-      const angle = cherry ? particle.windAngle : progress * particle.swirlPeriod;
+      const wind = 2 * Math.pow(progress, 1.25) * .0025;
+      const angle = particle.windAngle;
       particle.vx += Math.cos(angle) * wind;
       particle.vz += Math.sin(angle) * wind;
-      particle.vy -= (cherry ? .25 : .07) * 1.2 * .0025;
+      particle.vy -= .25 * 1.2 * .0025;
       particle.rotationSpeed += particle.spinAcceleration / 20;
       particle.roll += particle.rotationSpeed / 20;
       particle.x += particle.vx;
@@ -353,26 +350,23 @@ export function createSeasonParticles(view, {
   season,
   leaves = [],
   groundAt = () => 0,
-  leafMode = season === 'autumn' ? 'wind' : 'falling',
-  leafGroundAt = groundAt,
   leafWindDirection = [1, 0],
   leafWindBounds = { minX: -.8, maxX: 4.8, minZ: .05, maxZ: 3.2 },
   leafWindHeight = 1.7,
   leafWindHeightSpread = .7,
   leafWindSpeed = 3.8,
   leafTint = '#9caa55',
-  leafInterval = season === 'spring' ? 1050 : 1550,
+  leafInterval = 1050,
   weatherCells = [],
   weatherGroundAt = groundAt,
   weatherTop = season === 'winter' ? 3.75 : 3.2,
   weatherOpacity,
   weatherScale = season === 'winter' ? 4 : 3,
 } = {}) {
-  const windLeaves = season === 'autumn' && (leafMode === 'wind' || leafMode === 'ground');
-  const leafSystem = windLeaves
+  const leafSystem = season === 'autumn'
     ? createWindLeaves(view, { leafTint, direction: leafWindDirection, bounds: leafWindBounds, height: leafWindHeight, heightSpread: leafWindHeightSpread, speed: leafWindSpeed })
-    : leaves.length && (season === 'spring' || season === 'autumn')
-      ? createLeaves(view, { season, leaves, groundAt: leafGroundAt, leafTint, leafInterval })
+    : leaves.length && season === 'spring'
+      ? createLeaves(view, { leaves, groundAt, leafInterval })
       : null;
   const weather = weatherCells.length && (season === 'summer' || season === 'winter')
     ? createWeather(view, { season, weatherCells, weatherGroundAt, weatherTop, weatherOpacity, weatherScale }) : null;

@@ -35,7 +35,6 @@ class MinecraftSeasonPicker extends HTMLElement {
     world.setAttribute('season', season);
     current.replaceWith(world);
     world.audio?.unlock();
-    this.dataset.season = season;
     for (const option of this.buttons) option.setAttribute('aria-pressed', String(option === button));
   }
 }

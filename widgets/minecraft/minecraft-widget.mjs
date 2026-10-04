@@ -18,9 +18,7 @@ export class MinecraftWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.state = createFarmState(0, []);
     this.selectedId = null;
-    this.selectedCenter = undefined;
     this.keyboardPlotSelected = false;
     this.lastMergeAt = 0;
     this.visible = true;
@@ -76,7 +74,7 @@ export class MinecraftWidget extends HTMLElement {
     this.canvas.addEventListener('pointermove', event => {
       this.keyboardPlotSelected = false;
       const hit = this.view?.pickPoint(event.clientX, event.clientY);
-      this.select(hit?.id, hit?.center);
+      this.select(hit?.id);
       this.canvas.style.cursor = hit?.id || hit?.actionId ? 'pointer' : 'default';
     }, { signal });
     this.canvas.addEventListener('pointerleave', () => {
@@ -116,7 +114,6 @@ export class MinecraftWidget extends HTMLElement {
       await view.initialize(this.state);
       if (generation !== this.generation || !this.isConnected) { view.dispose(); return; }
       view.spawnDrops(this.state.drops, performance.now());
-      this.update();
       this.schedule();
     } catch (error) {
       if (generation !== this.generation) return;
@@ -141,9 +138,8 @@ export class MinecraftWidget extends HTMLElement {
     this.view = null;
   }
 
-  select(id, center) {
+  select(id) {
     this.selectedId = id ?? null;
-    this.selectedCenter = center;
   }
 
   keydown(event) {
@@ -165,7 +161,7 @@ export class MinecraftWidget extends HTMLElement {
       event.preventDefault();
       if (!event.repeat) {
         const id = !this.keyboardPlotSelected ? null : this.selectedId ?? this.state.plots[0]?.id;
-        if (id) this.interact(id, this.selectedCenter);
+        if (id) this.interact(id);
         else this.interactScene(this.season?.actionId);
       }
     } else if (event.key === 'Escape') { this.keyboardPlotSelected = false; this.select(null); }
@@ -180,13 +176,12 @@ export class MinecraftWidget extends HTMLElement {
       this.view.updatePlot(action.plot);
       if (action.type === 'harvest' && !this.reducedMotion) this.view.burst(action.plot, now);
     }
-    this.select(id, center);
+    this.select(id);
     if (patch.drops.length) {
       this.audio?.playBreak('crop');
       this.view.spawnDrops(patch.drops, now);
       this.status.textContent = 'Wheat harvested.';
     } else this.status.textContent = patch.plot.stage === MATURE_STAGE ? 'Wheat ready to harvest.' : 'Wheat growing.';
-    this.update();
     this.schedule();
     this.dispatchEvent(new CustomEvent('minecraft-interact', { detail: { type: patch.drops.length ? 'harvest' : 'grow', plotId: id, stage: patch.plot.stage, affectedPlotIds: patch.affectedPlotIds }, bubbles: true, composed: true }));
   }
@@ -218,20 +213,8 @@ export class MinecraftWidget extends HTMLElement {
       this.view.spawnDrops(drops, now);
     }
     this.status.textContent = result.message;
-    this.update();
     this.schedule();
     this.dispatchEvent(new CustomEvent('minecraft-scene-interact', { detail: { season: this.seasonId, type: result.type }, bubbles: true, composed: true }));
-  }
-
-  update() {
-    this.dataset.pendingItems = this.state.drops.reduce((count, drop) => count + drop.count, 0);
-    this.dataset.pendingStacks = this.state.drops.length;
-    this.dataset.collected = this.state.collectedCount;
-    this.dataset.seeds = this.state.collectedSeeds;
-    this.dataset.melons = this.state.collectedItems.melon ?? 0;
-    this.dataset.sugarCane = this.state.collectedItems.sugar_cane ?? 0;
-    this.dataset.redMushrooms = this.state.collectedItems.red_mushroom ?? 0;
-    this.dataset.brownMushrooms = this.state.collectedItems.brown_mushroom ?? 0;
   }
 
   tick(now) {
@@ -243,14 +226,12 @@ export class MinecraftWidget extends HTMLElement {
       if (this.keyboardPlotSelected && growth.actions.some(({ plot }) => plot.id === this.selectedId && plot.stage === MATURE_STAGE)) {
         this.status.textContent = 'Selected wheat ready to harvest.';
       }
-      this.update();
     }
     if (now - this.lastMergeAt >= 100 && now - this.state.lastInteractionAt < COLLECTION_IDLE_MS - MERGE_ANIMATION_MS) {
       this.lastMergeAt = now;
       const merges = mergeNearbyDrops(this.state, this.view.getDropPositions(), now);
       if (merges.length) {
         this.view.mergeDrops(merges, now, this.reducedMotion);
-        this.update();
         this.dispatchEvent(new CustomEvent('minecraft-merge', { detail: { mergedEntities: merges.length, pendingStacks: this.state.drops.length }, bubbles: true, composed: true }));
       }
     }
@@ -262,7 +243,6 @@ export class MinecraftWidget extends HTMLElement {
     const result = finishCollection(this.state, this.state.drops.map(drop => drop.id), now);
     if (result.type === 'collect') {
       this.view.removeDrops(result.drops.map(drop => drop.id));
-      this.update();
       this.status.textContent = 'Items collected.';
       this.dispatchEvent(new CustomEvent('minecraft-collect', { detail: { collectedCount: this.state.collectedCount, collectedSeeds: this.state.collectedSeeds, collectedItems: { ...this.state.collectedItems } }, bubbles: true, composed: true }));
     }

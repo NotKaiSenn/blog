@@ -474,15 +474,6 @@
       ]
     },
     {
-      "path": "block/dead_bush.png",
-      "source": "textures/block/dead_bush.png",
-      "sha256": "ed63c66ef4f4694d5e5ba4603576b0ca8bb45ea1ade4412d9b889d79ab4c38c2",
-      "size": [
-        16,
-        16
-      ]
-    },
-    {
       "path": "block/spruce_sapling.png",
       "source": "textures/block/spruce_sapling.png",
       "sha256": "8559ad02a8a73dc5f9b8bcb51f2eb26ddbb870e99736907a380f2487fe00ff74",

@@ -3,28 +3,16 @@ export const COLLECTION_IDLE_MS = 3000;
 export const PICKUP_DURATION_MS = 150;
 export const PATCH_RADIUS = 1.05;
 
-const INITIAL_STAGES = [0, 4, 7, 6, 7, 3];
-
-export function createFarmState(now = 0, layout) {
-  const plots = layout ? layout.map(plot => ({ ...plot, id: `${plot.x}:${plot.z}` })) : [0, 1].flatMap((z, row) =>
-    Array.from({ length: 3 }, (_, column) => {
-      const x = column + 1;
-      return { id: `${x}:${z}`, x, z, stage: INITIAL_STAGES[row * 3 + column] };
-    }),
-  );
-
+export function createFarmState(now = 0, layout = []) {
   return {
-    plots,
-    initialPlots: plots.map(plot => ({ ...plot })),
+    plots: layout.map(plot => ({ ...plot, id: `${plot.x}:${plot.z}` })),
     drops: [],
     collectedCount: 0,
     collectedSeeds: 0,
     collectedItems: {},
-    totalHarvested: 0,
     nextDropId: 1,
     lastInteractionAt: now,
     lastGrowthAt: now,
-    collectingAt: null,
   };
 }
 
@@ -86,15 +74,7 @@ function advancePlot(state, plot, now, growth) {
     collectingAt: null,
   }));
   state.drops.push(...drops);
-  state.totalHarvested += 1;
-  return { type: 'harvest', plot, drops, drop: drops[0] };
-}
-
-export function interactWithPlot(state, plotIdOrIndex, now = 0) {
-  const plot = findPlot(state, plotIdOrIndex);
-  if (!plot) return { type: 'noop' };
-  recordInteraction(state, now);
-  return advancePlot(state, plot, now, 1);
+  return { type: 'harvest', plot, drops };
 }
 
 export function getPatchPlots(state, plotIdOrIndex, center) {
@@ -135,8 +115,7 @@ export function beginCollection(state, now) {
   if (!drops.length) return { type: 'noop' };
 
   for (const drop of drops) drop.collectingAt = now;
-  state.collectingAt ??= now;
-  return { type: 'collect-start', drops, dropIds: drops.map((drop) => drop.id), startedAt: now };
+  return { type: 'collect-start', drops, dropIds: drops.map((drop) => drop.id) };
 }
 
 export function collectDrop(state, dropId, now) {
@@ -152,16 +131,7 @@ export function collectDrop(state, dropId, now) {
   state.collectedItems[drop.kind] = (state.collectedItems[drop.kind] ?? 0) + count;
   if (drop.kind === 'wheat') state.collectedCount += count;
   else if (drop.kind === 'seeds') state.collectedSeeds += count;
-  state.collectingAt = state.drops.reduce((earliest, candidate) => {
-    if (candidate.collectingAt === null) return earliest;
-    return earliest === null ? candidate.collectingAt : Math.min(earliest, candidate.collectingAt);
-  }, null);
-  return {
-    type: 'collect',
-    drop,
-    collectedCount: state.collectedCount,
-    collectedSeeds: state.collectedSeeds,
-  };
+  return { type: 'collect', drop };
 }
 
 export function finishCollection(state, dropIds, now) {
@@ -171,11 +141,4 @@ export function finishCollection(state, dropIds, now) {
     if (result.type === 'collect') drops.push(result.drop);
   }
   return drops.length ? { type: 'collect', drops } : { type: 'noop' };
-}
-
-export function resetFarmState(state, now = 0) {
-  // Keep IDs monotonic so an old animation cannot collect a new harvest after reset.
-  const nextDropId = state.nextDropId;
-  Object.assign(state, createFarmState(now, state.initialPlots), { nextDropId });
-  return state;
 }

@@ -51,18 +51,19 @@ export class FarmRenderer {
 
   async initialize(state) {
     const loader = new THREE.TextureLoader();
+    const hasCrops = state.plots.length > 0;
     const paths = [...new Set([
-      'block/dirt', 'block/grass_block_top', 'block/grass_block_side', 'block/grass_block_side_overlay',
-      'colormap/grass', 'block/farmland_moist', 'block/water_still',
-      'item/wheat', 'item/wheat_seeds', ...this.season.textures,
-      ...Array.from({ length: 8 }, (_, i) => `block/wheat_stage${i}`),
+      'block/dirt', ...this.season.textures,
+      ...(this.seasonId === 'winter' ? [] : ['block/grass_block_top', 'block/grass_block_side', 'block/grass_block_side_overlay', 'colormap/grass']),
+      ...(this.seasonId === 'autumn' ? [] : ['block/water_still']),
+      ...(hasCrops ? ['block/farmland_moist', 'item/wheat', 'item/wheat_seeds', ...Array.from({ length: 8 }, (_, i) => `block/wheat_stage${i}`)] : []),
     ])];
     const requests = paths.map(async path => {
       const texture = configureTexture(await loader.loadAsync(this.assetURL(`${path}.png`)));
       if (this.disposed) { texture.dispose(); return; }
       this.textures[path] = this.own(texture);
     });
-    const modelNames = ['crop', ...(this.seasonId === 'winter' ? ['campfire', 'campfire_off', 'template_campfire'] : []), ...(this.seasonId === 'autumn' ? ['template_leaf_litter_1', 'template_leaf_litter_2', 'template_leaf_litter_3', 'template_leaf_litter_4'] : [])];
+    const modelNames = [...(hasCrops ? ['crop'] : []), ...(this.seasonId === 'winter' ? ['campfire', 'campfire_off', 'template_campfire'] : []), ...(this.seasonId === 'autumn' ? ['template_leaf_litter_1', 'template_leaf_litter_2', 'template_leaf_litter_3', 'template_leaf_litter_4'] : [])];
     const modelRequest = Promise.all(modelNames.map(async name => {
       const response = await fetch(this.assetURL(`models/block/${name}.json`));
       if (!response.ok) throw new Error(`Block model unavailable: ${name}`);
@@ -74,19 +75,17 @@ export class FarmRenderer {
     if (this.disposed) return;
     this.blockModels = results.at(-1).value;
     this.cropModel = this.blockModels.crop;
-    this.prepareMaterials();
+    this.prepareMaterials(hasCrops);
     this.scenery = buildSeasonScenery(this, this.seasonId, state);
-    this.buildPlants(state);
-    this.itemTemplates = {
-      wheat: this.generatedItem(this.textures['item/wheat']),
-      seeds: this.generatedItem(this.textures['item/wheat_seeds']),
-    };
-    if (this.textures['item/melon_slice']) this.itemTemplates.melon = this.generatedItem(this.textures['item/melon_slice']);
-    for (const [kind, path] of Object.entries({ sugar_cane: 'item/sugar_cane', red_mushroom: 'block/red_mushroom', brown_mushroom: 'block/brown_mushroom' })) {
+    if (hasCrops) this.buildPlants(state);
+    this.itemTemplates = {};
+    for (const [kind, path] of Object.entries({ wheat: 'item/wheat', seeds: 'item/wheat_seeds', melon: 'item/melon_slice', sugar_cane: 'item/sugar_cane', red_mushroom: 'block/red_mushroom', brown_mushroom: 'block/brown_mushroom' })) {
       if (this.textures[path]) this.itemTemplates[kind] = this.generatedItem(this.textures[path]);
     }
-    this.itemShadowGeometry = this.own(new THREE.CircleGeometry(.16, 12));
-    this.itemShadowMaterial = this.own(new THREE.MeshBasicMaterial({ color: '#17170d', transparent: true, opacity: .17, depthWrite: false }));
+    if (Object.keys(this.itemTemplates).length) {
+      this.itemShadowGeometry = this.own(new THREE.CircleGeometry(.16, 12));
+      this.itemShadowMaterial = this.own(new THREE.MeshBasicMaterial({ color: '#17170d', transparent: true, opacity: .17, depthWrite: false }));
+    }
     this.resize();
     this.ready = true;
     this.render(performance.now());
@@ -96,14 +95,18 @@ export class FarmRenderer {
     return this.own(new THREE.MeshBasicMaterial({ map, color: new THREE.Color().setScalar(brightness), alphaTest: .1, ...extra }));
   }
 
-  prepareMaterials() {
-    const grass = createGrassCanvases(this.textures, this.season.grassClimate);
-    this.grassTint = grass.tint;
-    const top = this.own(configureTexture(new THREE.CanvasTexture(grass.top)));
-    const side = this.own(configureTexture(new THREE.CanvasTexture(grass.side)));
-    this.grassMaterials = [.6, .6, 1, .5, .8, .8].map((shade, i) => this.material(i === 2 ? top : i === 3 ? this.textures['block/dirt'] : side, shade));
-    this.farmMaterials = [.6, .6, 1, .5, .8, .8].map((shade, i) => this.material(this.textures[i === 2 ? 'block/farmland_moist' : 'block/dirt'], shade));
-    this.cropMaterials = Array.from({ length: 8 }, (_, i) => this.material(this.textures[`block/wheat_stage${i}`], 1, { side: THREE.DoubleSide }));
+  prepareMaterials(hasCrops) {
+    if (this.seasonId !== 'winter') {
+      const grass = createGrassCanvases(this.textures, this.season.grassClimate);
+      this.grassTint = grass.tint;
+      const top = this.own(configureTexture(new THREE.CanvasTexture(grass.top)));
+      const side = this.own(configureTexture(new THREE.CanvasTexture(grass.side)));
+      this.grassMaterials = [.6, .6, 1, .5, .8, .8].map((shade, i) => this.material(i === 2 ? top : i === 3 ? this.textures['block/dirt'] : side, shade));
+    }
+    if (hasCrops) {
+      this.farmMaterials = [.6, .6, 1, .5, .8, .8].map((shade, i) => this.material(this.textures[i === 2 ? 'block/farmland_moist' : 'block/dirt'], shade));
+      this.cropMaterials = Array.from({ length: 8 }, (_, i) => this.material(this.textures[`block/wheat_stage${i}`], 1, { side: THREE.DoubleSide }));
+    }
   }
 
   buildPlants(state) {
@@ -122,7 +125,6 @@ export class FarmRenderer {
         const mesh = new THREE.Mesh(geometry, this.cropMaterials[plot.stage]);
         mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
         if (alongZ) mesh.rotation.y = Math.PI / 2;
-        mesh.userData.plotId = plot.id;
         group.add(mesh);
       }
       this.plots.set(plot.id, group); this.scene.add(group);

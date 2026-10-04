@@ -1,17 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { createCampfire } from './vanilla-campfire.mjs';
 
 const modelNames = ['campfire', 'campfire_off', 'template_campfire'];
 const textureNames = ['campfire_log', 'campfire_log_lit', 'campfire_fire'];
-const assetPaths = [
-  ...modelNames.map(name => `models/block/${name}.json`),
-  ...textureNames.map(name => `block/${name}.png`),
-];
-const hasLocalAssets = assetPaths.every(path => existsSync(new URL(`./assets/${path}`, import.meta.url)));
-const assetTestOptions = { skip: hasLocalAssets ? false : 'Local Minecraft assets are not installed' };
 
 function fixture() {
   const draws = [];
@@ -39,7 +33,7 @@ function fixture() {
   };
 }
 
-test('campfire uses the log end UV region and rotated bark strips, with correctly rescaled flame planes', assetTestOptions, () => {
+test('campfire uses the log end UV region and rotated bark strips, with correctly rescaled flame planes', () => {
   const { fire, cleanup } = fixture();
   try {
     const [on, off] = fire.group.children;
@@ -63,7 +57,7 @@ test('campfire uses the log end UV region and rotated bark strips, with correctl
   } finally { cleanup(); }
 });
 
-test('switching a campfire preserves one low selection box and freezes animation when unlit', assetTestOptions, () => {
+test('switching a campfire preserves one low selection box and freezes animation when unlit', () => {
   const { view, fire, draws, cleanup } = fixture();
   try {
     const [on, off] = fire.group.children;

@@ -6,7 +6,7 @@ const assetBase = publicAssets
   ? `${publicAssets.replace(/\/+$/, '')}/`
   : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/minecraft-widget/assets/`;
 ---
-<minecraft-season-picker data-season="spring">
+<minecraft-season-picker>
     <minecraft-widget season="spring" asset-base={assetBase}></minecraft-widget>
     <div class="minecraft-seasons" role="group" aria-label="Season" lang="en">
       <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" /></button>
