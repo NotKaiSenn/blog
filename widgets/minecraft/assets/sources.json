@@ -3,7 +3,7 @@
   "repository": "https://github.com/InventivetalentDev/minecraft-assets",
   "revision": "58d92c8cee4c7ac22d02988fb2bc3e4648af9ef2",
   "sourceBaseUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/58d92c8cee4c7ac22d02988fb2bc3e4648af9ef2/assets/minecraft/",
-  "rights": "Local Minecraft reference assets © Mojang AB / Microsoft. These files are excluded from source distributions. This manifest records provenance and grants no redistribution rights.",
+  "rights": "Minecraft textures, models and sounds © Mojang AB / Microsoft. These assets are not covered by the MIT-0 code license. This manifest records their sources and checksums; see NOTICE for terms and usage guidelines.",
   "files": [
     {
       "path": "block/dirt.png",
@@ -162,11 +162,6 @@
       "path": "models/block/crop.json",
       "source": "models/block/crop.json",
       "sha256": "d078de149252e74ddbfa19c80300f9e627a44913266664a1b08dd25d3f558f18"
-    },
-    {
-      "path": "block/water_still.png.mcmeta",
-      "source": "textures/block/water_still.png.mcmeta",
-      "sha256": "e9b8025fde1b09b0a4d2a38427b04f98f28a593045be6d177eb2b29164c872b0"
     },
     {
       "path": "block/cherry_log.png",
@@ -421,16 +416,6 @@
       ]
     },
     {
-      "path": "block/campfire_fire.png.mcmeta",
-      "source": "textures/block/campfire_fire.png.mcmeta",
-      "sha256": "e9b8025fde1b09b0a4d2a38427b04f98f28a593045be6d177eb2b29164c872b0"
-    },
-    {
-      "path": "block/campfire_log_lit.png.mcmeta",
-      "source": "textures/block/campfire_log_lit.png.mcmeta",
-      "sha256": "4df0a0cf1fbc9319ebe93ad90d934f50e997a99216340d41ea95c175ec26bcba"
-    },
-    {
       "path": "models/block/campfire.json",
       "source": "models/block/campfire.json",
       "sha256": "c426e97ea0884dc323b1ee529e67b5c8dcf153c4420b7ec1f5c9117caf7ba2d3"
@@ -519,11 +504,6 @@
       "path": "models/block/template_campfire.json",
       "source": "models/block/template_campfire.json",
       "sha256": "32b951b70c8a7a120eecc4f2ade5cece0374440c080f8265039659170ecf48dc"
-    },
-    {
-      "path": "models/block/block.json",
-      "source": "models/block/block.json",
-      "sha256": "3ef6c442f1ab55d2a57fa58e28bb831268159052659f12b453b637b31ded1da8"
     },
     {
       "path": "particle/cherry_0.png",

@@ -250,7 +250,7 @@ export function createBreakableIce(view, {
       onSurfaceChange?.({ x: cx, z: cz, height: WATER_TOP, frozen: false });
       if (!reducedMotion) emit(cx, cz, now);
       tick(now, reducedMotion);
-      return { type: 'ice', broken: { x: cx, z: cz }, message: '敲碎一块冰，露出了下面的水。' };
+      return { type: 'ice', broken: { x: cx, z: cz }, message: 'Ice broken.' };
     },
     tick,
   };

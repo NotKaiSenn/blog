@@ -9,7 +9,7 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
       <MinecraftWidget />
     </minecraft-season-items>
   </div>
-  <p class="work-note"><a href="https://github.com/NotKaiSenn/blog/tree/Minecraft%E7%9A%84%E5%B0%8F%E7%BB%84%E4%BB%B6/widgets/minecraft">github.com/NotKaiSenn/blog ↗</a></p>
+  <p class="work-note"><a href="https://github.com/NotKaiSenn/blog/tree/minecraft-widget/widgets/minecraft">github.com/NotKaiSenn/blog ↗</a></p>
 </SiteLayout>
 
 <script>
@@ -27,8 +27,7 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
   .minecraft-showcase :global(.minecraft-season-panel::before),
   .minecraft-showcase :global(.minecraft-season-panel::after),
   .minecraft-showcase :global(.minecraft-rift-fragments) { display: none; }
-  .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget),
-  .minecraft-showcase :global(.minecraft-season-panel > .minecraft-preview) {
+  .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget) {
     width: 340px;
     max-width: 100%;
     margin-inline: auto;
@@ -80,8 +79,7 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
   .work-note { margin-top: 36px; color: var(--muted); font-size: .75rem; text-align: center; }
   @media (max-width: 540px) {
     .minecraft-showcase { width: calc(100% + 28px); max-width: none; margin-inline: -14px; }
-    .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget),
-    .minecraft-showcase :global(.minecraft-season-panel > .minecraft-preview) {
+    .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget) {
       width: 77.2727%;
       max-width: 340px;
     }

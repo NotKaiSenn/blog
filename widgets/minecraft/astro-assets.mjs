@@ -1,4 +1,5 @@
-import { copyFile, mkdir, readFile, realpath, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { copyFile, mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,6 +57,23 @@ export default function minecraftAssets() {
         const destination = new URL('minecraft-widget/', dir);
         await mkdir(destination, { recursive: true });
         await Promise.all(notices.map(name => copyFile(new URL(name, import.meta.url), new URL(name, destination))));
+        const root = await realpath(fileURLToPath(assets));
+        const manifest = JSON.parse(await readFile(new URL('sources.json', assets), 'utf8'));
+        const assetDirectory = new URL('assets/', destination);
+        await Promise.all(manifest.files.map(async ({ path, sha256 }) => {
+          const source = resolve(root, path);
+          if (!isInside(root, source)) throw new Error(`Invalid Minecraft asset path: ${path}`);
+          const file = await realpath(source);
+          if (!isInside(root, file)) throw new Error(`Invalid Minecraft asset path: ${path}`);
+          const content = await readFile(file);
+          if (createHash('sha256').update(content).digest('hex') !== sha256) {
+            throw new Error(`Minecraft asset checksum mismatch: ${path}`);
+          }
+          const target = resolve(fileURLToPath(assetDirectory), path);
+          await mkdir(resolve(target, '..'), { recursive: true });
+          await writeFile(target, content);
+        }));
+        await copyFile(new URL('sources.json', assets), new URL('sources.json', assetDirectory));
       },
     },
   };

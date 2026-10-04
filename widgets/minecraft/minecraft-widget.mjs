@@ -25,16 +25,15 @@ export class MinecraftWidget extends HTMLElement {
     this.lastMergeAt = 0;
     this.visible = true;
     this.generation = 0;
-    this.shadowRoot.innerHTML = `<style>${style}</style><div class="world">
-      <canvas tabindex="0" role="application" aria-label="小天地"></canvas>
-      <ol class="sr-only plots" aria-label="麦田生长状态"></ol>
+    this.shadowRoot.innerHTML = `<style>${style}</style><div class="world" lang="en">
+      <canvas tabindex="0" role="application" aria-label="Minecraft scene" aria-describedby="controls"></canvas>
+      <span class="sr-only" id="controls"></span>
       <span class="sr-only status" role="status" aria-live="polite" aria-atomic="true"></span>
       <div class="sr-only scene-actions"><button class="scene-action primary-action" type="button" hidden></button></div>
-      <span class="error" hidden>场景加载失败，请刷新重试。</span>
+      <span class="error" hidden>Scene unavailable. Refresh to retry.</span>
     </div>`;
     this.canvas = this.shadowRoot.querySelector('canvas');
     this.status = this.shadowRoot.querySelector('.status');
-    this.plotElements = new Map();
   }
 
   async connectedCallback() {
@@ -49,16 +48,8 @@ export class MinecraftWidget extends HTMLElement {
       this.seasonId = Object.hasOwn(SEASONS, requestedSeason) ? requestedSeason : 'spring';
       this.season = SEASONS[this.seasonId];
       this.state = createFarmState(performance.now(), this.season.plots);
-      const list = this.shadowRoot.querySelector('.plots');
-      list.replaceChildren();
-      list.hidden = this.state.plots.length === 0;
-      this.plotElements = new Map(this.state.plots.map(plot => {
-        const element = document.createElement('li');
-        element.dataset.plotId = plot.id;
-        list.append(element);
-        return [plot.id, element];
-      }));
-      this.canvas.setAttribute('aria-label', `${this.season.label}季 Minecraft 小天地。${this.season.actionLabel}。点击场景中的物件或按回车操作。${this.season.autoGrowMs ? '小麦会自动生长，方向键选择麦田，回车收获。' : ''}掉落物停止操作三秒后自动收集。`);
+      this.canvas.setAttribute('aria-label', `${this.season.label} Minecraft scene`);
+      this.shadowRoot.querySelector('#controls').textContent = `Enter to ${this.season.actionLabel.toLowerCase()}.${this.state.plots.length ? ' Arrow keys select wheat.' : ''}${this.season.actions?.length ? ' Tab for more actions.' : ''}`;
       const sceneAction = this.shadowRoot.querySelector('.primary-action');
       sceneAction.hidden = false;
       sceneAction.textContent = this.season.actionLabel;
@@ -166,7 +157,9 @@ export class MinecraftWidget extends HTMLElement {
       if (!selected) return;
       this.keyboardPlotSelected = true;
       const next = this.state.plots.find(p => p.x === selected.x + delta[0] && p.z === selected.z + delta[1]);
-      this.select(next?.id ?? selected.id);
+      const plot = next ?? selected;
+      this.select(plot.id);
+      this.status.textContent = `Wheat ${this.state.plots.indexOf(plot) + 1}: ${plot.stage === MATURE_STAGE ? 'ready to harvest' : 'growing'}.`;
       this.schedule();
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -191,8 +184,8 @@ export class MinecraftWidget extends HTMLElement {
     if (patch.drops.length) {
       this.audio?.playBreak('crop');
       this.view.spawnDrops(patch.drops, now);
-      this.status.textContent = `收获范围内 ${patch.actions.filter(action => action.type === 'harvest').length} 块成熟小麦。同类掉落物会自动合并，停止操作三秒后收集。`;
-    } else this.status.textContent = `附近 ${patch.actions.length} 块小麦长大了，点击成熟的小麦即可收获。`;
+      this.status.textContent = 'Wheat harvested.';
+    } else this.status.textContent = patch.plot.stage === MATURE_STAGE ? 'Wheat ready to harvest.' : 'Wheat growing.';
     this.update();
     this.schedule();
     this.dispatchEvent(new CustomEvent('minecraft-interact', { detail: { type: patch.drops.length ? 'harvest' : 'grow', plotId: id, stage: patch.plot.stage, affectedPlotIds: patch.affectedPlotIds }, bubbles: true, composed: true }));
@@ -203,7 +196,7 @@ export class MinecraftWidget extends HTMLElement {
     if (actionId === 'spring:wheat') {
       const ripe = this.state.plots.find(plot => plot.stage === MATURE_STAGE);
       if (ripe) this.interact(ripe.id);
-      else this.status.textContent = '小麦正在自然生长。';
+      else this.status.textContent = 'Wheat growing.';
       return;
     }
     const now = performance.now();
@@ -231,11 +224,6 @@ export class MinecraftWidget extends HTMLElement {
   }
 
   update() {
-    for (const plot of this.state.plots) {
-      const element = this.plotElements.get(plot.id);
-      element.dataset.stage = plot.stage;
-      element.textContent = `第 ${plot.z + 1} 排第 ${plot.x} 块：${plot.stage === MATURE_STAGE ? '已成熟' : `生长阶段 ${plot.stage + 1}/8`}`;
-    }
     this.dataset.pendingItems = this.state.drops.reduce((count, drop) => count + drop.count, 0);
     this.dataset.pendingStacks = this.state.drops.length;
     this.dataset.collected = this.state.collectedCount;
@@ -252,6 +240,9 @@ export class MinecraftWidget extends HTMLElement {
     const growth = growNaturally(this.state, now, this.season?.autoGrowMs);
     if (growth.type === 'grow') {
       for (const action of growth.actions) this.view.updatePlot(action.plot);
+      if (this.keyboardPlotSelected && growth.actions.some(({ plot }) => plot.id === this.selectedId && plot.stage === MATURE_STAGE)) {
+        this.status.textContent = 'Selected wheat ready to harvest.';
+      }
       this.update();
     }
     if (now - this.lastMergeAt >= 100 && now - this.state.lastInteractionAt < COLLECTION_IDLE_MS - MERGE_ANIMATION_MS) {
@@ -272,8 +263,7 @@ export class MinecraftWidget extends HTMLElement {
     if (result.type === 'collect') {
       this.view.removeDrops(result.drops.map(drop => drop.id));
       this.update();
-      const names = { wheat: '小麦', seeds: '种子', melon: '西瓜片', sugar_cane: '甘蔗', red_mushroom: '红蘑菇', brown_mushroom: '棕蘑菇' };
-      this.status.textContent = `已收集${Object.entries(this.state.collectedItems).map(([kind, count]) => `${count} 份${names[kind] ?? kind}`).join('、')}。`;
+      this.status.textContent = 'Items collected.';
       this.dispatchEvent(new CustomEvent('minecraft-collect', { detail: { collectedCount: this.state.collectedCount, collectedSeeds: this.state.collectedSeeds, collectedItems: { ...this.state.collectedItems } }, bubbles: true, composed: true }));
     }
     this.draw(now);

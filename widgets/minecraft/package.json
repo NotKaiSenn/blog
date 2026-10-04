@@ -18,7 +18,7 @@
     "*.mjs",
     "*.css",
     "index.html",
-    "assets/sources.json",
+    "assets/",
     "LICENSE",
     "NOTICE",
     "README.md"

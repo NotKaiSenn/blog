@@ -1,26 +1,21 @@
 ---
-import minecraftCover from '../assets/works/minecraftwidget.png';
 import '../../widgets/minecraft/season-picker.css';
 
 const publicAssets = import.meta.env.PUBLIC_MINECRAFT_WIDGET_ASSET_BASE?.trim();
 const assetBase = publicAssets
   ? `${publicAssets.replace(/\/+$/, '')}/`
-  : import.meta.env.DEV ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}/minecraft-widget/assets/` : undefined;
+  : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/minecraft-widget/assets/`;
 ---
-{assetBase ? <minecraft-season-picker class="minecraft-season-panel" data-season="spring">
+<minecraft-season-picker class="minecraft-season-panel" data-season="spring">
     <span class="minecraft-rift-fragments" aria-hidden="true"></span>
     <minecraft-widget season="spring" asset-base={assetBase}></minecraft-widget>
-    <div class="minecraft-seasons" role="group" aria-label="季节">
-      <button type="button" data-season="spring" aria-label="春季" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="summer" aria-label="夏季" aria-pressed="false"><img src={`${assetBase}item/melon_slice.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="autumn" aria-label="秋季" aria-pressed="false"><img src={`${assetBase}block/brown_mushroom.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="winter" aria-label="冬季" aria-pressed="false"><img src={`${assetBase}block/spruce_sapling.png`} width="32" height="32" alt="" draggable="false" /></button>
+    <div class="minecraft-seasons" role="group" aria-label="Season" lang="en">
+      <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" /></button>
+      <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src={`${assetBase}item/melon_slice.png`} width="32" height="32" alt="" draggable="false" /></button>
+      <button type="button" data-season="autumn" aria-label="Autumn" aria-pressed="false"><img src={`${assetBase}block/brown_mushroom.png`} width="32" height="32" alt="" draggable="false" /></button>
+      <button type="button" data-season="winter" aria-label="Winter" aria-pressed="false"><img src={`${assetBase}block/spruce_sapling.png`} width="32" height="32" alt="" draggable="false" /></button>
     </div>
-  </minecraft-season-picker>
-  : <div class="minecraft-season-panel">
-      <span class="minecraft-rift-fragments" aria-hidden="true"></span>
-      <img class="minecraft-preview" src={minecraftCover.src} alt="小天地的春季场景" width={minecraftCover.width} height={minecraftCover.height} decoding="async" />
-    </div>}
+</minecraft-season-picker>
 
 <script>
   function loadWidget() {

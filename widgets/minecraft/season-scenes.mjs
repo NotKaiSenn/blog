@@ -10,32 +10,32 @@ const commonTextures = ['block/stone'];
 
 export const SEASONS = {
   spring: {
-    label: '春', grassClimate: { temperature: .7, downfall: .8 }, waterTint: '#3685eb',
-    actionId: 'spring:wheat', actionLabel: '收获成熟的小麦',
+    label: 'Spring', grassClimate: { temperature: .7, downfall: .8 }, waterTint: '#3685eb',
+    actionId: 'spring:wheat', actionLabel: 'Harvest wheat',
     cameraTarget: [1.6, .62, 1.1], halfHeight: 3.05,
     plots: [{ x: 2, z: 1, stage: 2 }, { x: 2, z: 2, stage: 4 }], autoGrowMs: 2600,
     textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.spring, 'block/cherry_log', 'block/cherry_log_top', 'block/cherry_leaves', 'block/pink_petals', 'block/oxeye_daisy', 'block/azure_bluet', 'block/fern'],
   },
   summer: {
-    label: '夏', grassClimate: { temperature: .95, downfall: .9 }, waterTint: '#258dec',
-    actionId: 'summer:melon', actionLabel: '摘一颗西瓜',
-    actions: [{ id: 'summer:cane', label: '收获甘蔗' }, { id: 'summer:fish', label: '让鳕鱼游到另一边' }],
+    label: 'Summer', grassClimate: { temperature: .95, downfall: .9 }, waterTint: '#258dec',
+    actionId: 'summer:melon', actionLabel: 'Pick melon',
+    actions: [{ id: 'summer:cane', label: 'Harvest sugar cane' }, { id: 'summer:fish', label: 'Nudge fish' }],
     cameraTarget: [1.9, .58, 1.3], halfHeight: 2.85,
     plots: [],
     textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.summer, 'block/melon_side', 'block/melon_top', 'item/melon_slice', 'block/sand', 'block/lily_pad', 'block/sugar_cane', 'item/sugar_cane', 'entity/fish/cod', 'block/cornflower', 'block/oxeye_daisy'],
   },
   autumn: {
-    label: '秋', grassClimate: { temperature: .8, downfall: .4 }, waterTint: '#3f76e4',
-    actionId: 'autumn:pumpkin', actionLabel: '点亮或熄灭南瓜灯',
-    actions: [{ id: 'autumn:mushroom', label: '采一朵蘑菇' }],
+    label: 'Autumn', grassClimate: { temperature: .8, downfall: .4 }, waterTint: '#3f76e4',
+    actionId: 'autumn:pumpkin', actionLabel: 'Toggle pumpkin light',
+    actions: [{ id: 'autumn:mushroom', label: 'Pick mushroom' }],
     cameraTarget: [1.9, .3, 1.4], halfHeight: 2.7,
     plots: [],
     textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.autumn, 'colormap/dry_foliage', 'block/leaf_litter', 'block/coarse_dirt', 'block/oak_log', 'block/oak_log_top', 'block/pumpkin_side', 'block/pumpkin_top', 'block/carved_pumpkin', 'block/jack_o_lantern', 'block/dead_bush', 'block/fern', 'block/mossy_cobblestone', 'block/brown_mushroom', 'block/red_mushroom'],
   },
   winter: {
-    label: '冬', grassClimate: { temperature: .25, downfall: .8 }, waterTint: '#286be9',
-    actionId: 'winter:campfire', actionLabel: '点燃或熄灭营火',
-    actions: [{ id: 'winter:ice', label: '敲碎一块冰' }],
+    label: 'Winter', grassClimate: { temperature: .25, downfall: .8 }, waterTint: '#286be9',
+    actionId: 'winter:campfire', actionLabel: 'Toggle campfire',
+    actions: [{ id: 'winter:ice', label: 'Break ice' }],
     cameraTarget: [2.15, .38, 1.15], halfHeight: 3.05,
     plots: [],
     textures: [...commonTextures, ...SEASON_PARTICLE_TEXTURES.winter, 'block/spruce_log', 'block/spruce_log_top', 'block/spruce_leaves', 'block/spruce_sapling', 'block/snow', 'block/grass_block_snow', 'block/ice', 'block/coarse_dirt', 'block/campfire_log', 'block/campfire_log_lit', 'block/campfire_fire'],
@@ -278,18 +278,18 @@ export function buildSeasonScenery(view, seasonId, state) {
     let nextMelon = 0;
     interact = (id, now) => {
       if (id === 'summer:cane') {
-        if (caneRegrowAt) return { type: 'cane', message: '保留根部，甘蔗正在重新长高。' };
+        if (caneRegrowAt) return { type: 'cane', message: 'Sugar cane growing.' };
         for (const segment of caneSegments) {
           segment.group.visible = false;
           view.pickables.splice(view.pickables.indexOf(segment.group.userData.hit), 1);
           segment.regrowAt = now + 4200 + (segment.height - 1) * 2200;
         }
         caneRegrowAt = now + 6400;
-        return { type: 'cane', message: '收下两节甘蔗，根部会一节节重新长高。', drops: caneSegments.map(segment => ({ kind: 'sugar_cane', count: 1, x: 3, z: 1, y: segment.height + .05 })) };
+        return { type: 'cane', message: 'Sugar cane harvested.', drops: caneSegments.map(segment => ({ kind: 'sugar_cane', count: 1, x: 3, z: 1, y: segment.height + .05 })) };
       }
       if (id === 'summer:fish') {
         fish.flee(now);
-        return { type: 'fish', message: '鳕鱼摆着尾巴游到了池塘另一边。' };
+        return { type: 'fish', message: 'Fish moved.' };
       }
       let index;
       if (id === actionId) index = [nextMelon, (nextMelon + 1) % melons.length].find(candidate => !melons[candidate].regrowAt);
@@ -304,7 +304,7 @@ export function buildSeasonScenery(view, seasonId, state) {
       view.pickables.splice(view.pickables.indexOf(melon), 1);
       fruit.regrowAt = now + 2200;
       nextMelon = (index + 1) % melons.length;
-      return { type: 'melon', message: '摘下西瓜，瓜藤还会长出新的。', x: Math.floor(melon.position.x), z: Math.floor(melon.position.z) };
+      return { type: 'melon', message: 'Melon picked.', x: Math.floor(melon.position.x), z: Math.floor(melon.position.z) };
     };
     updateScenery = (now, reducedMotion) => {
       fish.tick(now, reducedMotion);
@@ -384,12 +384,12 @@ export function buildSeasonScenery(view, seasonId, state) {
         view.pickables.splice(view.pickables.indexOf(mushroom.group.userData.hit), 1);
         mushroom.regrowAt = now + 6500;
         nextMushroom = (index + 1) % mushrooms.length;
-        return { type: 'mushroom', message: '采下一朵蘑菇，林地还会长出新的。', drops: [{ kind: mushroom.kind, count: 1, x: mushroom.x, z: mushroom.z, y: mushroom.y + .18 }] };
+        return { type: 'mushroom', message: 'Mushroom picked.', drops: [{ kind: mushroom.kind, count: 1, x: mushroom.x, z: mushroom.z, y: mushroom.y + .18 }] };
       }
       if (id !== actionId) return null;
       lampLit = !lampLit;
       pumpkin.material = lampLit ? lit : carved;
-      return { type: 'pumpkin', message: lampLit ? '南瓜灯亮了。' : '南瓜灯熄灭了。', lit: lampLit };
+      return { type: 'pumpkin', message: lampLit ? 'Pumpkin light on.' : 'Pumpkin light off.', lit: lampLit };
     };
     updateScenery = now => {
       for (const mushroom of mushrooms) if (mushroom.regrowAt && now >= mushroom.regrowAt) {
@@ -427,7 +427,7 @@ export function buildSeasonScenery(view, seasonId, state) {
       }
       if (id !== actionId) return null;
       campfire.setLit(!campfire.lit);
-      return { type: 'campfire', message: campfire.lit ? '木柴重新燃起来了。' : '营火熄灭了。', lit: campfire.lit };
+      return { type: 'campfire', message: campfire.lit ? 'Campfire lit.' : 'Campfire out.', lit: campfire.lit };
     };
   }
 
