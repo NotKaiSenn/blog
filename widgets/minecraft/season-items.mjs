@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createGeneratedItemGeometry } from '../../widgets/minecraft/generated-item-geometry.mjs';
+import { createGeneratedItemGeometry } from './generated-item-geometry.mjs';
 
 export class MinecraftSeasonItems extends HTMLElement {
   generation = 0;

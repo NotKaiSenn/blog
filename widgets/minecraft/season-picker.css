@@ -1,69 +1,34 @@
-.minecraft-season-panel {
-  --rift-surface: #e0e6d9;
-  --rift-edge: #c2ccba;
-  --season-accent: #637851;
-  --rift-shape: polygon(24px 0, calc(100% - 44px) 0, calc(100% - 44px) 14px, calc(100% - 14px) 14px, calc(100% - 14px) 38px, 100% 38px, 100% calc(100% - 30px), calc(100% - 18px) calc(100% - 30px), calc(100% - 18px) 100%, 48px 100%, 48px calc(100% - 12px), 14px calc(100% - 12px), 14px calc(100% - 38px), 0 calc(100% - 38px), 0 24px, 24px 24px);
-  position: relative;
-  isolation: isolate;
-  display: block;
-  box-sizing: border-box;
-  width: 420px;
-  max-width: 100%;
-  margin-inline: auto;
-  padding: 12px 28px 6px;
-}
+minecraft-season-items { position: relative; display: block; }
 
-.minecraft-season-panel[data-season="summer"] { --rift-surface: #dde7e1; --rift-edge: #becdc3; --season-accent: #55796b; }
-.minecraft-season-panel[data-season="autumn"] { --rift-surface: #e9e2d4; --rift-edge: #d0c7b5; --season-accent: #94774b; }
-.minecraft-season-panel[data-season="winter"] { --rift-surface: #e0e7e7; --rift-edge: #becdce; --season-accent: #5e7c82; }
+minecraft-season-picker { display: flow-root; }
 
-.minecraft-season-panel::before,
-.minecraft-season-panel::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 82px 12px 52px;
-  clip-path: var(--rift-shape);
-  pointer-events: none;
-}
-
-.minecraft-season-panel::before { background: var(--rift-edge); transform: translateY(4px); }
-.minecraft-season-panel::after { background: var(--rift-surface); box-shadow: inset 0 2px #ffffff6b; }
-.minecraft-season-panel:not(minecraft-season-picker)::before,
-.minecraft-season-panel:not(minecraft-season-picker)::after { bottom: 0; }
-
-.minecraft-rift-fragments { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.minecraft-rift-fragments::before,
-.minecraft-rift-fragments::after { content: ""; position: absolute; background: var(--rift-edge); }
-.minecraft-rift-fragments::before { left: 0; bottom: 87px; width: 8px; height: 8px; box-shadow: -10px -18px 0 -2px var(--rift-surface), 22px 27px 0 -1px var(--rift-surface); }
-.minecraft-rift-fragments::after { right: 2px; top: 100px; width: 6px; height: 6px; box-shadow: 10px -12px 0 -1px var(--rift-surface); }
-
-.minecraft-season-panel > minecraft-widget,
-.minecraft-season-panel > .minecraft-preview {
+minecraft-season-picker > minecraft-widget {
   display: block;
   width: 340px;
   max-width: 100%;
-  height: auto;
   margin-inline: auto;
+  filter: drop-shadow(0 10px 9px rgb(52 67 42 / .17));
 }
 
 .minecraft-seasons {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: 208px;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  width: max-content;
   max-width: 100%;
-  gap: 8px;
-  margin: 10px 4px 0 auto;
+  margin: 40px auto 0;
 }
 
 .minecraft-seasons > button {
   position: relative;
+  z-index: 2;
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  min-width: 0;
-  height: 46px;
-  padding: 4px 4px 8px;
+  width: 48px;
+  height: 52px;
+  padding: 0;
+  flex: 0 0 auto;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -73,43 +38,45 @@
 
 .minecraft-seasons > button > img {
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   max-width: none;
   image-rendering: pixelated;
-  filter: saturate(.8) drop-shadow(0 2px 0 #48543a26);
   pointer-events: none;
   user-select: none;
+  transition: transform 180ms ease-out;
 }
 
 .minecraft-seasons > button::after {
   content: "";
   position: absolute;
-  bottom: 2px;
-  width: 12px;
-  height: 2px;
-  background: var(--season-accent);
-  opacity: 0;
+  bottom: 0;
+  width: 21px;
+  height: 6px;
+  border-radius: 50%;
+  background: #687059;
+  opacity: .17;
+  filter: blur(1px);
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
 }
 
+.minecraft-seasons > button:focus-visible { outline: 1px solid #667b4f; outline-offset: 1px; }
+.minecraft-seasons > button:focus-visible > img { transform: translateY(-5px) scale(1.1); }
+.minecraft-seasons > button:focus-visible::after { transform: scale(.85); opacity: .12; }
 @media (hover: hover) {
-  .minecraft-seasons > button:hover > img { filter: drop-shadow(0 2px 0 #48543a26); transform: translateY(-2px); }
-  .minecraft-seasons > button:hover::after { opacity: .3; }
+  .minecraft-seasons > button:hover > img { transform: translateY(-5px) scale(1.1); }
+  .minecraft-seasons > button:hover::after { transform: scale(.85); opacity: .12; }
 }
+.minecraft-seasons > button:active > img { transform: translateY(1px) scale(.94); transition-duration: 70ms; }
+.minecraft-seasons > button:active::after { transform: scale(.9); opacity: .25; transition-duration: 70ms; }
 
-.minecraft-seasons > button[aria-pressed="true"] > img { filter: drop-shadow(0 2px 0 #48543a26); transform: translateY(-2px); }
-.minecraft-seasons > button[aria-pressed="true"]::after { opacity: 1; }
-.minecraft-seasons > button:active > img { transform: translateY(0); }
-.minecraft-seasons > button:focus-visible { outline: 2px solid var(--season-accent); outline-offset: 1px; border-radius: 0; }
-
-@media (max-width: 440px) {
-  .minecraft-season-panel { padding-inline: 8px; }
-  .minecraft-season-panel::before, .minecraft-season-panel::after { inset-inline: 4px; top: 72px; }
-  .minecraft-seasons { margin-right: 10px; }
-  .minecraft-rift-fragments::before { left: 0; }
-  .minecraft-rift-fragments::after { right: 0; }
+@media (max-width: 540px) {
+  minecraft-season-picker > minecraft-widget { width: 77.2727%; max-width: 340px; }
+  .minecraft-seasons { gap: 24px; }
+  .minecraft-seasons > button { width: 44px; height: 48px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .minecraft-seasons > button > img { transform: none !important; }
+  .minecraft-seasons > button > img,
+  .minecraft-seasons > button::after { transition: none; }
 }

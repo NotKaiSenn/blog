@@ -10,6 +10,8 @@ npm run dev:widget
 npm run test:widget
 ```
 
+Open `http://127.0.0.1:4175/` while the dev server is running. The demo needs HTTP; opening `index.html` directly will not load its modules.
+
 The textures, models and sounds are included in `assets/`. Their sources and checksums are listed in `assets/sources.json`.
 
 The blog build copies them to `/minecraft-widget/assets/` and enables full interaction by default. No asset host configuration is needed. To use another host, set `PUBLIC_MINECRAFT_WIDGET_ASSET_BASE` to its base URL before building.
@@ -20,6 +22,6 @@ For other sites, copy `assets/` to `/minecraft-widget/assets/`, import `minecraf
 <minecraft-widget season="spring" asset-base="/minecraft-widget/assets/"></minecraft-widget>
 ```
 
-Use a bundler that resolves `three`. Seasons are `spring`, `summer`, `autumn`, and `winter`. `season-picker.mjs`, `season-picker.css`, and `index.html` show the optional season controls and panel.
+Use a bundler that resolves `three`. Seasons are `spring`, `summer`, `autumn`, and `winter`. `season-picker.mjs`, `season-items.mjs`, `season-picker.css`, and `index.html` show the optional season controls.
 
 Original code: MIT-0. Minecraft assets keep their original copyright and are not covered by the code license. See `NOTICE` for third-party terms and sources.

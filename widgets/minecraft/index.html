@@ -9,28 +9,27 @@
     <link rel="stylesheet" href="./season-picker.css" />
     <style>
       * { box-sizing: border-box; }
-      body { margin: 0; min-width: 240px; min-height: 100svh; background: #f6f5ef; color: #64685b; transition: background-color 400ms ease; }
-      body:has(minecraft-season-picker[data-season="summer"]) { background: #f5f5ee; }
-      body:has(minecraft-season-picker[data-season="autumn"]) { background: #f7f3ec; }
-      body:has(minecraft-season-picker[data-season="winter"]) { background: #f1f4f3; }
+      body { margin: 0; min-width: 280px; background: #f6f5ef; }
       main { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-height: 100svh; padding: 16px; }
-      @media (prefers-reduced-motion: reduce) { body { transition: none; } }
+      minecraft-season-items { width: 440px; max-width: 100%; }
     </style>
     <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
     <script type="module" src="./season-picker.mjs"></script>
+    <script type="module" src="./season-items.mjs"></script>
   </head>
-  <body data-season="spring">
+  <body>
     <main>
-      <minecraft-season-picker class="minecraft-season-panel" data-season="spring" lang="en">
-        <span class="minecraft-rift-fragments" aria-hidden="true"></span>
-        <minecraft-widget season="spring"></minecraft-widget>
-        <div class="minecraft-seasons" role="group" aria-label="Season">
-          <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src="./assets/block/oxeye_daisy.png" width="32" height="32" alt="" draggable="false" /></button>
-          <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src="./assets/item/melon_slice.png" width="32" height="32" alt="" draggable="false" /></button>
-          <button type="button" data-season="autumn" aria-label="Autumn" aria-pressed="false"><img src="./assets/block/brown_mushroom.png" width="32" height="32" alt="" draggable="false" /></button>
-          <button type="button" data-season="winter" aria-label="Winter" aria-pressed="false"><img src="./assets/block/spruce_sapling.png" width="32" height="32" alt="" draggable="false" /></button>
-        </div>
-      </minecraft-season-picker>
+      <minecraft-season-items>
+        <minecraft-season-picker data-season="spring" lang="en">
+          <minecraft-widget season="spring"></minecraft-widget>
+          <div class="minecraft-seasons" role="group" aria-label="Season">
+            <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src="./assets/block/oxeye_daisy.png" width="32" height="32" alt="" draggable="false" /></button>
+            <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src="./assets/item/melon_slice.png" width="32" height="32" alt="" draggable="false" /></button>
+            <button type="button" data-season="autumn" aria-label="Autumn" aria-pressed="false"><img src="./assets/block/brown_mushroom.png" width="32" height="32" alt="" draggable="false" /></button>
+            <button type="button" data-season="winter" aria-label="Winter" aria-pressed="false"><img src="./assets/block/spruce_sapling.png" width="32" height="32" alt="" draggable="false" /></button>
+          </div>
+        </minecraft-season-picker>
+      </minecraft-season-items>
     </main>
   </body>
 </html>
