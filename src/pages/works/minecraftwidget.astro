@@ -1,0 +1,95 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import MinecraftWidget from '../../components/MinecraftWidget.astro';
+---
+<SiteLayout title="壹方天地" description="一个可以互动的 Minecraft 四季小组件。" breadcrumbs={[{ label: '作品', href: '/works/' }, { label: '壹方天地' }]}>
+  <header class="page-heading detail-heading"><h1>壹方天地</h1></header>
+  <div class="minecraft-showcase">
+    <minecraft-season-items>
+      <MinecraftWidget />
+    </minecraft-season-items>
+  </div>
+  <p class="work-note"><a href="https://github.com/NotKaiSenn/blog/tree/Minecraft%E7%9A%84%E5%B0%8F%E7%BB%84%E4%BB%B6/widgets/minecraft">github.com/NotKaiSenn/blog ↗</a></p>
+</SiteLayout>
+
+<script>
+  function loadSeasonItems() {
+    if (document.querySelector('.minecraft-showcase minecraft-season-picker')) void import('../../scripts/minecraft-season-items.mjs');
+  }
+  loadSeasonItems();
+  document.addEventListener('astro:page-load', loadSeasonItems);
+</script>
+
+<style>
+  .minecraft-showcase { position: relative; isolation: isolate; width: 440px; max-width: 100%; margin-inline: auto; padding-top: 24px; }
+  minecraft-season-items { position: relative; display: block; }
+  .minecraft-showcase :global(.minecraft-season-panel) { display: contents; }
+  .minecraft-showcase :global(.minecraft-season-panel::before),
+  .minecraft-showcase :global(.minecraft-season-panel::after),
+  .minecraft-showcase :global(.minecraft-rift-fragments) { display: none; }
+  .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget),
+  .minecraft-showcase :global(.minecraft-season-panel > .minecraft-preview) {
+    width: 340px;
+    max-width: 100%;
+    margin-inline: auto;
+    filter: drop-shadow(0 10px 9px rgb(52 67 42 / .17));
+  }
+  .minecraft-showcase :global(.minecraft-seasons) {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    width: max-content;
+    max-width: 100%;
+    margin: 40px auto 0;
+  }
+  .minecraft-showcase :global(.minecraft-seasons > button) {
+    position: relative;
+    z-index: 2;
+    width: 48px;
+    height: 52px;
+    padding: 0;
+    flex: 0 0 auto;
+    background: transparent;
+  }
+  .minecraft-showcase :global(.minecraft-seasons > button > img) {
+    width: 30px;
+    height: 30px;
+    transform: none;
+    filter: none;
+    transition: transform 180ms ease-out;
+  }
+  .minecraft-showcase :global(.minecraft-seasons > button::after) {
+    bottom: 0;
+    width: 21px;
+    height: 6px;
+    border-radius: 50%;
+    background: #687059;
+    opacity: .17;
+    filter: blur(1px);
+    transition: transform 180ms ease-out, opacity 180ms ease-out;
+  }
+  .minecraft-showcase :global(.minecraft-seasons > button:focus-visible) { outline: 1px solid #667b4f; outline-offset: 1px; }
+  .minecraft-showcase :global(.minecraft-seasons > button:focus-visible > img) { transform: translateY(-5px) scale(1.1); }
+  .minecraft-showcase :global(.minecraft-seasons > button:focus-visible::after) { transform: scale(.85); opacity: .12; }
+  @media (hover: hover) {
+    .minecraft-showcase :global(.minecraft-seasons > button:hover > img) { transform: translateY(-5px) scale(1.1); }
+    .minecraft-showcase :global(.minecraft-seasons > button:hover::after) { transform: scale(.85); opacity: .12; }
+  }
+  .minecraft-showcase :global(.minecraft-seasons > button:active > img) { transform: translateY(1px) scale(.94); transition-duration: 70ms; }
+  .minecraft-showcase :global(.minecraft-seasons > button:active::after) { transform: scale(.9); opacity: .25; transition-duration: 70ms; }
+  .work-note { margin-top: 36px; color: var(--muted); font-size: .75rem; text-align: center; }
+  @media (max-width: 540px) {
+    .minecraft-showcase { width: calc(100% + 28px); max-width: none; margin-inline: -14px; }
+    .minecraft-showcase :global(.minecraft-season-panel > minecraft-widget),
+    .minecraft-showcase :global(.minecraft-season-panel > .minecraft-preview) {
+      width: 77.2727%;
+      max-width: 340px;
+    }
+    .minecraft-showcase :global(.minecraft-seasons) { gap: 24px; }
+    .minecraft-showcase :global(.minecraft-seasons > button) { width: 44px; height: 48px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .minecraft-showcase :global(.minecraft-seasons > button > img),
+    .minecraft-showcase :global(.minecraft-seasons > button::after) { transition: none; }
+  }
+</style>

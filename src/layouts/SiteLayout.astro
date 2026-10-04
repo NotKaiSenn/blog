@@ -19,7 +19,7 @@ const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const favicon = profile.favicon?.trim() ? imageSource(profile.favicon, 'Site icon') : '/favicon.svg';
 const isPosts = Astro.url.pathname.startsWith('/posts/');
-const isWorks = Astro.url.pathname === '/works/';
+const isWorks = Astro.url.pathname.startsWith('/works/');
 ---
 <!doctype html>
 <html lang="zh-CN" style="background-color:#f3f7f1;color-scheme:light">

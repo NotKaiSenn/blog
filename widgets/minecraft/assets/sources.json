@@ -1,0 +1,1558 @@
+{
+  "minecraftVersion": "Java Edition 1.21.4",
+  "repository": "https://github.com/InventivetalentDev/minecraft-assets",
+  "revision": "58d92c8cee4c7ac22d02988fb2bc3e4648af9ef2",
+  "sourceBaseUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/58d92c8cee4c7ac22d02988fb2bc3e4648af9ef2/assets/minecraft/",
+  "rights": "Local Minecraft reference assets © Mojang AB / Microsoft. These files are excluded from source distributions. This manifest records provenance and grants no redistribution rights.",
+  "files": [
+    {
+      "path": "block/dirt.png",
+      "source": "textures/block/dirt.png",
+      "sha256": "1f0f0e619e7dfe683ea45b9254859f14b0ed5f1debdb242ea878828575be5bf0",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/grass_block_top.png",
+      "source": "textures/block/grass_block_top.png",
+      "sha256": "52f44b64ce884a13dfe35e4b4da2e35898b790dd4d7a5ea536f1b0c0d56d29b4",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/grass_block_side.png",
+      "source": "textures/block/grass_block_side.png",
+      "sha256": "ab572ac7ebd373abdeb961de1f3cba0afcd91e1acb700745ece4f719790bae3d",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/grass_block_side_overlay.png",
+      "source": "textures/block/grass_block_side_overlay.png",
+      "sha256": "43d98318407d9d122b83468cf183d18722e548c2144f9c2ffe2021b5c3e770e0",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/farmland_moist.png",
+      "source": "textures/block/farmland_moist.png",
+      "sha256": "b8f89f1840546beaccd05f2ad340b54e00223fb755d1225c7e2c4c63eacc1c2e",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/water_still.png",
+      "source": "textures/block/water_still.png",
+      "sha256": "5843e8826507c484dfc15d5d255843d041804bcaa2036ed137320610d7fb9af7",
+      "size": [
+        16,
+        512
+      ]
+    },
+    {
+      "path": "block/stone.png",
+      "source": "textures/block/stone.png",
+      "sha256": "33ac70ba8cb701087642a12c5fd29c1ba3006dc4730e9b014ed3a19ce7cdda7b",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage0.png",
+      "source": "textures/block/wheat_stage0.png",
+      "sha256": "ae5a6cc98ba0314867917833a51416e3493e4918fb73fba112b70e5d014c75a8",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage1.png",
+      "source": "textures/block/wheat_stage1.png",
+      "sha256": "fc01c0896aecbd2fc2feae938bb44dc5ec8a38dd09bae8b1119b84d60d30d3f7",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage2.png",
+      "source": "textures/block/wheat_stage2.png",
+      "sha256": "2c4cfac595f1358725e21b0394b71439c9f2d2e1511ecde12a72137eaf66471e",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage3.png",
+      "source": "textures/block/wheat_stage3.png",
+      "sha256": "66edb2d8235093965eb167837a2f48ca9e2c7ea1cc1a7cf5d48651760a7b8f0c",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage4.png",
+      "source": "textures/block/wheat_stage4.png",
+      "sha256": "b017099bd8533461595c4654b4b23f52649d18caa899b6969023a33099ee66fb",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage5.png",
+      "source": "textures/block/wheat_stage5.png",
+      "sha256": "4b567ab69eb54164bbeada5c16f82877914f5d18d3290f9aa239dd1936e1075c",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage6.png",
+      "source": "textures/block/wheat_stage6.png",
+      "sha256": "6e3b0ec2ef00fe515477551964e8a0ce86454036862f4ef72598541b1c380fdb",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/wheat_stage7.png",
+      "source": "textures/block/wheat_stage7.png",
+      "sha256": "3d8c251dd851f06cd019fb02b7f4ab666aa748251c79fb9562c32d2fbb799a0c",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "item/wheat.png",
+      "source": "textures/item/wheat.png",
+      "sha256": "9ed5d3338d238528fa04c9fd86bd1e5f87a194576eed3f5e6bb86dcf18470039",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "item/wheat_seeds.png",
+      "source": "textures/item/wheat_seeds.png",
+      "sha256": "3239486bef9ea883e438c068cb97c24f1a38924b54b3c2e6209f792fc222c8d3",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "models/block/crop.json",
+      "source": "models/block/crop.json",
+      "sha256": "d078de149252e74ddbfa19c80300f9e627a44913266664a1b08dd25d3f558f18"
+    },
+    {
+      "path": "block/water_still.png.mcmeta",
+      "source": "textures/block/water_still.png.mcmeta",
+      "sha256": "e9b8025fde1b09b0a4d2a38427b04f98f28a593045be6d177eb2b29164c872b0"
+    },
+    {
+      "path": "block/cherry_log.png",
+      "source": "textures/block/cherry_log.png",
+      "sha256": "3e943f5cb0db486680c6cddaf688e9005c03c70732b5c6ed82aafb331033ad83",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/cherry_log_top.png",
+      "source": "textures/block/cherry_log_top.png",
+      "sha256": "6462064932cf410017da2d68f63cfffe5f5732e7332daa4564c484890276d38e",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/cherry_leaves.png",
+      "source": "textures/block/cherry_leaves.png",
+      "sha256": "0280f50c8daeed2b51b2cee8d94461fdc95aab74654c57d727323e49a76136ba",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/pink_petals.png",
+      "source": "textures/block/pink_petals.png",
+      "sha256": "2ea08d4b868a8d59a7e1b7393fc5ffed49905235da6d176867a59e2070c55400",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/oxeye_daisy.png",
+      "source": "textures/block/oxeye_daisy.png",
+      "sha256": "a64161a5f4c5d112935fd1abf86be6e4729e5c7ad4cd80913e7f278785894667",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/cornflower.png",
+      "source": "textures/block/cornflower.png",
+      "sha256": "df8624ca57077469654576faab3424aceb0bdc512102ec2056a17a0ff890c52d",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/azure_bluet.png",
+      "source": "textures/block/azure_bluet.png",
+      "sha256": "193ecc37de69c45dad499a1703391fd71e137ae0fc3cc34c9352d9b0ec748f96",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/melon_side.png",
+      "source": "textures/block/melon_side.png",
+      "sha256": "6a556b42d0c87084a30068f1b4684e5c7ef7762d348e227f161a19db61c51fbb",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/melon_top.png",
+      "source": "textures/block/melon_top.png",
+      "sha256": "2f7a13779e9a782351ae66848dd9e1e67ae73a947d0f85da50ea6772ee04952b",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/pumpkin_side.png",
+      "source": "textures/block/pumpkin_side.png",
+      "sha256": "616ef8db5a90e1f02843f4c3fe5ecb57e681a7cbad695bc7c1b1e34f7c7dc3e9",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/pumpkin_top.png",
+      "source": "textures/block/pumpkin_top.png",
+      "sha256": "aa23338fd28b9c6d7c00a1be45946a31ae36663efa83371ea4f897639104d12f",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/carved_pumpkin.png",
+      "source": "textures/block/carved_pumpkin.png",
+      "sha256": "824da242f8c8ad4d7bd72b2e48230abcecb14a418fdbb93b18b8ad6151aa949a",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/jack_o_lantern.png",
+      "source": "textures/block/jack_o_lantern.png",
+      "sha256": "04a4e4460fbba1a9e61045f4f2a5cc670d9c2ce93dcb7f41e2b3eed6d62e911d",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/oak_log.png",
+      "source": "textures/block/oak_log.png",
+      "sha256": "060c93128fb65aa350a84e4b6576e616c47d40211bbe537cfe923a81d072e30c",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/oak_log_top.png",
+      "source": "textures/block/oak_log_top.png",
+      "sha256": "62f38b25ae28b6c4842ee5a83f790394b1ec4d6c6f20dd52044394855346a2a7",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/spruce_log.png",
+      "source": "textures/block/spruce_log.png",
+      "sha256": "f28e8ce2783a0d14cc6f23904faf6858fba1295290a732735db82b54392574fd",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/spruce_log_top.png",
+      "source": "textures/block/spruce_log_top.png",
+      "sha256": "b153bde175085ba46e5badacf9d7dd4dc909a75f02118b73b9338685f06c5b42",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/spruce_leaves.png",
+      "source": "textures/block/spruce_leaves.png",
+      "sha256": "1f6c193f73cdd1399e94809c0bd7dce0b1b76dcdae1da2088e481dbba714edb2",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/snow.png",
+      "source": "textures/block/snow.png",
+      "sha256": "05201107fc2c60db4dc59f778a9ca7cb6101b2a332da696b33ce4b0cd2a02019",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/grass_block_snow.png",
+      "source": "textures/block/grass_block_snow.png",
+      "sha256": "11d95dcc86bfedd82b6c291e043c98df1f9779098afdd2a9f1d4627ab0150d30",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/ice.png",
+      "source": "textures/block/ice.png",
+      "sha256": "4d158c24f2ec563d52806642ac7f4e20a5bda168af8c2ae528ed8e9ef1a58771",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/coarse_dirt.png",
+      "source": "textures/block/coarse_dirt.png",
+      "sha256": "00f317cb04d7484982d4288c4f4ff5ab5c9f881e6940bbac05a84a02b09cb640",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/brown_mushroom.png",
+      "source": "textures/block/brown_mushroom.png",
+      "sha256": "a7e9990f39be45a2f09c0e4b690ee04cf72930e924a3abf5e615153b8d1af931",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/red_mushroom.png",
+      "source": "textures/block/red_mushroom.png",
+      "sha256": "abeb8b575f4217b5eefc058b9de14252ca07a8667da1d446f0c02bc7343e4350",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/campfire_log.png",
+      "source": "textures/block/campfire_log.png",
+      "sha256": "f17e54bca739ad5e7b4bdf2f44f4e2f454658aae2a385acfaa0c5949e1693f42",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/campfire_log_lit.png",
+      "source": "textures/block/campfire_log_lit.png",
+      "sha256": "dcb53ea93adf74b78df5c5b0a225f08e9e1419e7eb8f79c15db3cd1d35761c94",
+      "size": [
+        16,
+        64
+      ]
+    },
+    {
+      "path": "block/campfire_fire.png",
+      "source": "textures/block/campfire_fire.png",
+      "sha256": "35d5e013ec297d0ff2e09cac67a35d5228d6c36a8e9b70209f89e86db0a06542",
+      "size": [
+        16,
+        128
+      ]
+    },
+    {
+      "path": "item/melon_slice.png",
+      "source": "textures/item/melon_slice.png",
+      "sha256": "a1630cbe3d88156ebb55bcb5fa957d332d49a54d3d2a225b6cccf22623f17d50",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/campfire_fire.png.mcmeta",
+      "source": "textures/block/campfire_fire.png.mcmeta",
+      "sha256": "e9b8025fde1b09b0a4d2a38427b04f98f28a593045be6d177eb2b29164c872b0"
+    },
+    {
+      "path": "block/campfire_log_lit.png.mcmeta",
+      "source": "textures/block/campfire_log_lit.png.mcmeta",
+      "sha256": "4df0a0cf1fbc9319ebe93ad90d934f50e997a99216340d41ea95c175ec26bcba"
+    },
+    {
+      "path": "models/block/campfire.json",
+      "source": "models/block/campfire.json",
+      "sha256": "c426e97ea0884dc323b1ee529e67b5c8dcf153c4420b7ec1f5c9117caf7ba2d3"
+    },
+    {
+      "path": "models/block/campfire_off.json",
+      "source": "models/block/campfire_off.json",
+      "sha256": "514618dfa744a2ac7849cd68c8e77d6caac34c8544c4a1efc10c45a61223ea77"
+    },
+    {
+      "path": "colormap/grass.png",
+      "source": "textures/colormap/grass.png",
+      "sha256": "d55308b1c707bc239b4be80ea81dad927827b9010d62f23f34297a99bc1ea4d6",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "path": "block/sand.png",
+      "source": "textures/block/sand.png",
+      "sha256": "8875040fbee9e8c40ef1d6472e1548230d9ef1bad32d58e4e2fa857f1ae08027",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/lily_pad.png",
+      "source": "textures/block/lily_pad.png",
+      "sha256": "5e672ae307932bc4ee46bc29113369bb6f189fdb4f44ca88a1f7408c8ce2d4df",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/sugar_cane.png",
+      "source": "textures/block/sugar_cane.png",
+      "sha256": "2ae5f67fddbe9484960aa1335757e1234c3ba6b41ea0ef5b0a2ec818008b4d88",
+      "size": [
+        16,
+        16
+      ],
+      "minecraftVersion": "Java Edition 1.21.11",
+      "revision": "7241a12cc2707abd7022f399c5d9033153e492e1",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/7241a12cc2707abd7022f399c5d9033153e492e1/assets/minecraft/textures/block/sugar_cane.png"
+    },
+    {
+      "path": "block/fern.png",
+      "source": "textures/block/fern.png",
+      "sha256": "c8e5d55a1b10a92cd398540412ebf2f035d14c66aa21ec126bb2da6596f94746",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/dead_bush.png",
+      "source": "textures/block/dead_bush.png",
+      "sha256": "ed63c66ef4f4694d5e5ba4603576b0ca8bb45ea1ade4412d9b889d79ab4c38c2",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/spruce_sapling.png",
+      "source": "textures/block/spruce_sapling.png",
+      "sha256": "8559ad02a8a73dc5f9b8bcb51f2eb26ddbb870e99736907a380f2487fe00ff74",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "block/mossy_cobblestone.png",
+      "source": "textures/block/mossy_cobblestone.png",
+      "sha256": "1c069f0513d01272d5e9951e96ca3d9279c34400a88c3c47d52d79b9ac21ef2f",
+      "size": [
+        16,
+        16
+      ]
+    },
+    {
+      "path": "models/block/template_campfire.json",
+      "source": "models/block/template_campfire.json",
+      "sha256": "32b951b70c8a7a120eecc4f2ade5cece0374440c080f8265039659170ecf48dc"
+    },
+    {
+      "path": "models/block/block.json",
+      "source": "models/block/block.json",
+      "sha256": "3ef6c442f1ab55d2a57fa58e28bb831268159052659f12b453b637b31ded1da8"
+    },
+    {
+      "path": "particle/cherry_0.png",
+      "source": "textures/particle/cherry_0.png",
+      "sha256": "bb5848ad1cbf567ca206f5af3bfbd3921782a21e87ad17edbfecb5aa7f6899ea",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_0.png"
+    },
+    {
+      "path": "particle/cherry_1.png",
+      "source": "textures/particle/cherry_1.png",
+      "sha256": "6903109683901e8c695381b3b77df0079bfe579a6edb133658e2a0c2e63c3ac0",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_1.png"
+    },
+    {
+      "path": "particle/cherry_2.png",
+      "source": "textures/particle/cherry_2.png",
+      "sha256": "86c35a92ed1b3c99304a1434d1993b282d04959cb3eab2cdf08f6a8e1ee5c45f",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_2.png"
+    },
+    {
+      "path": "particle/cherry_3.png",
+      "source": "textures/particle/cherry_3.png",
+      "sha256": "41cc89ae29b48ac042f6da2f7732960f1237aaeb178a7ffca7861a5fa9ed6571",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_3.png"
+    },
+    {
+      "path": "particle/cherry_4.png",
+      "source": "textures/particle/cherry_4.png",
+      "sha256": "959368df772d9b00843b0f32c6b982d867c06bf8bee8c9b163d3c8859046e901",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_4.png"
+    },
+    {
+      "path": "particle/cherry_5.png",
+      "source": "textures/particle/cherry_5.png",
+      "sha256": "8226a78ec6ee5f229730bc7f6428544e1c79ff231c062ba5d6c016c9b370371a",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_5.png"
+    },
+    {
+      "path": "particle/cherry_6.png",
+      "source": "textures/particle/cherry_6.png",
+      "sha256": "07c94e06129b5cde278dee04bd2784ef094d4ff16df2f8f99ae20554078facfc",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_6.png"
+    },
+    {
+      "path": "particle/cherry_7.png",
+      "source": "textures/particle/cherry_7.png",
+      "sha256": "16eeb6a5917b16e418932088a9e35e92dafff1a29cf48bd2bdf683aba6526d7c",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_7.png"
+    },
+    {
+      "path": "particle/cherry_8.png",
+      "source": "textures/particle/cherry_8.png",
+      "sha256": "d25c98a7bba7db9708ced530c91f6b8fbb47bc539a8a69cc21346b975439b580",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_8.png"
+    },
+    {
+      "path": "particle/cherry_9.png",
+      "source": "textures/particle/cherry_9.png",
+      "sha256": "fdc3a73d198e2ca4084a8b815a0a530005fbb4c7342bc559adbf6b570fcafaa5",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_9.png"
+    },
+    {
+      "path": "particle/cherry_10.png",
+      "source": "textures/particle/cherry_10.png",
+      "sha256": "376bc2caa7539e4578296371a5af1361a4e21129a0e041b1af63ea90a11e1e05",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_10.png"
+    },
+    {
+      "path": "particle/cherry_11.png",
+      "source": "textures/particle/cherry_11.png",
+      "sha256": "e7f9c07a44060db290c886223e3b0e09833980aa64678bb7b616567e0853cce6",
+      "size": [
+        3,
+        3
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/cherry_11.png"
+    },
+    {
+      "path": "particle/leaf_0.png",
+      "source": "textures/particle/leaf_0.png",
+      "sha256": "9b12e8934f96e2eb37a173f378621bdff9039d5a0f4c06ce52e051a53b87708d",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_0.png"
+    },
+    {
+      "path": "particle/leaf_1.png",
+      "source": "textures/particle/leaf_1.png",
+      "sha256": "32196809dad8e56155d211470301bdf37381171278e990ee436e2e7d5f3a9ef6",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_1.png"
+    },
+    {
+      "path": "particle/leaf_2.png",
+      "source": "textures/particle/leaf_2.png",
+      "sha256": "a233a2f58755d28eb64f6e0a43d1a68ac4ef45932d6425c06019e422b4fbd8ff",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_2.png"
+    },
+    {
+      "path": "particle/leaf_3.png",
+      "source": "textures/particle/leaf_3.png",
+      "sha256": "852122041345064c49c2ca49100f8e18f6578c1e6bbc8624267c779ddb9ee950",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_3.png"
+    },
+    {
+      "path": "particle/leaf_4.png",
+      "source": "textures/particle/leaf_4.png",
+      "sha256": "20fea4ec7d5e6d2f96b8be1256b0cfe0d3b965cbdbe76da6b0fbeccd0fa1eddd",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_4.png"
+    },
+    {
+      "path": "particle/leaf_5.png",
+      "source": "textures/particle/leaf_5.png",
+      "sha256": "673031686a603b9f3a769006fecad747e06729e66f2eb8ee87212053d5c37860",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_5.png"
+    },
+    {
+      "path": "particle/leaf_6.png",
+      "source": "textures/particle/leaf_6.png",
+      "sha256": "b69f4a6473226248c010b4dad63e7d036bb59a140ee18f614b843e655e725bbf",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_6.png"
+    },
+    {
+      "path": "particle/leaf_7.png",
+      "source": "textures/particle/leaf_7.png",
+      "sha256": "3b4084542edd97aacd8d48d4ba31a20258bb8610faaf956f64b3d6137eb3c75c",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_7.png"
+    },
+    {
+      "path": "particle/leaf_8.png",
+      "source": "textures/particle/leaf_8.png",
+      "sha256": "f53ff0892ec2f42a3e035ca43aa2289283895f23b0d6523f0c12dc1e7da65896",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_8.png"
+    },
+    {
+      "path": "particle/leaf_9.png",
+      "source": "textures/particle/leaf_9.png",
+      "sha256": "ba90e27854b52f3ae0a3b41b69a3e0f3e15e5a17e8aedbcdbd2379334677cfa1",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_9.png"
+    },
+    {
+      "path": "particle/leaf_10.png",
+      "source": "textures/particle/leaf_10.png",
+      "sha256": "8886f315a6e9bb5dc75f590c4856d59a3c00ce27b34b9960f80f36381606710a",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_10.png"
+    },
+    {
+      "path": "particle/leaf_11.png",
+      "source": "textures/particle/leaf_11.png",
+      "sha256": "ceea23d422ae250074ff19506d17a1162a9364142961b6225da524a7345319b9",
+      "size": [
+        5,
+        5
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/particle/leaf_11.png"
+    },
+    {
+      "path": "environment/rain.png",
+      "source": "textures/environment/rain.png",
+      "sha256": "d45116fd626c00d6e45fe35cc747900385ef1b051627751049566977772f3f84",
+      "size": [
+        64,
+        256
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/environment/rain.png"
+    },
+    {
+      "path": "environment/snow.png",
+      "source": "textures/environment/snow.png",
+      "sha256": "2c52b4a8f924a856118f747ccd0dedce2f2f3f7a01bc9e388f7c2ea26c831cf2",
+      "size": [
+        64,
+        256
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/environment/snow.png"
+    },
+    {
+      "path": "block/leaf_litter.png",
+      "source": "textures/block/leaf_litter.png",
+      "sha256": "671d40e6b84d5bade73eb6738e358ead56b8cc5e5f2e67592bc6ee32e05db885",
+      "size": [
+        16,
+        16
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/block/leaf_litter.png"
+    },
+    {
+      "path": "models/block/template_leaf_litter_1.json",
+      "source": "models/block/template_leaf_litter_1.json",
+      "sha256": "4fe50ab76971c8c413bec2735a80819d938c9c5e682408cfdfe2176f78fe6418",
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/models/block/template_leaf_litter_1.json"
+    },
+    {
+      "path": "models/block/template_leaf_litter_2.json",
+      "source": "models/block/template_leaf_litter_2.json",
+      "sha256": "32ce807c8dfcd056c320f589d0bf4e7b25dcaeeab1ae3e97888d4b5cd8f55e01",
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/models/block/template_leaf_litter_2.json"
+    },
+    {
+      "path": "models/block/template_leaf_litter_3.json",
+      "source": "models/block/template_leaf_litter_3.json",
+      "sha256": "fec3d76c818e008552587b9cb6d4170ef80a892c97065a9b21a8e15abe50f255",
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/models/block/template_leaf_litter_3.json"
+    },
+    {
+      "path": "models/block/template_leaf_litter_4.json",
+      "source": "models/block/template_leaf_litter_4.json",
+      "sha256": "01f169dc15fe51f8c02735379f222141eaddc23785cd011970955447a0b5779d",
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/models/block/template_leaf_litter_4.json"
+    },
+    {
+      "path": "item/sugar_cane.png",
+      "source": "textures/item/sugar_cane.png",
+      "sha256": "c4d268c910568b900e8fb961041dce056e6f9fe1d2e4fab99764579c38a1f966",
+      "size": [
+        16,
+        16
+      ],
+      "minecraftVersion": "Java Edition 1.21.11",
+      "revision": "7241a12cc2707abd7022f399c5d9033153e492e1",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/7241a12cc2707abd7022f399c5d9033153e492e1/assets/minecraft/textures/item/sugar_cane.png"
+    },
+    {
+      "path": "entity/fish/cod.png",
+      "source": "textures/entity/fish/cod.png",
+      "sha256": "4ba0d2d3fc0ee46e4c310b0a9ed9891ed64a3c3263ad562a33d985be18b07345",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "path": "colormap/dry_foliage.png",
+      "source": "textures/colormap/dry_foliage.png",
+      "sha256": "daf58d3c01ebdca88a7e8062f3c5d9f54da0ba9347c110aa69492ffed68cf40a",
+      "size": [
+        256,
+        256
+      ],
+      "minecraftVersion": "Java Edition 1.21.5",
+      "revision": "e2e529d5f5f85275217d60f04033925c3bd5a02b",
+      "sourceUrl": "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/e2e529d5f5f85275217d60f04033925c3bd5a02b/assets/minecraft/textures/colormap/dry_foliage.png"
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place1.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/6e/6eece3d1e68f2cc5c44d1dd0271935a032ad18ed",
+      "sha1": "6eece3d1e68f2cc5c44d1dd0271935a032ad18ed",
+      "sha256": "4c175b414da9074145994db41e233a9b3beaa4ff19a5672f10778d95a1f8748d",
+      "bytes": 6905,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.403125,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place2.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/2e/2ee826b38dd00813f26692a7de90e352eb4c812e",
+      "sha1": "2ee826b38dd00813f26692a7de90e352eb4c812e",
+      "sha256": "4fe81e7e256e9b14da051f091dac016091bf9a9e68069c34cd5f03e2acb10391",
+      "bytes": 6918,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.399375,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place3.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/9d/9d019d55711de8f310cfd167852a7298ca8a052e",
+      "sha1": "9d019d55711de8f310cfd167852a7298ca8a052e",
+      "sha256": "f830b1b9c0bf430e95a87b628e82cc4a503b82b61e8542fcd9f753724e5d3e2b",
+      "bytes": 7532,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.405917,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place4.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place4.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/ff/ffb94b364eb694fec2cdc9ee412f52f7ada6070c",
+      "sha1": "ffb94b364eb694fec2cdc9ee412f52f7ada6070c",
+      "sha256": "f6f24698bd6b96ae60efcd59ebc809b21f65a4a80eed33fc73c727506c140783",
+      "bytes": 6954,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.396104,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place5.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place5.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/d7/d74905f08eb52b11055eb29dd159184dba5150a7",
+      "sha1": "d74905f08eb52b11055eb29dd159184dba5150a7",
+      "sha256": "4e414c7229e7adda2c31fb8bb93a6f279c174c7f535d5d870ff64ca18af72ea4",
+      "bytes": 7526,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.43275,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/block/bamboo/sapling_place6.ogg",
+      "source": "minecraft/sounds/block/bamboo/sapling_place6.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/2f/2f30dcc0a8d06de7737886fdd2ee7012a924eab7",
+      "sha1": "2f30dcc0a8d06de7737886fdd2ee7012a924eab7",
+      "sha256": "654961662eb968640932f652d0768602daa4d2a09a51b214a44f0444db62c073",
+      "bytes": 6903,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.401146,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.crop.break"
+      ],
+      "eventVolume": 0.9
+    },
+    {
+      "path": "sounds/dig/grass1.ogg",
+      "source": "minecraft/sounds/dig/grass1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/39/39fd80b9346a28f891c6ffabd197b974fa61f2cd",
+      "sha1": "39fd80b9346a28f891c6ffabd197b974fa61f2cd",
+      "sha256": "6e2c70962017b47fb948becff8d5b63f07a0b4c6392cec81f21ce6e20ab5bbaa",
+      "bytes": 8187,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.5,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.grass.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/grass2.ogg",
+      "source": "minecraft/sounds/dig/grass2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f2/f2da10547bfa0f1babdfd2ea5c31e09cd871a3aa",
+      "sha1": "f2da10547bfa0f1babdfd2ea5c31e09cd871a3aa",
+      "sha256": "665e2a761869f6d77733bdf21ada3bb3cd991f0c57770d6dca333c21983f6885",
+      "bytes": 8279,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.5,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.grass.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/grass3.ogg",
+      "source": "minecraft/sounds/dig/grass3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/ce/cebb2bda1cd962516882e36ad2a9927167aadfa1",
+      "sha1": "cebb2bda1cd962516882e36ad2a9927167aadfa1",
+      "sha256": "6b0a62345dc4533726c22f143dffd8390fa82d71fda103a67a12451f60f27107",
+      "bytes": 7966,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.grass.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/grass4.ogg",
+      "source": "minecraft/sounds/dig/grass4.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/a0/a0b221f6c8e23628108a46804ab2afb15c180b5a",
+      "sha1": "a0b221f6c8e23628108a46804ab2afb15c180b5a",
+      "sha256": "8427275f4a6973214cac02eeb261348e09726029f5ba055d372bc1bc83c6cfa0",
+      "bytes": 8124,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.grass.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/wood1.ogg",
+      "source": "minecraft/sounds/dig/wood1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/ef/ef59a7ee4163d8b06fcda67e356ffe717756adda",
+      "sha1": "ef59a7ee4163d8b06fcda67e356ffe717756adda",
+      "sha256": "313dbced391ecb42a63c85bc874b7fa226215acabadf5069e223dff6c5ebad99",
+      "bytes": 7283,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.wood.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/wood2.ogg",
+      "source": "minecraft/sounds/dig/wood2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/e6/e6c0a8a18eb9c866042b44595ba9f40e3a691153",
+      "sha1": "e6c0a8a18eb9c866042b44595ba9f40e3a691153",
+      "sha256": "76685444e4e4bb0f62cc8347866ed3eab5e1fe6a55fbd217edc2e7a66b50a6e7",
+      "bytes": 7110,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.wood.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/wood3.ogg",
+      "source": "minecraft/sounds/dig/wood3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/8e/8e7b1f82f4d68c04e8fdd43fb631079e4e36badc",
+      "sha1": "8e7b1f82f4d68c04e8fdd43fb631079e4e36badc",
+      "sha256": "6b439a67286d392e3a7bc96f67ea51ed17aa8d22610f243249df88d4ba5aa9e7",
+      "bytes": 7371,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.wood.break"
+      ]
+    },
+    {
+      "path": "sounds/dig/wood4.ogg",
+      "source": "minecraft/sounds/dig/wood4.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/be/be74b375d7adfe9470afec83707cda6f35275fa1",
+      "sha1": "be74b375d7adfe9470afec83707cda6f35275fa1",
+      "sha256": "b8a75c1b0658d0bc4e0e8e2d44585182feda102551e266fd42490034cc08c4f5",
+      "bytes": 7497,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.497098,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.wood.break"
+      ]
+    },
+    {
+      "path": "sounds/random/glass1.ogg",
+      "source": "minecraft/sounds/random/glass1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/fa/fa35a51bb74a4a6cf0c48161342db5a8577f13e5",
+      "sha1": "fa35a51bb74a4a6cf0c48161342db5a8577f13e5",
+      "sha256": "0409013e382d13e121fe464fc99fae4262629e7f6a1f52cff3f5b3475a888c91",
+      "bytes": 9937,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.688594,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.glass.break"
+      ]
+    },
+    {
+      "path": "sounds/random/glass2.ogg",
+      "source": "minecraft/sounds/random/glass2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f1/f1b8e424aa0559952b08651d792f96381d2fb132",
+      "sha1": "f1b8e424aa0559952b08651d792f96381d2fb132",
+      "sha256": "c226b5cbd76dcfae6d5f3252b8ccf996cec4e99b43ef0ca3ae6659c35cbf9867",
+      "bytes": 9712,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.688594,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.glass.break"
+      ]
+    },
+    {
+      "path": "sounds/random/glass3.ogg",
+      "source": "minecraft/sounds/random/glass3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/3b/3be3cf9a5c8534bf6548ba89c699a3b2abf9e074",
+      "sha1": "3be3cf9a5c8534bf6548ba89c699a3b2abf9e074",
+      "sha256": "1dd567dda2acb11b303d2592d6bf497ec92dd2818f2469addcb88f44ef052495",
+      "bytes": 9364,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.688594,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.glass.break"
+      ]
+    },
+    {
+      "path": "sounds/random/pop.ogg",
+      "source": "minecraft/sounds/random/pop.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/d6/d6ae1c04d0a7376a33d1df12e1b8057cfbab6bc2",
+      "sha1": "d6ae1c04d0a7376a33d1df12e1b8057cfbab6bc2",
+      "sha256": "4ddf491e1b736a9711cd76590ba70b203136d7ea1d5134a42088e58daccf3951",
+      "bytes": 4487,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.17102,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "entity.item.pickup"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain1.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/59/59d8157fa79a96eb6557e4ff440aa7482edbbd52",
+      "sha1": "59d8157fa79a96eb6557e4ff440aa7482edbbd52",
+      "sha256": "5cad76e1f62599d1854b840ffeb887809fccb8d70d30f9976e4c1fedb793600c",
+      "bytes": 23112,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.010667,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain",
+        "weather.rain.above"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain2.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/87/87fe1be2e8238dcf66ed0072cc8115702fe6b108",
+      "sha1": "87fe1be2e8238dcf66ed0072cc8115702fe6b108",
+      "sha256": "295e4015ee54707145b7f04b65f6b21b476df6841a6c7c28e6d52eb49e2182bc",
+      "bytes": 23781,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 1.978667,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain",
+        "weather.rain.above"
+      ]
+    },
+    {
+      "path": "sounds/item/elytra/elytra_loop.ogg",
+      "source": "minecraft/sounds/item/elytra/elytra_loop.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/75/75c3df1293a7a559a780b47d2f9e630e7b0a46ff",
+      "sha1": "75c3df1293a7a559a780b47d2f9e630e7b0a46ff",
+      "sha256": "efb0bd08ff7df12dbad2e2d0931da7bb229c5bfb919db8396e8245dfad8eee18",
+      "bytes": 137023,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 10.220333,
+      "sampleRate": 48000,
+      "channels": 2,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "item.elytra.flying"
+      ],
+      "eventVolume": 0.6
+    },
+    {
+      "path": "sounds/ambient/weather/rain3.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/c9/c9d72edd2cd3a9f22ad5c6d900ea82dd4d64a0a5",
+      "sha1": "c9d72edd2cd3a9f22ad5c6d900ea82dd4d64a0a5",
+      "sha256": "99357e53cb9c169a7b587acbbcf5d710601bf24b018996550d12184e853c7008",
+      "bytes": 24455,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.085333,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain",
+        "weather.rain.above"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain4.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain4.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/0e/0e5dc591233a89f48c54bc54dfb1b337068e3b46",
+      "sha1": "0e5dc591233a89f48c54bc54dfb1b337068e3b46",
+      "sha256": "42f5576cf969560743d80f401ac72b9a410f1fd2a64cd52dfcc6e1e10bc5957d",
+      "bytes": 24563,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.165333,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain",
+        "weather.rain.above"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain5.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain5.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f8/f88c75c9c2d8cee9a9678e6e92f02371ea3d754b",
+      "sha1": "f88c75c9c2d8cee9a9678e6e92f02371ea3d754b",
+      "sha256": "aadd69fc20c1fa28d4f4a6952ce81c00cab90eacf3c535b7393a0299d6a6ac50",
+      "bytes": 23185,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.010667,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain6.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain6.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/7c/7cf945b7f890ae37adc150d5724fef99aed4d4e5",
+      "sha1": "7cf945b7f890ae37adc150d5724fef99aed4d4e5",
+      "sha256": "ae4ee4939b8b5bbf92ce11b750c9e46b8e86e6eb71ccf827c98d6b88a0e6f5ea",
+      "bytes": 23215,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 1.973333,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain7.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain7.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/e5/e57aa22cc1f10bc8df115ced994e2de081a02237",
+      "sha1": "e57aa22cc1f10bc8df115ced994e2de081a02237",
+      "sha256": "9263e6ed7cad45112532f295b0f221fe4fcad02602443d2b53345c54068471d0",
+      "bytes": 24307,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.058667,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain"
+      ]
+    },
+    {
+      "path": "sounds/ambient/weather/rain8.ogg",
+      "source": "minecraft/sounds/ambient/weather/rain8.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f2/f22fffb4d87e6400999d1b4dd5a392a557ecd971",
+      "sha1": "f22fffb4d87e6400999d1b4dd5a392a557ecd971",
+      "sha256": "c40311cc02fa616ba9c3aa53f77a42041c1ad90a949197d1ff344e2ba8297f6c",
+      "bytes": 25510,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.192,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "weather.rain"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle1.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle1.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/5e/5edb78c26e7c33f3b063ac681edd7b61dd3381a0",
+      "sha1": "5edb78c26e7c33f3b063ac681edd7b61dd3381a0",
+      "sha256": "0ce156803fd6045ac16f2b3a3bc3691d8531c5dd12ed05fe60282eeb6d410d3a",
+      "bytes": 33524,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 3.943583,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle2.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle2.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/2a/2af9e14d4d56044ab96b5fed96a4af261eb230d2",
+      "sha1": "2af9e14d4d56044ab96b5fed96a4af261eb230d2",
+      "sha256": "a298a34170cbeef53bf0c383b02c85490a077e95236c1e6b86012aa9d6d704a3",
+      "bytes": 30073,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 3.58585,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle3.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle3.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/cb/cb437915751e333e7054a2deb4e449612ae353dd",
+      "sha1": "cb437915751e333e7054a2deb4e449612ae353dd",
+      "sha256": "35cf02a2fa7984ec6c5a2ac07e4b87475c20513a24ee670229c78c7dcf4c09df",
+      "bytes": 34248,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 3.904467,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle4.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle4.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f6/f6824f8bedd23384944188bf00f9bcb91c6ca759",
+      "sha1": "f6824f8bedd23384944188bf00f9bcb91c6ca759",
+      "sha256": "22e83984be5741c50d1f0433d38795c69966bd20bfd1daaa0e1bbe5410633a3d",
+      "bytes": 21046,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.271814,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle5.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle5.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/40/40a50a72c02cd6b80815c5e9fe7c225cfab2f48b",
+      "sha1": "40a50a72c02cd6b80815c5e9fe7c225cfab2f48b",
+      "sha256": "366a9f2b48a061a5b3acaa9f5984ffb77f1fdfb7c56a45b6557694f839219760",
+      "bytes": 24027,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.780726,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/block/campfire/crackle6.ogg",
+      "source": "minecraft/sounds/block/campfire/crackle6.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/46/46169daee2ece0a3d3018578c80e8d175d48d49e",
+      "sha1": "46169daee2ece0a3d3018578c80e8d175d48d49e",
+      "sha256": "53d589bca5917c21bf1186f1e737b0a5c9228a3c6797ce0c40126c6fdd43d1fe",
+      "bytes": 22977,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.631587,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.campfire.crackle"
+      ]
+    },
+    {
+      "path": "sounds/random/fizz.ogg",
+      "source": "minecraft/sounds/random/fizz.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/bd/bd76df5c882dc4b65925a8b25c0e7dbebef9bb2e",
+      "sha1": "bd76df5c882dc4b65925a8b25c0e7dbebef9bb2e",
+      "sha256": "4114bc9a87d481f59f08137dcbcc1a2a493b081cfdfc218cd6dd9738986afb3a",
+      "bytes": 15222,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 1.248312,
+      "sampleRate": 48000,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.fire.extinguish",
+        "entity.generic.extinguish_fire",
+        "block.lava.extinguish"
+      ]
+    },
+    {
+      "path": "sounds/fire/ignite.ogg",
+      "source": "minecraft/sounds/fire/ignite.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/f1/f125c13e6b445091cd1efd409547ffb9452138f5",
+      "sha1": "f125c13e6b445091cd1efd409547ffb9452138f5",
+      "sha256": "87720d410edb8a05c45ee6db297f3ef671d2fae41fb7cc5b1e28349e09b250f1",
+      "bytes": 7103,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 0.448435,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "item.flintandsteel.use"
+      ]
+    },
+    {
+      "path": "sounds/liquid/water.ogg",
+      "source": "minecraft/sounds/liquid/water.ogg",
+      "sourceUrl": "https://resources.download.minecraft.net/e7/e75c6077b1bfa4a791d62d9951d6e8891757ad1c",
+      "sha1": "e75c6077b1bfa4a791d62d9951d6e8891757ad1c",
+      "sha256": "cdc26a6a2c6bdbb60404a961d3448f46dd90c55658e21d0ce648e777f53ad2ef",
+      "bytes": 30275,
+      "mimeType": "audio/ogg",
+      "durationSeconds": 2.578435,
+      "sampleRate": 44100,
+      "channels": 1,
+      "minecraftVersion": "Java Edition 1.21.4",
+      "assetIndex": "19",
+      "soundEvents": [
+        "block.water.ambient"
+      ]
+    }
+  ],
+  "audioSource": {
+    "minecraftVersion": "Java Edition 1.21.4",
+    "versionManifestUrl": "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
+    "versionMetadataUrl": "https://piston-meta.mojang.com/v1/packages/b547a27fc4d490dc10d62e40a42ace065162b644/1.21.4.json",
+    "versionMetadataSha1": "b547a27fc4d490dc10d62e40a42ace065162b644",
+    "assetIndex": {
+      "id": "19",
+      "sha1": "dc6757fadfa8abf306e90465661ec4a7dcd3386a",
+      "size": 464718,
+      "totalSize": 421600924,
+      "url": "https://piston-meta.mojang.com/v1/packages/dc6757fadfa8abf306e90465661ec4a7dcd3386a/19.json"
+    },
+    "soundDefinitionsUrl": "https://resources.download.minecraft.net/04/046b51113a9c1b83b385549a54b53bef94636015",
+    "soundDefinitionsSha1": "046b51113a9c1b83b385549a54b53bef94636015"
+  }
+}

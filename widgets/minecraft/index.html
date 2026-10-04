@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f5ef" />
+    <title>小天地</title>
+    <link rel="icon" href="./assets/item/wheat.png" />
+    <link rel="stylesheet" href="./season-picker.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 240px; min-height: 100svh; background: #f6f5ef; color: #64685b; transition: background-color 400ms ease; }
+      body:has(minecraft-season-picker[data-season="summer"]) { background: #f5f5ee; }
+      body:has(minecraft-season-picker[data-season="autumn"]) { background: #f7f3ec; }
+      body:has(minecraft-season-picker[data-season="winter"]) { background: #f1f4f3; }
+      main { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-height: 100svh; padding: 16px; }
+      @media (prefers-reduced-motion: reduce) { body { transition: none; } }
+    </style>
+    <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+    <script type="module" src="./season-picker.mjs"></script>
+  </head>
+  <body data-season="spring">
+    <main>
+      <minecraft-season-picker class="minecraft-season-panel" data-season="spring">
+        <span class="minecraft-rift-fragments" aria-hidden="true"></span>
+        <minecraft-widget season="spring"></minecraft-widget>
+        <div class="minecraft-seasons" role="group" aria-label="季节">
+          <button type="button" data-season="spring" aria-label="春季" aria-pressed="true"><img src="./assets/block/oxeye_daisy.png" width="32" height="32" alt="" draggable="false" /></button>
+          <button type="button" data-season="summer" aria-label="夏季" aria-pressed="false"><img src="./assets/item/melon_slice.png" width="32" height="32" alt="" draggable="false" /></button>
+          <button type="button" data-season="autumn" aria-label="秋季" aria-pressed="false"><img src="./assets/block/brown_mushroom.png" width="32" height="32" alt="" draggable="false" /></button>
+          <button type="button" data-season="winter" aria-label="冬季" aria-pressed="false"><img src="./assets/block/spruce_sapling.png" width="32" height="32" alt="" draggable="false" /></button>
+        </div>
+      </minecraft-season-picker>
+    </main>
+  </body>
+</html>

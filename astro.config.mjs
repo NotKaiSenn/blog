@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
+import minecraftAssets from './widgets/minecraft/astro-assets.mjs';
 
 export default defineConfig({
   site: 'https://kaisenn.net',
@@ -9,7 +10,7 @@ export default defineConfig({
   server: {
     host: true,
   },
-  integrations: [icon(), sitemap({
+  integrations: [icon(), minecraftAssets(), sitemap({
     filter: (page) => !['/404/', '/404.html'].includes(new URL(page).pathname),
   })],
 });

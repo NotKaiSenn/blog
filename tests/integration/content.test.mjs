@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, existsSync, rmSync, realpathSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parse, stringify } from 'yaml';
 import { htmlToHast } from 'satteri';
@@ -29,6 +29,9 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
   for (const file of ['src', 'public', 'astro.config.mjs', 'tsconfig.json', 'package.json']) {
     cpSync(join(root, file), join(fixture, file), { recursive: true });
   }
+  cpSync(join(root, 'widgets/minecraft'), join(fixture, 'widgets/minecraft'), {
+    recursive: true, filter: path => basename(path) !== 'node_modules',
+  });
   cpSync(join(fixture, 'astro.config.mjs'), join(fixture, 'astro.project.config.mjs'));
   // Keep linked Astro component URLs inside the fixture's Vite compilation root.
   writeFileSync(join(fixture, 'astro.config.mjs'), `import projectConfig from './astro.project.config.mjs';\nexport default { ...projectConfig, cacheDir: './.astro-test-cache/', vite: { ...projectConfig.vite, resolve: { ...projectConfig.vite?.resolve, preserveSymlinks: true } } };\n`);
@@ -62,6 +65,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     ...(index > 0 ? { id: `work-${index + 1}` } : { icon: '/uploads/work-icon.png' }),
     ...(index !== 0 && index !== 2 ? { image: '/uploads/work.png', icon: '/uploads/work-icon.png' } : {}),
     ...(index === 1 ? { imageUrl: 'https://images.example.com/work.webp' } : {}),
+    ...(index === 3 ? { id: 'MinecraftWidget', title: '壹方天地', url: '/works/minecraftwidget/' } : {}),
     ...(index === 5 ? { image: '/uploads/work-portrait.png' } : {}),
   }));
   writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
@@ -89,11 +93,11 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
   writePost('hidden-draft', { title: 'PRIVATE_DRAFT_SENTINEL', pubDate: '2026-10-01', draft: draftDefault });
   writePost('default-draft', { title: 'DEFAULT_DRAFT_SENTINEL', pubDate: '2026-10-01' }, '');
   const read = (path) => readFileSync(join(fixture, 'dist', path), 'utf8');
-  const runAstro = (command) => execFileSync(process.execPath, [join(root, 'node_modules/astro/bin/astro.mjs'), command, '--root', fixture], {
-    cwd: fixture, encoding: 'utf8', timeout: 120_000, env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1' },
+  const runAstro = (command, env = {}) => execFileSync(process.execPath, [join(root, 'node_modules/astro/bin/astro.mjs'), command, '--root', fixture], {
+    cwd: fixture, encoding: 'utf8', timeout: 120_000, env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1', PUBLIC_MINECRAFT_WIDGET_ASSET_BASE: '', ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  const build = () => runAstro('build');
+  const build = (env) => runAstro('build', env);
   build();
 
   await t.test('homepage previews 6 latest articles; year-grouped archive has 12 then 3', () => {
@@ -141,6 +145,32 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.equal((read('photos/index.html').match(/class="photo-entry"/g) ?? []).length, 8);
     assert.equal((read('friends/index.html').match(/class="friend-card"/g) ?? []).length, 8);
     for (const photo of fixturePhotos) assert.ok(existsSync(join(fixture, 'dist/photos', photo.id, 'index.html')));
+  });
+
+  await t.test('CMS can link to the standalone widget without publishing Minecraft assets', () => {
+    const works = read('works/index.html');
+    assert.equal((works.match(/href="\/works\/minecraftwidget\/"/g) ?? []).length, 1);
+    assert.match(read('index.html'), /data-href="\/works\/minecraftwidget\/"/);
+    const detail = read('works/minecraftwidget/index.html');
+    assert.doesNotMatch(detail, /<minecraft-widget\b|<minecraft-season-picker\b|<button\b/);
+    assert.match(detail, /<img\b[^>]*alt="小天地的春季场景"/);
+    assert.match(detail, /<title>壹方天地 · /);
+    assert.match(detail, /href="https:\/\/github\.com\/NotKaiSenn\/blog\/tree\/[^\"]+\/widgets\/minecraft"/);
+    for (const name of ['LICENSE', 'NOTICE']) assert.deepEqual(readFileSync(join(fixture, 'dist/minecraft-widget', name)), readFileSync(join(fixture, 'widgets/minecraft', name)));
+    assert.ok(!existsSync(join(fixture, 'dist/minecraft-widget/assets')));
+    assert.ok(!readdirSync(join(fixture, 'dist'), { recursive: true }).some(path => path.endsWith('.ogg') || path.endsWith('.mcmeta')));
+  });
+
+  await t.test('an explicit public asset base enables the interactive widget without copying local assets', () => {
+    try {
+      build({ PUBLIC_MINECRAFT_WIDGET_ASSET_BASE: 'https://assets.example.com/approved-pack' });
+      const detail = read('works/minecraftwidget/index.html');
+      assert.match(detail, /<minecraft-widget\b[^>]*asset-base="https:\/\/assets.example.com\/approved-pack\/"/);
+      assert.match(detail, /<minecraft-season-picker\b/);
+      assert.ok(!existsSync(join(fixture, 'dist/minecraft-widget/assets')));
+    } finally {
+      build();
+    }
   });
 
   await t.test('portrait artwork keeps its original ratio within the folder when resting, fanned and selected', () => {
@@ -331,6 +361,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
         assert.match(home, new RegExp(`href="/${category}/">全部 0 ${unit}`));
         assert.match(read(`${category}/index.html`), new RegExp(message));
       }
+      assert.doesNotMatch(read('works/index.html'), /href="\/works\/minecraftwidget\/"/);
+      assert.ok(existsSync(join(fixture, 'dist/works/minecraftwidget/index.html')));
       assert.match(home, /data-href="\/posts\/note-13\/"/);
       assert.match(read('posts/note-13/index.html'), /修改过的标题/);
       assert.match(read('rss.xml'), /note-13/);
@@ -353,7 +385,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       assert.match(read('posts/index.html'), /暂无笔记/);
       assert.match(read('index.html'), /href="\/posts\/" data-folder-open="posts-gallery"/);
       assert.doesNotMatch(read('index.html'), /data-kind="note"/);
-      assert.doesNotMatch(read('index.html'), /class="folder-item"/);
+      assert.equal(elements(htmlToHast(read('index.html')), node => node.tagName === 'li' && node.properties.dataHref).length, 0);
       for (const [category, message, unit] of [['posts', '暂无笔记', '篇'], ['works', '暂无作品', '项'], ['photos', '暂无照片', '张'], ['friends', '暂无链接', '位']]) {
         assert.match(read('index.html'), new RegExp(`href="/${category}/" data-folder-open="${category}-gallery"`));
         assert.match(read('index.html'), new RegExp(`href="/${category}/">全部 0 ${unit}`));
@@ -377,12 +409,15 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       writeFileSync(join(content, '.gitkeep'), '');
       build();
       assert.match(read('posts/index.html'), /暂无笔记/);
-      assert.doesNotMatch(read('index.html'), /<img\b|data-kind="note"/);
+      assert.doesNotMatch(read('index.html'), /data-kind="note"/);
+      assert.doesNotMatch(read('index.html'), /<img\b/);
       assert.doesNotMatch(read('rss.xml'), /<item>/);
       assert.ok(!existsSync(join(fixture, 'dist/posts/page/2')));
       for (const path of readdirSync(join(fixture, 'dist'), { recursive: true }).filter(path => path.endsWith('.html'))) {
         const html = read(path);
-        assert.doesNotMatch(html, /<img\b/, `${path} must use placeholders when collections and profile images are empty`);
+        const images = elements(htmlToHast(html), node => node.tagName === 'img');
+        assert.equal(images.length, path === 'works/minecraftwidget/index.html' ? 1 : 0, `${path} only retains the standalone widget preview`);
+        for (const image of images) assert.match(String(image.properties.src), /^\/_astro\/minecraftwidget\.[^/]+\.png$/);
         assert.doesNotMatch(html, /sample-night|a-page-for-small-moments|排版测试|终极共生/, `${path} still contains removed content`);
         assert.doesNotMatch(html, /(?:src|href)="(?:#|\/assets\/images\/[^\"]+)"/, `${path} contains an old image or broken placeholder link`);
         assert.doesNotMatch(html, /(?:href|data-href)="\/(?:lab(?:[/?#"]|$)|persona\/2025(?:[/?#"]|$)|pages\/(?:persona-2025|sandbox-lab|home-redirect)\.html)/, `${path} contains a fixed link to a retired page`);
