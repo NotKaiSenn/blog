@@ -1,0 +1,27 @@
+{
+  "name": "minecraft-widget",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "node --test *.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "exports": "./minecraft-widget.mjs",
+  "license": "MIT-0",
+  "files": [
+    "*.mjs",
+    "*.css",
+    "index.html",
+    "assets/",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "version": "0.1.0"
+}

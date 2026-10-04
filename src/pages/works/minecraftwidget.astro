@@ -1,0 +1,29 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import MinecraftWidget from '../../components/MinecraftWidget.astro';
+---
+<SiteLayout title="壹方天地" description="一个可以互动的 Minecraft 四季小组件。" breadcrumbs={[{ label: '作品', href: '/works/' }, { label: '壹方天地' }]}>
+  <header class="page-heading detail-heading"><h1>壹方天地</h1></header>
+  <div class="minecraft-showcase">
+    <minecraft-season-items>
+      <MinecraftWidget />
+    </minecraft-season-items>
+  </div>
+  <p class="work-note"><a href="https://github.com/NotKaiSenn/blog/tree/minecraft-widget/widgets/minecraft">github.com/NotKaiSenn/blog ↗</a></p>
+</SiteLayout>
+
+<script>
+  function loadSeasonItems() {
+    if (document.querySelector('.minecraft-showcase minecraft-season-picker')) void import('../../../widgets/minecraft/season-items.mjs');
+  }
+  loadSeasonItems();
+  document.addEventListener('astro:page-load', loadSeasonItems);
+</script>
+
+<style>
+  .minecraft-showcase { position: relative; isolation: isolate; width: 440px; max-width: 100%; margin-inline: auto; padding-top: 24px; }
+  .work-note { margin-top: 36px; color: var(--muted); font-size: .75rem; text-align: center; }
+  @media (max-width: 540px) {
+    .minecraft-showcase { width: calc(100% + 28px); max-width: none; margin-inline: -14px; }
+  }
+</style>

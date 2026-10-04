@@ -1,0 +1,82 @@
+minecraft-season-items { position: relative; display: block; }
+
+minecraft-season-picker { display: flow-root; }
+
+minecraft-season-picker > minecraft-widget {
+  display: block;
+  width: 340px;
+  max-width: 100%;
+  margin-inline: auto;
+  filter: drop-shadow(0 10px 9px rgb(52 67 42 / .17));
+}
+
+.minecraft-seasons {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  width: max-content;
+  max-width: 100%;
+  margin: 40px auto 0;
+}
+
+.minecraft-seasons > button {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 48px;
+  height: 52px;
+  padding: 0;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.minecraft-seasons > button > img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  max-width: none;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 180ms ease-out;
+}
+
+.minecraft-seasons > button::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 21px;
+  height: 6px;
+  border-radius: 50%;
+  background: #687059;
+  opacity: .17;
+  filter: blur(1px);
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+}
+
+.minecraft-seasons > button:focus-visible { outline: 1px solid #667b4f; outline-offset: 1px; }
+.minecraft-seasons > button:focus-visible > img { transform: translateY(-5px) scale(1.1); }
+.minecraft-seasons > button:focus-visible::after { transform: scale(.85); opacity: .12; }
+@media (hover: hover) {
+  .minecraft-seasons > button:hover > img { transform: translateY(-5px) scale(1.1); }
+  .minecraft-seasons > button:hover::after { transform: scale(.85); opacity: .12; }
+}
+.minecraft-seasons > button:active > img { transform: translateY(1px) scale(.94); transition-duration: 70ms; }
+.minecraft-seasons > button:active::after { transform: scale(.9); opacity: .25; transition-duration: 70ms; }
+
+@media (max-width: 540px) {
+  minecraft-season-picker > minecraft-widget { width: 77.2727%; max-width: 340px; }
+  .minecraft-seasons { gap: 24px; }
+  .minecraft-seasons > button { width: 44px; height: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .minecraft-seasons > button > img,
+  .minecraft-seasons > button::after { transition: none; }
+}
