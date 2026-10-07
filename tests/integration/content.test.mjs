@@ -16,7 +16,8 @@ function elements(node, match) {
   return [...(node.type === 'element' && match(node) ? [node] : []), ...(node.children ?? []).flatMap(child => elements(child, match))];
 }
 
-function assertNoContentScripts(html) {
+function assertNoContentScripts(html, note = false) {
+  if (note) html = html.replace(/<script\b[^>]*src="\/_astro\/NoteDiagrams\.[^"]+\.js"[^>]*><\/script>/g, "");
   const withoutRouter = html.replace(/<script\b[^>]*src="\/_astro\/ClientRouter\.[^"]+\.js"[^>]*><\/script>/g, '');
   assert.doesNotMatch(withoutRouter, /<script\b/);
 }
@@ -90,7 +91,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     });
   }
   writePost('中文文章', { title: '中文标题与固定网址', description: '', pubDate: '2026-09-01', draft: false });
-  writePost('same-day', { title: `同一天的笔记：${'一个很长的中文标题'.repeat(6)}LongUnbrokenTitleForResponsiveReading`, pubDate: '2026-09-01', draft: false });
+  writePost('same-day', { title: `同一天的笔记：${'一个很长的中文标题'.repeat(6)}LongUnbrokenTitleForResponsiveReading`, pubDate: '2026-09-01', draft: false }, articleBody + '\n\n$x^2$\n\n$$\nx^2 + y^2\n$$\n\n> [!NOTE]\n> 提示内容\n\n```mermaid\ngraph LR\n A[开始] --> B[结束]\n```\n\n```mermaid\nnot valid diagram syntax\n```');
   writePost('hidden-draft', { title: 'PRIVATE_DRAFT_SENTINEL', pubDate: '2026-10-01', draft: draftDefault });
   writePost('default-draft', { title: 'DEFAULT_DRAFT_SENTINEL', pubDate: '2026-10-01' }, '');
   const read = (path) => readFileSync(join(fixture, 'dist', path), 'utf8');
@@ -100,6 +101,17 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
   });
   const build = (env) => runAstro('build', env);
   build();
+
+  await t.test('extended Markdown emits static math and alerts plus progressive diagrams', () => {
+    const html = read('posts/same-day/index.html');
+    assert.match(html, /class="katex"/);
+    assert.match(html, /class="katex-display"/);
+    assert.match(html, /markdown-alert-note/);
+    assert.match(html, /language-mermaid/);
+    assert.match(html, /NoteDiagrams\.[^" ]+\.js/);
+    assert.doesNotMatch(read('index.html'), /NoteDiagrams\.[^" ]+\.js/);
+    assert.doesNotMatch(read('index.html'), /class="katex"/);
+  });
 
   await t.test('homepage previews 6 latest articles; year-grouped archive has 12 then 3', () => {
     assert.equal((read('index.html').match(/data-kind="note"/g) ?? []).length, 6);
@@ -243,7 +255,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       ? 'posts/中文文章/index.html' : `posts/${encodeURIComponent('中文文章')}/index.html`;
     const html = read(chinesePath);
     for (const pattern of [/<h2\b/, /<blockquote>/, /<ul>/, /<pre\b/, /<table>/, /src="\/uploads\/photo.png"/, /第一段中文正文/]) assert.match(html, pattern);
-    assertNoContentScripts(html);
+    assertNoContentScripts(html, true);
     assert.ok(html.includes('name="description" content="第一段中文正文，用来检查自然阅读与摘要。"'));
     assert.ok(html.includes(`https://kaisenn.net/posts/${encodeURIComponent('中文文章')}/`));
     assert.match(html, /article:published_time/);

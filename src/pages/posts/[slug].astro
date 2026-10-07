@@ -2,9 +2,11 @@
 import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import NoteDiagrams from '../../components/NoteDiagrams.astro';
 import { Icon } from 'astro-icon/components';
 import { getPosts } from '../../lib/posts';
 import { postDescription, displayDate } from '../../lib/post-data';
+import 'katex/dist/katex.min.css';
 import '../../styles/prose.css';
 export const getStaticPaths = (async () => {
   return (await getPosts()).map((post) => ({ params: { slug: post.id }, props: { post } }));
@@ -19,6 +21,7 @@ const { Content } = await render(post);
       <time datetime={post.data.pubDate.toISOString().slice(0, 10)}>{displayDate(post.data.pubDate)}</time>
     </header>
     <div class="prose"><Content /></div>
+    <NoteDiagrams />
     <div class="article-end"><a class="back-link" href="/posts/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回笔记列表</a></div>
   </article>
 </SiteLayout>

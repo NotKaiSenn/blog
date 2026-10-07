@@ -29,6 +29,20 @@ export function notePreview(html: string, id: string, title: string) {
     }
     if (node.type !== 'element') return [];
     const classes = Array.isArray(node.properties.className) ? node.properties.className : [];
+    // KaTeX contains both visual and accessible trees; keep one source in the small preview.
+    if (classes.includes('katex')) {
+      function tex(child: HastNode): string {
+        if (child.type !== 'element') return '';
+        if (child.tagName === 'annotation' && child.properties.encoding === 'application/x-tex') {
+          return child.children.filter(item => item.type === 'text').map(item => item.value).join('');
+        }
+        return child.children.map(tex).join('');
+      }
+      return clean({ type: 'element', tagName: 'code', properties: {}, children: [{ type: 'text', value: tex(node) }] });
+    }
+    if (node.tagName === 'pre' && node.children.some(child => child.type === 'element' && Array.isArray(child.properties.className) && child.properties.className.includes('language-mermaid'))) {
+      return clean({ type: 'element', tagName: 'p', properties: {}, children: [{ type: 'text', value: '图表' }] });
+    }
     if (omitted.has(node.tagName) || classes.includes('footnotes')) return [];
     if (node.tagName === 'input') {
       if (node.properties.type !== 'checkbox') return [];
