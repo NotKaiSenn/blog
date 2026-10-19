@@ -6,15 +6,18 @@ import NoteDiagrams from '../../components/NoteDiagrams.astro';
 import { Icon } from 'astro-icon/components';
 import { getPosts } from '../../lib/posts';
 import { postDescription, displayDate } from '../../lib/post-data';
-import 'katex/dist/katex.min.css';
+import katexStylesheet from 'katex/dist/katex.min.css?url';
 import '../../styles/prose.css';
 export const getStaticPaths = (async () => {
   return (await getPosts()).map((post) => ({ params: { slug: post.id }, props: { post } }));
 }) satisfies GetStaticPaths;
 const { post } = Astro.props;
 const { Content } = await render(post);
+// KaTeX styles and fonts are only needed by notes that contain math.
+const hasMath = post.rendered?.html.includes('class="katex"') ?? true;
 ---
 <SiteLayout title={post.data.title} description={postDescription(post)} articleDate={post.data.pubDate.toISOString()} breadcrumbs={[{ label: '笔记', href: '/posts/' }, { label: post.data.title }]}>
+  {hasMath && <link slot="head" rel="stylesheet" href={katexStylesheet} />}
   <article>
     <header class="page-heading detail-heading">
       <h1>{post.data.title}</h1>

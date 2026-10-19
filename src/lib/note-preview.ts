@@ -61,6 +61,11 @@ export function notePreview(html: string, id: string, title: string) {
       if (images >= 2) return [];
       images++;
       Object.assign(properties, { src, alt: String(node.properties.alt ?? ''), loading: 'lazy', decoding: 'async' });
+      // Keep the site's own image variants. An open note card shows images at most about 400px wide.
+      const srcSet = String(node.properties.srcSet ?? '');
+      if (srcSet && srcSet.split(',').every(candidate => /^\/_?uploads\/\S+ \d+w$/.test(candidate.trim()))) {
+        Object.assign(properties, { srcSet, sizes: '(max-width: 540px) 72vw, 400px' });
+      }
     }
     if (node.tagName === 'ol' && typeof node.properties.start === 'number') properties.start = node.properties.start;
     if (node.tagName === 'li' && classes.includes('task-list-item')) properties.className = ['task-list-item'];

@@ -70,6 +70,12 @@ for (const filename of sourceFiles(projectRoot)) {
       for (const reference of htmlAttributes(source, "src|href")) {
         checkReference(filename, reference, true);
       }
+      // Image variants only exist when the build generated every candidate a page offers.
+      for (const srcset of htmlAttributes(source, "srcset")) {
+        for (const candidate of srcset.split(",")) {
+          checkReference(filename, candidate.trim().split(/\s+/)[0], false);
+        }
+      }
     }
     const cssSource = isHtml ? source.replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&amp;', '&') : source;
     for (const reference of cssUrls(cssSource)) {

@@ -113,6 +113,18 @@ test('image previews retain usable media and reject executable or local developm
   assert.ok(images.every(image => !Object.keys(image.properties).some(property => property.toLowerCase().startsWith('on'))));
 });
 
+test('image previews keep the site\'s own variants but no other srcset candidates', () => {
+  const variants = '/_uploads/480/wide.png.webp 480w, /_uploads/960/wide.png.webp 960w, /uploads/wide.png 1000w';
+  const input = `<p><img src="/uploads/wide.png" alt="变体" srcset="${variants}" sizes="(max-width: 687px) 100vw, 640px" width="1000" height="400"></p>`
+    + '<p><img src="/uploads/other.png" alt="外部候选" srcset="https://tracker.example.com/pixel.png 480w, /uploads/other.png 1000w" sizes="100vw"></p>';
+  const [kept, dropped] = elements(tree(notePreview(input, 'variant-note', '变体').html), 'img').map(image => image.properties);
+  assert.equal(kept.srcSet, variants);
+  assert.equal(kept.sizes, '(max-width: 540px) 72vw, 400px', 'previews size images for the open note card, not the article column');
+  assert.equal(dropped.src, '/uploads/other.png');
+  assert.equal(dropped.srcSet, undefined);
+  assert.equal(dropped.sizes, undefined);
+});
+
 test('short notes remain full sheets, longer notes get more room, and stable URLs keep their shape', () => {
   const longHtml = `<p>${'一段完整的正文。'.repeat(100)}</p>`;
   const geometries = new Set();

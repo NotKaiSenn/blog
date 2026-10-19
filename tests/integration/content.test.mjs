@@ -7,6 +7,7 @@ import { basename, join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parse, stringify } from 'yaml';
 import { htmlToHast } from 'satteri';
+import sharp from 'sharp';
 import { writeTinyPng, writeTransparentPng } from '../helpers/image-fixture.mjs';
 import { galleryBrowser } from '../helpers/gallery-browser.mjs';
 
@@ -47,6 +48,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
   writeTinyPng(join(fixture, 'public/uploads/work.png'));
   writeTransparentPng(join(fixture, 'public/uploads/work-icon.png'));
   writeTransparentPng(join(fixture, 'public/uploads/work-portrait.png'), 3, 12);
+  writeTransparentPng(join(fixture, 'public/uploads/wide.png'), 1000, 400);
   const photosPath = join(fixture, 'src/data/photos.json');
   const fixturePhotos = [
     { id: 'photo-window', title: '测试照片：窗边', date: '2026-09-20', description: '本地照片的测试说明。', src: '/uploads/photo.png', alt: '测试上传的图片' },
@@ -91,7 +93,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     });
   }
   writePost('中文文章', { title: '中文标题与固定网址', description: '', pubDate: '2026-09-01', draft: false });
-  writePost('same-day', { title: `同一天的笔记：${'一个很长的中文标题'.repeat(6)}LongUnbrokenTitleForResponsiveReading`, pubDate: '2026-09-01', draft: false }, articleBody + '\n\n$x^2$\n\n$$\nx^2 + y^2\n$$\n\n> [!NOTE]\n> 提示内容\n\n```mermaid\ngraph LR\n A[开始] --> B[结束]\n```\n\n```mermaid\nnot valid diagram syntax\n```');
+  writePost('same-day', { title: `同一天的笔记：${'一个很长的中文标题'.repeat(6)}LongUnbrokenTitleForResponsiveReading`, pubDate: '2026-09-01', draft: false }, '![宽幅照片](/uploads/wide.png)\n\n' + articleBody + '\n\n$x^2$\n\n$$\nx^2 + y^2\n$$\n\n> [!NOTE]\n> 提示内容\n\n```mermaid\ngraph LR\n A[开始] --> B[结束]\n```\n\n```mermaid\nnot valid diagram syntax\n```');
   writePost('hidden-draft', { title: 'PRIVATE_DRAFT_SENTINEL', pubDate: '2026-10-01', draft: draftDefault });
   writePost('default-draft', { title: 'DEFAULT_DRAFT_SENTINEL', pubDate: '2026-10-01' }, '');
   const read = (path) => readFileSync(join(fixture, 'dist', path), 'utf8');
@@ -111,6 +113,29 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(html, /NoteDiagrams\.[^" ]+\.js/);
     assert.doesNotMatch(read('index.html'), /NoteDiagrams\.[^" ]+\.js/);
     assert.doesNotMatch(read('index.html'), /class="katex"/);
+    const katexStylesheet = /<link rel="stylesheet" href="\/_astro\/katex[^"]*\.css"/;
+    assert.match(read('posts/same-day/index.html').match(/<head\b[^>]*>([\s\S]*?)<\/head>/)[1], katexStylesheet);
+    for (const path of ['posts/note-02/index.html', 'index.html']) assert.doesNotMatch(read(path), katexStylesheet, `${path} has no math to style`);
+  });
+
+  await t.test('uploaded images get WebP variants and note images reserve their proportions', async () => {
+    const variants = '/_uploads/480/wide.png.webp 480w, /_uploads/720/wide.png.webp 720w, /_uploads/960/wide.png.webp 960w, /_uploads/1000/wide.png.webp 1000w';
+    const article = read('posts/same-day/index.html').match(/<img\b[^>]*src="\/uploads\/wide.png"[^>]*>/)?.[0];
+    assert.ok(article, 'the note image keeps its original URL');
+    assert.match(article, /width="1000"[^>]*height="400"/);
+    assert.ok(article.includes(`srcset="${variants}"`));
+    assert.match(article, /sizes="\(max-width: 687px\) 100vw, 640px"/);
+    const preview = read('index.html').match(/<img\b[^>]*src="\/uploads\/wide.png"[^>]*>/)?.[0];
+    assert.ok(preview?.includes(`srcset="${variants}"`), 'the homepage preview reuses the variants');
+    assert.match(preview, /sizes="\(max-width: 540px\) 72vw, 400px"/);
+    const generated = readdirSync(join(fixture, 'dist/_uploads'), { recursive: true }).filter(path => path.endsWith('.webp')).sort();
+    assert.deepEqual(generated, ['1000/wide.png.webp', '480/wide.png.webp', '720/wide.png.webp', '960/wide.png.webp'], 'only referenced variants are generated');
+    for (const width of [480, 720, 960, 1000]) {
+      const metadata = await sharp(join(fixture, 'dist/_uploads', String(width), 'wide.png.webp')).metadata();
+      assert.deepEqual([metadata.format, metadata.width, metadata.height, metadata.hasAlpha], ['webp', width, width * .4, true]);
+    }
+    assert.deepEqual(readFileSync(join(fixture, 'dist/uploads/wide.png')), readFileSync(join(fixture, 'public/uploads/wide.png')), 'the original upload is published unchanged');
+    assert.doesNotMatch(read('photos/photo-window/index.html'), /srcset=/, 'images smaller than every variant keep a plain src');
   });
 
   await t.test('homepage previews 6 latest articles; year-grouped archive has 12 then 3', () => {
