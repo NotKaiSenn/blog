@@ -9,16 +9,22 @@ const assetBase = publicAssets
 <minecraft-season-picker>
     <minecraft-widget season="spring" asset-base={assetBase}></minecraft-widget>
     <div class="minecraft-seasons" role="group" aria-label="Season" lang="en">
-      <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src={`${assetBase}item/melon_slice.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="autumn" aria-label="Autumn" aria-pressed="false"><img src={`${assetBase}block/brown_mushroom.png`} width="32" height="32" alt="" draggable="false" /></button>
-      <button type="button" data-season="winter" aria-label="Winter" aria-pressed="false"><img src={`${assetBase}block/spruce_sapling.png`} width="32" height="32" alt="" draggable="false" /></button>
+      <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
+      <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src={`${assetBase}item/melon_slice.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
+      <button type="button" data-season="autumn" aria-label="Autumn" aria-pressed="false"><img src={`${assetBase}block/brown_mushroom.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
+      <button type="button" data-season="winter" aria-label="Winter" aria-pressed="false"><img src={`${assetBase}block/spruce_sapling.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
     </div>
 </minecraft-season-picker>
 
 <script>
+  import { prefetchSeason, resolveAssetBase } from '../../widgets/minecraft/asset-cache.mjs';
+
   function loadWidget() {
-    if (document.querySelector('minecraft-season-picker')) void import('../../widgets/minecraft/season-picker.mjs');
+    const widget = document.querySelector('minecraft-season-picker minecraft-widget');
+    if (!widget) return;
+    // Fetch the scene's files alongside the renderer code instead of after it.
+    prefetchSeason(widget.getAttribute('season'), resolveAssetBase(widget.getAttribute('asset-base')));
+    void import('../../widgets/minecraft/season-picker.mjs');
   }
   loadWidget();
   document.addEventListener('astro:page-load', loadWidget);

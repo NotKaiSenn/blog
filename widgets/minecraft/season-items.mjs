@@ -31,7 +31,10 @@ export class MinecraftSeasonItems extends HTMLElement {
     for (const button of buttons) this.resizeObserver.observe(button);
     this.selectionObserver = new MutationObserver(() => this.schedule());
     for (const button of buttons) this.selectionObserver.observe(button, { attributes: true, attributeFilter: ['aria-pressed'] });
-    void this.initialize(buttons, generation);
+    // Let the scene draw first; the icons stay plain images until then.
+    const widget = this.querySelector('minecraft-widget');
+    if (widget && !widget.view?.ready) this.addEventListener('minecraft-ready', () => this.initialize(buttons, generation), { signal, once: true });
+    else void this.initialize(buttons, generation);
   }
 
   async initialize(buttons, generation) {
@@ -52,7 +55,7 @@ export class MinecraftSeasonItems extends HTMLElement {
         const canvas = document.createElement('canvas');
         canvas.width = texture.image.width;
         canvas.height = texture.image.height;
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext('2d', { willReadFrequently: true });
         context.drawImage(texture.image, 0, 0);
         const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
         const geometry = createGeneratedItemGeometry(pixels, canvas.width, canvas.height);

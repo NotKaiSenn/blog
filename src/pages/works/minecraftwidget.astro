@@ -13,11 +13,8 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
 </SiteLayout>
 
 <script>
-  function loadSeasonItems() {
-    if (document.querySelector('.minecraft-showcase minecraft-season-picker')) void import('../../../widgets/minecraft/season-items.mjs');
-  }
-  loadSeasonItems();
-  document.addEventListener('astro:page-load', loadSeasonItems);
+  // A static import starts downloading three.js with the page instead of after the widget's loader.
+  import '../../../widgets/minecraft/season-items.mjs';
 </script>
 
 <style>

@@ -1,11 +1,5 @@
 import * as THREE from 'three';
-
-export const SEASON_PARTICLE_TEXTURES = {
-  spring: Array.from({ length: 12 }, (_, index) => `particle/cherry_${index}`),
-  summer: ['environment/rain'],
-  autumn: Array.from({ length: 12 }, (_, index) => `particle/leaf_${index}`),
-  winter: ['environment/snow'],
-};
+import { SEASON_PARTICLE_TEXTURES } from './seasons.mjs';
 
 const LEAF_CAPACITY = 24;
 const STEP_MS = 50;

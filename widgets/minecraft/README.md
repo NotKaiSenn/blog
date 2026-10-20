@@ -22,6 +22,6 @@ For other sites, copy `assets/` to `/minecraft-widget/assets/`, import `minecraf
 <minecraft-widget season="spring" asset-base="/minecraft-widget/assets/"></minecraft-widget>
 ```
 
-Use a bundler that resolves `three`. Seasons are `spring`, `summer`, `autumn`, and `winter`. `season-picker.mjs`, `season-items.mjs`, `season-picker.css`, and `index.html` show the optional season controls.
+Use a bundler that resolves `three`. Seasons are `spring`, `summer`, `autumn`, and `winter`. Changing the `season` attribute switches scenes in place; the current scene stays on screen until the next one is ready. `season-picker.mjs`, `season-items.mjs`, `season-picker.css`, and `index.html` show the optional season controls.
 
 Original code: MIT-0. Minecraft assets keep their original copyright and are not covered by the code license. See `NOTICE` for third-party terms and sources.

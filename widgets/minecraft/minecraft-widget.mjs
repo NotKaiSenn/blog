@@ -1,8 +1,9 @@
 import { createFarmState, interactWithPatch, recordInteraction, beginCollection, finishCollection, growNaturally, addSceneDrops, MATURE_STAGE, COLLECTION_IDLE_MS } from './farm-state.mjs';
 import { mergeNearbyDrops, MERGE_ANIMATION_MS } from './drop-stacks.mjs';
-import { FarmRenderer } from './farm-renderer.mjs';
+import { FarmRenderer, createRenderer } from './farm-renderer.mjs';
 import { FarmAudio } from './farm-audio.mjs';
-import { SEASONS } from './season-scenes.mjs';
+import { SEASONS, seasonIdFor } from './seasons.mjs';
+import { resolveAssetBase } from './asset-cache.mjs';
 
 const style = `
   :host { display: block; width: 340px; min-width: 0; max-width: 100%; aspect-ratio: 34 / 28; }
@@ -15,6 +16,8 @@ const style = `
 `;
 
 export class MinecraftWidget extends HTMLElement {
+  static observedAttributes = ['season'];
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -27,7 +30,7 @@ export class MinecraftWidget extends HTMLElement {
       <canvas tabindex="0" role="application" aria-label="Minecraft scene" aria-describedby="controls"></canvas>
       <span class="sr-only" id="controls"></span>
       <span class="sr-only status" role="status" aria-live="polite" aria-atomic="true"></span>
-      <div class="sr-only scene-actions"><button class="scene-action primary-action" type="button" hidden></button></div>
+      <div class="sr-only scene-actions"></div>
       <span class="error" hidden>Scene unavailable. Refresh to retry.</span>
     </div>`;
     this.canvas = this.shadowRoot.querySelector('canvas');
@@ -36,36 +39,21 @@ export class MinecraftWidget extends HTMLElement {
 
   async connectedCallback() {
     const generation = ++this.generation;
+    const seasonId = seasonIdFor(this.getAttribute('season'));
     if (this.initializedState) {
+      // The previous WebGL context was released on disconnect.
       const canvas = this.canvas.cloneNode(false);
       this.canvas.replaceWith(canvas);
       this.canvas = canvas;
     }
-    if (!this.initializedState) {
-      const requestedSeason = this.getAttribute('season');
-      this.seasonId = Object.hasOwn(SEASONS, requestedSeason) ? requestedSeason : 'spring';
-      this.season = SEASONS[this.seasonId];
-      this.state = createFarmState(performance.now(), this.season.plots);
-      this.canvas.setAttribute('aria-label', `${this.season.label} Minecraft scene`);
-      this.shadowRoot.querySelector('#controls').textContent = `Enter to ${this.season.actionLabel.toLowerCase()}.${this.state.plots.length ? ' Arrow keys select wheat.' : ''}${this.season.actions?.length ? ' Tab for more actions.' : ''}`;
-      const sceneAction = this.shadowRoot.querySelector('.primary-action');
-      sceneAction.hidden = false;
-      sceneAction.textContent = this.season.actionLabel;
-      sceneAction.dataset.actionId = this.season.actionId;
-      for (const action of this.season.actions ?? []) {
-        const button = document.createElement('button');
-        button.className = 'scene-action';
-        button.type = 'button';
-        button.dataset.actionId = action.id;
-        button.textContent = action.label;
-        this.shadowRoot.querySelector('.scene-actions').append(button);
-      }
+    if (!this.initializedState || seasonId !== this.seasonId) {
+      this.applySeason(seasonId, createFarmState(performance.now(), SEASONS[seasonId].plots));
       this.initializedState = true;
     }
     this.controller = new AbortController();
     const { signal } = this.controller;
-    const assetBase = new URL(this.getAttribute('asset-base') || './assets/', import.meta.url).href;
-    this.audio = new FarmAudio({ season: this.seasonId, assetBase });
+    this.assetBase = resolveAssetBase(this.getAttribute('asset-base'));
+    this.audio = new FarmAudio({ season: this.seasonId, assetBase: this.assetBase });
     this.audio.setActive(false);
     this.motion = matchMedia('(prefers-reduced-motion: reduce)');
     this.reducedMotion = this.motion.matches;
@@ -87,6 +75,8 @@ export class MinecraftWidget extends HTMLElement {
       this.pointerStart = { x: event.clientX, y: event.clientY };
     }, { signal });
     this.canvas.addEventListener('click', event => {
+      // Touch input only allows audio once the finger lifts, after pointerdown.
+      this.audio?.unlock();
       if (event.button !== 0 || !this.view?.ready) return;
       if (this.pointerStart && Math.hypot(event.clientX - this.pointerStart.x, event.clientY - this.pointerStart.y) > 10) return;
       const hit = this.view.pickPoint(event.clientX, event.clientY);
@@ -95,12 +85,12 @@ export class MinecraftWidget extends HTMLElement {
       else if (hit?.id) this.interact(hit.id, hit.center);
       else this.schedule();
     }, { signal });
-    for (const button of this.shadowRoot.querySelectorAll('.scene-action')) {
-      button.addEventListener('click', () => {
-        this.audio?.unlock();
-        this.interactScene(button.dataset.actionId);
-      }, { signal });
-    }
+    this.shadowRoot.querySelector('.scene-actions').addEventListener('click', event => {
+      const button = event.target.closest('.scene-action');
+      if (!button) return;
+      this.audio?.unlock();
+      this.interactScene(button.dataset.actionId);
+    }, { signal });
     this.canvas.addEventListener('keydown', event => this.keydown(event), { signal });
     this.canvas.addEventListener('blur', () => { this.keyboardPlotSelected = false; this.select(null); }, { signal });
     this.intersection = new IntersectionObserver(entries => { this.visible = entries[0].isIntersecting; this.schedule(); });
@@ -109,19 +99,79 @@ export class MinecraftWidget extends HTMLElement {
     this.resizeObserver.observe(this);
     this.shadowRoot.querySelector('.error').hidden = true;
     try {
-      const view = new FarmRenderer(this.canvas, this.seasonId, assetBase);
-      this.view = view;
-      await view.initialize(this.state);
-      if (generation !== this.generation || !this.isConnected) { view.dispose(); return; }
-      view.spawnDrops(this.state.drops, performance.now());
-      this.schedule();
+      this.renderer = createRenderer(this.canvas);
     } catch (error) {
-      if (generation !== this.generation) return;
-      this.view?.dispose();
-      this.audio?.setActive(false);
-      this.shadowRoot.querySelector('.error').hidden = false;
-      console.error('Minecraft widget failed to load', error);
+      this.fail(error);
+      return;
     }
+    await this.showSeason(this.seasonId, this.state, generation);
+  }
+
+  attributeChangedCallback(name, previous, value) {
+    // Until connected, connectedCallback reads the season itself.
+    if (name !== 'season' || previous === value || !this.isConnected || !this.initializedState) return;
+    const seasonId = seasonIdFor(value);
+    const generation = ++this.generation;
+    const state = createFarmState(performance.now(), SEASONS[seasonId].plots);
+    if (this.renderer) void this.showSeason(seasonId, state, generation);
+    else this.applySeason(seasonId, state);
+  }
+
+  // Builds the scene on the shared renderer while the current one keeps running, then swaps them in one step.
+  async showSeason(seasonId, state, generation) {
+    let view;
+    try {
+      view = new FarmRenderer(this.renderer, seasonId, this.assetBase);
+      await view.initialize(state);
+    } catch (error) {
+      view?.dispose();
+      if (generation === this.generation) this.fail(error);
+      return;
+    }
+    if (generation !== this.generation) { view.dispose(); return; }
+    this.view?.dispose();
+    this.view = view;
+    if (state !== this.state) {
+      this.applySeason(seasonId, state);
+      this.audio?.setSeason(seasonId);
+      // Every new winter scene starts with its campfire lit.
+      this.audio?.setCampfireLit(true);
+    }
+    this.shadowRoot.querySelector('.error').hidden = true;
+    view.spawnDrops(state.drops, performance.now());
+    this.audio?.preload();
+    this.schedule();
+    this.dispatchEvent(new CustomEvent('minecraft-ready', { detail: { season: seasonId }, bubbles: true, composed: true }));
+  }
+
+  applySeason(seasonId, state) {
+    this.seasonId = seasonId;
+    this.season = SEASONS[seasonId];
+    this.state = state;
+    this.selectedId = null;
+    this.keyboardPlotSelected = false;
+    this.lastMergeAt = 0;
+    this.status.textContent = '';
+    this.canvas.setAttribute('aria-label', `${this.season.label} Minecraft scene`);
+    this.shadowRoot.querySelector('#controls').textContent = `Enter to ${this.season.actionLabel.toLowerCase()}.${state.plots.length ? ' Arrow keys select wheat.' : ''}${this.season.actions?.length ? ' Tab for more actions.' : ''}`;
+    const actions = [{ id: this.season.actionId, label: this.season.actionLabel }, ...(this.season.actions ?? [])];
+    this.shadowRoot.querySelector('.scene-actions').replaceChildren(...actions.map(action => {
+      const button = document.createElement('button');
+      button.className = 'scene-action';
+      button.type = 'button';
+      button.dataset.actionId = action.id;
+      button.textContent = action.label;
+      return button;
+    }));
+  }
+
+  fail(error) {
+    this.view?.dispose();
+    this.view = null;
+    this.renderer?.clear();
+    this.audio?.setActive(false);
+    this.shadowRoot.querySelector('.error').hidden = false;
+    console.error('Minecraft widget failed to load', error);
   }
 
   disconnectedCallback() {
@@ -136,6 +186,9 @@ export class MinecraftWidget extends HTMLElement {
     this.audio = null;
     this.view?.dispose();
     this.view = null;
+    this.renderer?.dispose();
+    this.renderer?.forceContextLoss();
+    this.renderer = null;
   }
 
   select(id) {

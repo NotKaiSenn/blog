@@ -3,7 +3,9 @@ import { PICKUP_DURATION_MS } from './farm-state.mjs';
 import { MERGE_ANIMATION_MS } from './drop-stacks.mjs';
 import { createGeneratedItemGeometry } from './generated-item-geometry.mjs';
 import { createGrassCanvases } from './grass-materials.mjs';
-import { SEASONS, buildSeasonScenery } from './season-scenes.mjs';
+import { buildSeasonScenery } from './season-scenes.mjs';
+import { SEASONS, seasonAssets, seasonIdFor } from './seasons.mjs';
+import { loadImage, loadModel, modelURL, textureURL } from './asset-cache.mjs';
 
 const PLAYER_EYE_HEIGHT = 1.62;
 const random = seed => { const n = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
@@ -16,16 +18,22 @@ function configureTexture(texture) {
   return texture;
 }
 
+export function createRenderer(canvas) {
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  return renderer;
+}
+
 export class FarmRenderer {
-  constructor(canvas, seasonId, assetBase = new URL(/* @vite-ignore */ './assets/', import.meta.url)) {
-    this.canvas = canvas;
-    this.assetURL = path => new URL(path, assetBase).href;
-    this.seasonId = Object.hasOwn(SEASONS, seasonId) ? seasonId : 'spring';
+  // The caller owns the renderer, so the next season can load while this one keeps drawing.
+  constructor(renderer, seasonId, assetBase = new URL(/* @vite-ignore */ './assets/', import.meta.url)) {
+    this.renderer = renderer;
+    this.canvas = renderer.domElement;
+    this.assetBase = assetBase;
+    this.seasonId = seasonIdFor(seasonId);
     this.season = SEASONS[this.seasonId];
-    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     this.scene = new THREE.Scene();
     this.camera = new THREE.OrthographicCamera(-2.8, 2.8, 2.3, -2.3, .1, 50);
     this.camera.position.set(8.4, 6.8, 9.4);
@@ -50,30 +58,19 @@ export class FarmRenderer {
   own(value) { this.resources.add(value); return value; }
 
   async initialize(state) {
-    const loader = new THREE.TextureLoader();
     const hasCrops = state.plots.length > 0;
-    const paths = [...new Set([
-      'block/dirt', ...this.season.textures,
-      ...(this.seasonId === 'winter' ? [] : ['block/grass_block_top', 'block/grass_block_side', 'block/grass_block_side_overlay', 'colormap/grass']),
-      ...(this.seasonId === 'autumn' ? [] : ['block/water_still']),
-      ...(hasCrops ? ['block/farmland_moist', 'item/wheat', 'item/wheat_seeds', ...Array.from({ length: 8 }, (_, i) => `block/wheat_stage${i}`)] : []),
-    ])];
-    const requests = paths.map(async path => {
-      const texture = configureTexture(await loader.loadAsync(this.assetURL(`${path}.png`)));
-      if (this.disposed) { texture.dispose(); return; }
-      this.textures[path] = this.own(texture);
-    });
-    const modelNames = [...(hasCrops ? ['crop'] : []), ...(this.seasonId === 'winter' ? ['campfire', 'campfire_off', 'template_campfire'] : []), ...(this.seasonId === 'autumn' ? ['template_leaf_litter_1', 'template_leaf_litter_2', 'template_leaf_litter_3', 'template_leaf_litter_4'] : [])];
-    const modelRequest = Promise.all(modelNames.map(async name => {
-      const response = await fetch(this.assetURL(`models/block/${name}.json`));
-      if (!response.ok) throw new Error(`Block model unavailable: ${name}`);
-      return [name, await response.json()];
-    })).then(Object.fromEntries);
-    const results = await Promise.allSettled([...requests, modelRequest]);
-    const failure = results.find(result => result.status === 'rejected');
-    if (failure) throw failure.reason;
+    const { textures, models } = seasonAssets(this.seasonId);
+    const [images, blockModels] = await Promise.all([
+      Promise.all(textures.map(path => loadImage(textureURL(this.assetBase, path)))),
+      Promise.all(models.map(name => loadModel(modelURL(this.assetBase, name)))),
+    ]);
     if (this.disposed) return;
-    this.blockModels = results.at(-1).value;
+    textures.forEach((path, index) => {
+      const texture = this.own(configureTexture(new THREE.Texture(images[index])));
+      texture.needsUpdate = true;
+      this.textures[path] = texture;
+    });
+    this.blockModels = Object.fromEntries(models.map((name, index) => [name, blockModels[index]]));
     this.cropModel = this.blockModels.crop;
     this.prepareMaterials(hasCrops);
     this.scenery = buildSeasonScenery(this, this.seasonId, state);
@@ -87,8 +84,19 @@ export class FarmRenderer {
       this.itemShadowMaterial = this.own(new THREE.MeshBasicMaterial({ color: '#17170d', transparent: true, opacity: .17, depthWrite: false }));
     }
     this.resize();
+    await this.compileShaders();
+    if (this.disposed) return;
     this.ready = true;
-    this.render(performance.now());
+  }
+
+  // Lets the browser compile shaders in parallel where it can, instead of stalling the first frame.
+  async compileShaders() {
+    const materials = [...this.renderer.compile(this.scene, this.camera)];
+    const { properties } = this.renderer;
+    for (let waited = 0; waited < 2000 && !this.disposed; waited += 10) {
+      if (materials.every(material => properties.get(material).currentProgram?.isReady())) return;
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
   }
 
   material(map, brightness = 1, extra = {}) {
@@ -147,7 +155,7 @@ export class FarmRenderer {
   generatedItem(texture) {
     const c = document.createElement('canvas');
     c.width = texture.image.width; c.height = texture.image.height;
-    const ctx = c.getContext('2d'); ctx.drawImage(texture.image, 0, 0);
+    const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(texture.image, 0, 0);
     const pixels = ctx.getImageData(0, 0, c.width, c.height).data;
     const geometry = this.own(createGeneratedItemGeometry(pixels, c.width, c.height));
     const mesh = new THREE.Mesh(geometry, this.material(texture, 1, { vertexColors: true }));
@@ -359,8 +367,6 @@ export class FarmRenderer {
     this.disposed = true;
     this.resources.forEach(resource => resource.dispose());
     this.resources.clear();
-    this.renderer.dispose();
-    this.renderer.forceContextLoss();
     this.scene.clear();
   }
 }

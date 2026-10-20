@@ -595,3 +595,67 @@ test('spring water cancels across lifecycle changes and delayed decoding or time
   assert.equal(f.audio.ambient.voices.size, 1);
   f.audio.dispose();
 });
+
+test('each season preloads the sounds its ambience and interactions can play', () => {
+  const sounds = season => new FarmAudio({ season, assetBase: 'https://example.test/assets/' }).seasonSounds().map(url => url.slice('https://example.test/assets/sounds/'.length, -'.ogg'.length));
+  assert.deepEqual(sounds('spring'), [...Array.from({ length: 6 }, (_, index) => `block/bamboo/sapling_place${index + 1}`), 'random/pop', 'liquid/water']);
+  assert.ok(sounds('summer').includes('dig/wood1') && sounds('summer').includes('dig/grass1') && sounds('summer').includes('ambient/weather/rain8'));
+  assert.deepEqual(sounds('autumn'), [...Array.from({ length: 4 }, (_, index) => `dig/grass${index + 1}`), 'random/pop', 'item/elytra/elytra_loop']);
+  const winter = sounds('winter');
+  assert.ok(winter.includes('random/glass1') && winter.includes('fire/ignite') && winter.includes('random/fizz') && winter.includes('block/campfire/crackle6'));
+  assert.ok(!winter.includes('random/pop'), 'the winter scene drops no items to pick up');
+});
+
+test('preloading fetches sounds before a gesture without an audio context, then decodes them on unlock without refetching', async () => {
+  const f = fixture('summer', { assets: { ...assets, break: { ...assets.break, wood: ['wood1', 'wood2'] } } });
+  f.audio.preload();
+  await flush();
+  assert.equal(f.creations(), 0, 'preloading must not create an audio context before a user gesture');
+  assert.deepEqual([...f.fetches].sort(), ['grass', 'pickup', 'rain', 'wood1', 'wood2']);
+  assert.equal(f.context.decodes, 0);
+  await f.audio.unlock();
+  await flush();
+  assert.equal(f.context.decodes, 5, 'unlocking decodes every preloaded sound');
+  assert.equal(f.fetches.length, 5, 'decoding reuses the prefetched bytes');
+  assert.equal(await f.audio.playBreak('wood'), true);
+  assert.equal(f.fetches.length, 5);
+  f.audio.dispose();
+});
+
+test('an effect plays a decoded variant rather than waiting for the chosen one to load', async () => {
+  let random = 0;
+  const f = fixture('spring', { assets: { ...assets, break: { ...assets.break, crop: ['crop1', 'crop2'] } }, random: () => random });
+  const stalled = deferred();
+  f.audio.fetcher = async url => {
+    if (url === 'crop2') await stalled.promise;
+    return { ok: true, arrayBuffer: async () => { const bytes = new ArrayBuffer(4); bytes.url = url; return bytes; } };
+  };
+  f.context.decodeAudioData = async bytes => ({ url: bytes.url, duration: .5 });
+  await f.audio.unlock();
+  assert.equal(await f.audio.playBreak('crop'), true);
+  f.advance(70);
+  random = .99;
+  assert.equal(await f.audio.playBreak('crop'), true, 'a slow variant cannot delay or drop the sound');
+  assert.deepEqual(f.context.sources.map(source => source.buffer.url), ['crop1', 'crop1']);
+  stalled.resolve();
+  await flush();
+  f.advance(70);
+  assert.equal(await f.audio.playBreak('crop'), true);
+  assert.equal(f.context.sources.at(-1).buffer.url, 'crop2', 'the chosen variant plays once it has loaded');
+  f.audio.dispose();
+});
+
+test('a failed prefetch is fetched again when the sound is needed', async () => {
+  const f = fixture('spring');
+  const fetcher = f.audio.fetcher;
+  let attempts = 0;
+  f.audio.fetcher = url => ++attempts === 1 ? Promise.reject(new Error('offline')) : fetcher(url);
+  f.audio.preload();
+  await flush();
+  await f.audio.unlock();
+  await flush();
+  assert.equal(await f.audio.playBreak('crop'), true);
+  assert.equal(attempts, 3, 'crop failed once and was fetched again; pickup was fetched once');
+  assert.equal(f.context.decodes, 2);
+  f.audio.dispose();
+});

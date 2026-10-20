@@ -1,4 +1,5 @@
 import './minecraft-widget.mjs';
+import { prefetchSeason, resolveAssetBase } from './asset-cache.mjs';
 
 class MinecraftSeasonPicker extends HTMLElement {
   connectedCallback() {
@@ -19,22 +20,23 @@ class MinecraftSeasonPicker extends HTMLElement {
       this.buttons[next].focus();
       this.selectSeason(this.buttons[next]);
     }, { signal });
+    // Once the first scene is up, load the other seasons while idle so switching does not wait on the network.
+    this.addEventListener('minecraft-ready', event => {
+      const assetBase = resolveAssetBase(event.target.getAttribute('asset-base'));
+      const idle = globalThis.requestIdleCallback ?? (callback => setTimeout(callback, 200));
+      idle(() => { for (const button of this.buttons) prefetchSeason(button.dataset.season, assetBase); });
+    }, { signal, once: true });
   }
 
   disconnectedCallback() { this.controller?.abort(); }
 
   selectSeason(button) {
-    const current = this.querySelector('minecraft-widget');
-    if (!current) return;
-    if (button.getAttribute('aria-pressed') === 'true') {
-      current.audio?.unlock();
-      return;
-    }
-    const season = button.dataset.season;
-    const world = current.cloneNode(false);
-    world.setAttribute('season', season);
-    current.replaceWith(world);
+    const world = this.querySelector('minecraft-widget');
+    if (!world) return;
     world.audio?.unlock();
+    if (button.getAttribute('aria-pressed') === 'true') return;
+    // The widget keeps showing the current season until the next one is ready.
+    world.setAttribute('season', button.dataset.season);
     for (const option of this.buttons) option.setAttribute('aria-pressed', String(option === button));
   }
 }

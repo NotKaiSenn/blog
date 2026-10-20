@@ -15,7 +15,8 @@ function canvasFor(image) {
 
 export function sampleGrassTint(image, { temperature = .8, downfall = .4 } = {}) {
   const canvas = canvasFor(image);
-  const context = canvas.getContext('2d');
+  // Keep the canvas on the CPU; reading pixels back from the GPU stalls.
+  const context = canvas.getContext('2d', { willReadFrequently: true });
   context.drawImage(image, 0, 0);
   const { x, y } = grassColormapCoordinates(temperature, downfall);
   const color = context.getImageData(x, y, 1, 1).data;
