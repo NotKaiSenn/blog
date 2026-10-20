@@ -3,6 +3,7 @@ Minecraft assets are not covered by that license.
 
 Minecraft textures, models and sounds belong to Mojang AB / Microsoft.
 assets/sources.json records their sources and checksums.
+The images in assets/posters are renders of scenes made from these assets.
 Including these files does not place them under the code license.
 Minecraft's terms and usage guidelines apply:
 https://www.minecraft.net/en-us/eula

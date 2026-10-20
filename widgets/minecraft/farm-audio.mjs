@@ -47,12 +47,37 @@ const defaultTimers = {
   clearTimeout: handle => globalThis.clearTimeout(handle),
 };
 
+// Sound files fetched before an audio context exists, handed over once to be decoded.
+const prefetched = new WeakMap();
+
+function fetchBytes(url, fetcher) {
+  return Promise.resolve().then(() => fetcher(url)).then(response => {
+    if (!response.ok) throw new Error('Sound unavailable');
+    return response.arrayBuffer();
+  });
+}
+
+function prefetchBytes(url, fetcher) {
+  if (!prefetched.has(fetcher)) prefetched.set(fetcher, new Map());
+  const files = prefetched.get(fetcher);
+  if (!files.has(url)) files.set(url, fetchBytes(url, fetcher).catch(() => null));
+}
+
+function takeBytes(url, fetcher) {
+  const files = prefetched.get(fetcher);
+  const bytes = files?.get(url);
+  if (!bytes) return fetchBytes(url, fetcher);
+  // Decoding detaches the bytes, so each prefetch is used once.
+  files.delete(url);
+  return bytes.then(value => value ?? fetchBytes(url, fetcher));
+}
+
 function loadBuffer(pool, url, fetcher) {
   if (!pool.buffers.has(url)) {
-    const buffer = Promise.resolve().then(() => fetcher(url)).then(response => {
-      if (!response.ok) throw new Error('Sound unavailable');
-      return response.arrayBuffer();
-    }).then(bytes => pool.context.decodeAudioData(bytes)).catch(() => {
+    const buffer = Promise.resolve().then(() => takeBytes(url, fetcher)).then(bytes => pool.context.decodeAudioData(bytes)).then(decoded => {
+      pool.decoded.add(url);
+      return decoded;
+    }).catch(() => {
       if (pool.buffers.get(url) === buffer) pool.buffers.delete(url);
       return null;
     });
@@ -82,6 +107,7 @@ export class FarmAudio {
     this.ambient = null;
     this.ambientRequest = null;
     this.unlockPromise = null;
+    this.preloading = false;
     if (this.pool?.unlocked && this.pool.context.state === 'running') void this.syncAmbient();
   }
 
@@ -92,7 +118,7 @@ export class FarmAudio {
       if (!pool || pool.context.state === 'closed') {
         const context = this.contextFactory();
         if (!context) return Promise.resolve(false);
-        pool = { context, buffers: new Map(), unlocked: false };
+        pool = { context, buffers: new Map(), decoded: new Set(), unlocked: false };
         pools.set(this.contextFactory, pool);
       }
       if (this.pool !== pool && this.master) {
@@ -109,6 +135,7 @@ export class FarmAudio {
         pool.unlocked = pool.context.state === 'running';
         if (this.disposed || !pool.unlocked) return false;
         void this.syncAmbient();
+        if (this.preloading) this.preload();
         return true;
       }).catch(() => false);
       return this.unlockPromise;
@@ -120,6 +147,28 @@ export class FarmAudio {
     this.master = this.pool.context.createGain();
     this.master.gain.value = 1;
     this.master.connect(this.pool.context.destination);
+  }
+
+  // Sounds the season's ambience and interactions can play.
+  seasonSounds() {
+    const { break: breaks = {}, pickup = [], campfire = {}, ambient = {} } = this.assets;
+    const effects = {
+      spring: [breaks.crop, pickup],
+      summer: [breaks.wood, breaks.grass, pickup],
+      autumn: [breaks.grass, pickup],
+      winter: [breaks.glass, campfire.ignite, campfire.extinguish],
+    }[this.season] ?? [];
+    return [...new Set([...effects.flat(), ...(ambient[this.season]?.urls ?? [])].filter(Boolean))];
+  }
+
+  // Fetches the season's sounds ahead of the first gesture, and decodes them as soon as audio is unlocked.
+  preload() {
+    if (this.disposed) return;
+    this.preloading = true;
+    for (const url of this.seasonSounds()) {
+      if (this.pool?.unlocked) void loadBuffer(this.pool, url, this.fetcher);
+      else if (!this.pool?.buffers.has(url)) prefetchBytes(url, this.fetcher);
+    }
   }
 
   setSeason(season) {
@@ -353,12 +402,21 @@ export class FarmAudio {
       if (this.unlockPromise) await this.unlockPromise;
       if (!this.ready() || generation !== this.generation) return false;
       this.attach();
-      const buffer = await loadBuffer(this.pool, this.choose(urls), this.fetcher);
+      const buffer = await this.effectBuffer(urls);
       if (!buffer || !this.ready() || generation !== this.generation || this.now() - requestedAt > 600) return false;
       const effects = [...this.sources].filter(entry => !entry.ambient);
       if (effects.length >= 6) this.stop(effects[0]);
       return Boolean(this.start(buffer, { volume, pitch }));
     } catch { return false; }
+  }
+
+  // Plays a variant that is already decoded rather than waiting on the network for the chosen one.
+  effectBuffer(urls) {
+    const chosen = this.choose(urls);
+    const request = loadBuffer(this.pool, chosen, this.fetcher);
+    if (this.pool.decoded.has(chosen)) return request;
+    const decoded = urls.filter(url => this.pool.decoded.has(url));
+    return decoded.length ? loadBuffer(this.pool, this.choose(decoded), this.fetcher) : request;
   }
 
   start(buffer, { volume, pitch = 1, ambient = false, loop = ambient, fadeIn = ambient ? .22 : 0, when = this.pool.context.currentTime, destination = this.master, owner = null }) {

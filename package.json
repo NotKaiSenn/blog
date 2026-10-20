@@ -15,7 +15,8 @@
     "test": "node --test tests/*.test.cjs tests/*.test.mjs && npm run test:widget",
     "test:integration": "node --test tests/integration/*.test.mjs",
     "dev:widget": "npm run dev --workspace minecraft-widget",
-    "test:widget": "npm test --workspace minecraft-widget"
+    "test:widget": "npm test --workspace minecraft-widget",
+    "posters:widget": "npm run posters --workspace minecraft-widget"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.2",
