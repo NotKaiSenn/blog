@@ -4,7 +4,7 @@ import type { Work } from '../lib/collections';
 interface Props { work: Work; }
 const { work } = Astro.props;
 ---
-<a class="work-print" href={work.url} aria-label={work.title} style={`aspect-ratio:${work.width}/${work.height}`}><WorkVisual title={work.title} icon={work.icon} image={work.image} width={work.width} height={work.height} /></a>
+<a class="work-print" href={work.url} aria-label={work.title} style={`aspect-ratio:${work.width}/${work.height}`}><WorkVisual title={work.title} icon={work.icon} image={work.image} width={work.width} height={work.height} sizes="(max-width: 540px) 100vw, 320px" /></a>
 <style>
   .work-print { display: block; width: 100%; container-type: inline-size; }
 </style>

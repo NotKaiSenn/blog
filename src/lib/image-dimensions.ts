@@ -9,7 +9,7 @@ export function localImageDimensions(publicDir: URL) {
   const uploadsDir = resolve(fileURLToPath(publicDir), 'uploads');
   const dimensions = new Map<string, Promise<Dimensions>>();
 
-  return async (src: string, kind: 'photo' | 'work'): Promise<Dimensions | undefined> => {
+  return async (src: string, kind: 'photo' | 'work' | 'note image'): Promise<Dimensions | undefined> => {
     if (!src.startsWith('/uploads/')) return undefined;
     const imagePath = resolve(uploadsDir, decodeURIComponent(src.slice('/uploads/'.length)));
     const relativePath = relative(uploadsDir, imagePath);
