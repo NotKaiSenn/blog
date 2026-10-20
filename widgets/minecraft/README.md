@@ -24,4 +24,14 @@ For other sites, copy `assets/` to `/minecraft-widget/assets/`, import `minecraf
 
 Use a bundler that resolves `three`. Seasons are `spring`, `summer`, `autumn`, and `winter`. Changing the `season` attribute switches scenes in place; the current scene stays on screen until the next one is ready. `season-picker.mjs`, `season-items.mjs`, `season-picker.css`, and `index.html` show the optional season controls.
 
+To show the scene before the script loads, put its poster inside the element. The poster holds the scene's space and fades out once the live scene draws:
+
+```html
+<minecraft-widget season="spring" asset-base="/minecraft-widget/assets/" aria-busy="true">
+  <img slot="poster" src="/minecraft-widget/assets/posters/spring.webp" width="340" height="280" alt="" />
+</minecraft-widget>
+```
+
+The widget keeps `aria-busy="true"` while a scene loads; `season-picker.css` uses it for a small loading bar. After changing a scene, run `npm run posters:widget` from the repository root to render new posters with the installed Chrome.
+
 Original code: MIT-0. Minecraft assets keep their original copyright and are not covered by the code license. See `NOTICE` for third-party terms and sources.

@@ -7,7 +7,9 @@ const assetBase = publicAssets
   : `${import.meta.env.BASE_URL.replace(/\/$/, '')}/minecraft-widget/assets/`;
 ---
 <minecraft-season-picker>
-    <minecraft-widget season="spring" asset-base={assetBase}></minecraft-widget>
+    <minecraft-widget season="spring" asset-base={assetBase} aria-busy="true">
+      <img slot="poster" src={`${assetBase}posters/spring.webp`} width="340" height="280" alt="" fetchpriority="high" draggable="false" />
+    </minecraft-widget>
     <div class="minecraft-seasons" role="group" aria-label="Season" lang="en">
       <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src={`${assetBase}block/oxeye_daisy.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
       <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src={`${assetBase}item/melon_slice.png`} width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>

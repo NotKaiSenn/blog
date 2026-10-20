@@ -21,7 +21,9 @@
     <main>
       <minecraft-season-items>
         <minecraft-season-picker lang="en">
-          <minecraft-widget season="spring"></minecraft-widget>
+          <minecraft-widget season="spring" aria-busy="true">
+            <img slot="poster" src="./assets/posters/spring.webp" width="340" height="280" alt="" fetchpriority="high" draggable="false" />
+          </minecraft-widget>
           <div class="minecraft-seasons" role="group" aria-label="Season">
             <button type="button" data-season="spring" aria-label="Spring" aria-pressed="true"><img src="./assets/block/oxeye_daisy.png" width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>
             <button type="button" data-season="summer" aria-label="Summer" aria-pressed="false"><img src="./assets/item/melon_slice.png" width="32" height="32" alt="" draggable="false" crossorigin="anonymous" /></button>

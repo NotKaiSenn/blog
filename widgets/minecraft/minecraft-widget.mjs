@@ -7,11 +7,15 @@ import { resolveAssetBase } from './asset-cache.mjs';
 
 const style = `
   :host { display: block; width: 340px; min-width: 0; max-width: 100%; aspect-ratio: 34 / 28; }
+  :host([aria-busy="true"]) { cursor: progress; }
   * { box-sizing: border-box; }
   .world { position: relative; width: 100%; height: 100%; }
-  canvas { display: block; width: 100%; height: 100%; background: transparent; outline: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .poster { position: absolute; inset: 0; pointer-events: none; transition: opacity .25s ease-out; }
+  .poster ::slotted(*) { display: block; width: 100%; height: 100%; }
+  .live .poster { opacity: 0; }
+  canvas { position: relative; display: block; width: 100%; height: 100%; background: transparent; outline: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-  .error { position: absolute; inset: 0; display: grid; place-content: center; color: #777; font: 12px system-ui, sans-serif; }
+  .error { position: absolute; top: calc(100% + 8px); right: 0; left: 0; color: #777; font: 12px system-ui, sans-serif; text-align: center; }
   .error[hidden] { display: none; }
 `;
 
@@ -26,7 +30,9 @@ export class MinecraftWidget extends HTMLElement {
     this.lastMergeAt = 0;
     this.visible = true;
     this.generation = 0;
+    // A slotted poster image shows the scene until it can draw itself.
     this.shadowRoot.innerHTML = `<style>${style}</style><div class="world" lang="en">
+      <div class="poster"><slot name="poster"></slot></div>
       <canvas tabindex="0" role="application" aria-label="Minecraft scene" aria-describedby="controls"></canvas>
       <span class="sr-only" id="controls"></span>
       <span class="sr-only status" role="status" aria-live="polite" aria-atomic="true"></span>
@@ -35,6 +41,7 @@ export class MinecraftWidget extends HTMLElement {
     </div>`;
     this.canvas = this.shadowRoot.querySelector('canvas');
     this.status = this.shadowRoot.querySelector('.status');
+    this.world = this.shadowRoot.querySelector('.world');
   }
 
   async connectedCallback() {
@@ -63,10 +70,10 @@ export class MinecraftWidget extends HTMLElement {
       this.keyboardPlotSelected = false;
       const hit = this.view?.pickPoint(event.clientX, event.clientY);
       this.select(hit?.id);
-      this.canvas.style.cursor = hit?.id || hit?.actionId ? 'pointer' : 'default';
+      this.canvas.style.cursor = hit?.id || hit?.actionId ? 'pointer' : '';
     }, { signal });
     this.canvas.addEventListener('pointerleave', () => {
-      this.canvas.style.cursor = 'default';
+      this.canvas.style.cursor = '';
       if (!this.canvas.matches(':focus-visible')) this.select(null);
     }, { signal });
     this.canvas.addEventListener('pointerdown', event => {
@@ -98,6 +105,7 @@ export class MinecraftWidget extends HTMLElement {
     this.resizeObserver = new ResizeObserver(() => { this.view?.resize(); this.schedule(); });
     this.resizeObserver.observe(this);
     this.shadowRoot.querySelector('.error').hidden = true;
+    this.setAttribute('aria-busy', 'true');
     try {
       this.renderer = createRenderer(this.canvas);
     } catch (error) {
@@ -113,8 +121,12 @@ export class MinecraftWidget extends HTMLElement {
     const seasonId = seasonIdFor(value);
     const generation = ++this.generation;
     const state = createFarmState(performance.now(), SEASONS[seasonId].plots);
-    if (this.renderer) void this.showSeason(seasonId, state, generation);
-    else this.applySeason(seasonId, state);
+    // The poster only matches the season the page started with.
+    this.world.classList.add('live');
+    if (this.renderer) {
+      this.setAttribute('aria-busy', 'true');
+      void this.showSeason(seasonId, state, generation);
+    } else this.applySeason(seasonId, state);
   }
 
   // Builds the scene on the shared renderer while the current one keeps running, then swaps them in one step.
@@ -139,6 +151,10 @@ export class MinecraftWidget extends HTMLElement {
     }
     this.shadowRoot.querySelector('.error').hidden = true;
     view.spawnDrops(state.drops, performance.now());
+    // Draw now, so the poster fades out over the live scene instead of an empty canvas.
+    this.draw();
+    this.world.classList.add('live');
+    this.removeAttribute('aria-busy');
     this.audio?.preload();
     this.schedule();
     this.dispatchEvent(new CustomEvent('minecraft-ready', { detail: { season: seasonId }, bubbles: true, composed: true }));
@@ -170,6 +186,7 @@ export class MinecraftWidget extends HTMLElement {
     this.view = null;
     this.renderer?.clear();
     this.audio?.setActive(false);
+    this.removeAttribute('aria-busy');
     this.shadowRoot.querySelector('.error').hidden = false;
     console.error('Minecraft widget failed to load', error);
   }

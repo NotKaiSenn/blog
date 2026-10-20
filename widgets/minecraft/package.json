@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "node server.mjs",
-    "test": "node --test *.test.mjs"
+    "test": "node --test *.test.mjs",
+    "posters": "node render-posters.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -23,5 +24,8 @@
     "NOTICE",
     "README.md"
   ],
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
 }

@@ -191,6 +191,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(read('index.html'), /data-href="\/works\/minecraftwidget\/"/);
     const detail = read('works/minecraftwidget/index.html');
     assert.match(detail, /<minecraft-widget\b[^>]*asset-base="\/minecraft-widget\/assets\/"/);
+    assert.match(detail, /<img\b(?=[^>]*\bslot="poster")(?=[^>]*\bsrc="\/minecraft-widget\/assets\/posters\/spring\.webp")[^>]*>/, 'the scene shows a poster before its script loads');
     assert.match(detail, /<minecraft-season-picker\b/);
     assert.equal((detail.match(/<button\b[^>]*data-season=/g) ?? []).length, 4);
     assert.match(detail, /<title>壹方天地 · /);
@@ -198,6 +199,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     for (const name of ['LICENSE', 'NOTICE']) assert.deepEqual(readFileSync(join(fixture, 'dist/minecraft-widget', name)), readFileSync(join(fixture, 'widgets/minecraft', name)));
     const assetRoot = join(fixture, 'dist/minecraft-widget/assets');
     const manifest = JSON.parse(readFileSync(join(assetRoot, 'sources.json'), 'utf8'));
+    for (const season of ['spring', 'summer', 'autumn', 'winter']) assert.ok(manifest.files.some(asset => asset.path === `posters/${season}.webp`), season);
     for (const asset of manifest.files) {
       const content = readFileSync(join(assetRoot, asset.path));
       assert.equal(createHash('sha256').update(content).digest('hex'), asset.sha256, asset.path);
@@ -458,8 +460,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       for (const path of readdirSync(join(fixture, 'dist'), { recursive: true }).filter(path => path.endsWith('.html'))) {
         const html = read(path);
         const images = elements(htmlToHast(html), node => node.tagName === 'img');
-        assert.equal(images.length, path === 'works/minecraftwidget/index.html' ? 4 : 0, `${path} only retains the widget season icons`);
-        for (const image of images) assert.match(String(image.properties.src), /^\/minecraft-widget\/assets\/(?:block|item)\/[^/]+\.png$/);
+        assert.equal(images.length, path === 'works/minecraftwidget/index.html' ? 5 : 0, `${path} only retains the widget poster and season icons`);
+        for (const image of images) assert.match(String(image.properties.src), /^\/minecraft-widget\/assets\/(?:(?:block|item)\/[^/]+\.png|posters\/[^/]+\.webp)$/);
         assert.doesNotMatch(html, /sample-night|a-page-for-small-moments|排版测试|终极共生/, `${path} still contains removed content`);
         assert.doesNotMatch(html, /(?:src|href)="(?:#|\/assets\/images\/[^\"]+)"/, `${path} contains an old image or broken placeholder link`);
         assert.doesNotMatch(html, /(?:href|data-href)="\/(?:lab(?:[/?#"]|$)|persona\/2025(?:[/?#"]|$)|pages\/(?:persona-2025|sandbox-lab|home-redirect)\.html)/, `${path} contains a fixed link to a retired page`);

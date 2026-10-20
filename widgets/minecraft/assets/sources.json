@@ -1509,6 +1509,42 @@
       "soundEvents": [
         "block.water.ambient"
       ]
+    },
+    {
+      "path": "posters/spring.webp",
+      "source": "Rendered from the assets above by render-posters.mjs",
+      "sha256": "f9102b8e17fb0d3198e31550f903791d8b6e6f56904f382040682c1621cdad24",
+      "size": [
+        680,
+        560
+      ]
+    },
+    {
+      "path": "posters/summer.webp",
+      "source": "Rendered from the assets above by render-posters.mjs",
+      "sha256": "7b657c31121307dbfc1a4c656ed409c4036fbdca3280ba9e6450f8cf2e84c31e",
+      "size": [
+        680,
+        560
+      ]
+    },
+    {
+      "path": "posters/autumn.webp",
+      "source": "Rendered from the assets above by render-posters.mjs",
+      "sha256": "b2c3cd5b5b8d7edbcb192e2c9177195773dd11dbe886753865c73e3668685c4a",
+      "size": [
+        680,
+        560
+      ]
+    },
+    {
+      "path": "posters/winter.webp",
+      "source": "Rendered from the assets above by render-posters.mjs",
+      "sha256": "e871b94440e64784fa6daea7aadcef34519de43cd8a600af891ca545c876ed24",
+      "size": [
+        680,
+        560
+      ]
     }
   ],
   "audioSource": {

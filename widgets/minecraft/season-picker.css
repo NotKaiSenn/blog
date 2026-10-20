@@ -3,11 +3,52 @@ minecraft-season-items { position: relative; display: block; }
 minecraft-season-picker { display: flow-root; }
 
 minecraft-season-picker > minecraft-widget {
+  position: relative;
   display: block;
   width: 340px;
   max-width: 100%;
+  aspect-ratio: 34 / 28;
   margin-inline: auto;
   filter: drop-shadow(0 10px 9px rgb(52 67 42 / .17));
+}
+
+/* The poster fills the reserved space before the widget script runs. */
+minecraft-season-picker > minecraft-widget > [slot="poster"] {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* A thin bar below the scene, shown only when loading takes noticeably long.
+   Transform and opacity keep it moving while the page script is busy. */
+minecraft-season-picker > minecraft-widget[aria-busy="true"]::before,
+minecraft-season-picker > minecraft-widget[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: -18px;
+  left: calc(50% - 20px);
+  height: 2px;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+minecraft-season-picker > minecraft-widget[aria-busy="true"]::before {
+  width: 40px;
+  background: rgb(104 112 89 / .14);
+  animation: minecraft-loading-in .3s .6s both;
+}
+
+minecraft-season-picker > minecraft-widget[aria-busy="true"]::after {
+  width: 16px;
+  background: rgb(104 112 89 / .55);
+  animation: minecraft-loading 1.1s .6s ease-in-out infinite backwards;
+}
+
+@keyframes minecraft-loading-in { from { opacity: 0; } }
+@keyframes minecraft-loading {
+  from { transform: translateX(0); opacity: 0; }
+  35%, 65% { opacity: 1; }
+  to { transform: translateX(24px); opacity: 0; }
 }
 
 .minecraft-seasons {
@@ -79,4 +120,5 @@ minecraft-season-picker > minecraft-widget {
 @media (prefers-reduced-motion: reduce) {
   .minecraft-seasons > button > img,
   .minecraft-seasons > button::after { transition: none; }
+  minecraft-season-picker > minecraft-widget[aria-busy="true"]::after { transform: translateX(12px); animation: minecraft-loading-in .3s .6s both; }
 }
