@@ -7,6 +7,7 @@ const assets = new URL('./assets/', import.meta.url);
 const notices = ['LICENSE', 'NOTICE'];
 const contentTypes = {
   '.png': 'image/png',
+  '.webp': 'image/webp',
   '.ogg': 'audio/ogg',
   '.json': 'application/json',
 };
