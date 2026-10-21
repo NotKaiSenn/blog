@@ -17,6 +17,11 @@ function elements(node, match) {
   return [...(node.type === 'element' && match(node) ? [node] : []), ...(node.children ?? []).flatMap(child => elements(child, match))];
 }
 
+// The profile avatar, as opposed to the friend avatars that share its fixture image.
+function profileAvatar(html) {
+  return html.match(/<div class="avatar-print"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
+}
+
 function assertNoContentScripts(html, note = false) {
   if (note) html = html.replace(/<script\b[^>]*src="\/_astro\/NoteDiagrams\.[^"]+\.js"[^>]*><\/script>/g, "");
   const withoutRouter = html.replace(/<script\b[^>]*src="\/_astro\/ClientRouter\.[^"]+\.js"[^>]*><\/script>/g, '');
@@ -62,6 +67,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     { name: '外链头像测试友链', url: 'https://another.example.com/', avatar: '/uploads/avatar.png', avatarUrl: 'https://avatars.example.com/friend.webp' },
     ...Array.from({ length: 6 }, (_, index) => ({ name: `其他友链 ${index + 3}`, url: `https://friend-${index + 3}.example.com/` })),
   ];
+  // A CMS entry may write one of the site's own pages as a full address.
+  fixtureFriends[7].url = 'https://kaisenn.net/photos/?from=friends#top';
   writeFileSync(friendsPath, JSON.stringify({ items: fixtureFriends }));
   const worksPath = join(fixture, 'src/data/works.json');
   const fixtureWorks = Array.from({ length: 8 }, (_, index) => ({
@@ -116,6 +123,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     const katexStylesheet = /<link rel="stylesheet" href="\/_astro\/katex[^"]*\.css"/;
     assert.match(read('posts/same-day/index.html').match(/<head\b[^>]*>([\s\S]*?)<\/head>/)[1], katexStylesheet);
     for (const path of ['posts/note-02/index.html', 'index.html']) assert.doesNotMatch(read(path), katexStylesheet, `${path} has no math to style`);
+    assert.doesNotMatch(read('posts/note-02/index.html'), /NoteDiagrams/, 'a note without diagrams does not load the renderer');
   });
 
   await t.test('uploaded images get WebP variants and note images reserve their proportions', async () => {
@@ -195,7 +203,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(detail, /<minecraft-season-picker\b/);
     assert.equal((detail.match(/<button\b[^>]*data-season=/g) ?? []).length, 4);
     assert.match(detail, /<title>壹方天地 · /);
-    assert.match(detail, /href="https:\/\/github\.com\/NotKaiSenn\/blog\/tree\/[^\"]+\/widgets\/minecraft"/);
+    assert.match(detail, /href="https:\/\/github\.com\/NotKaiSenn\/blog\/tree\/main\/widgets\/minecraft"/);
     for (const name of ['LICENSE', 'NOTICE']) assert.deepEqual(readFileSync(join(fixture, 'dist/minecraft-widget', name)), readFileSync(join(fixture, 'widgets/minecraft', name)));
     const assetRoot = join(fixture, 'dist/minecraft-widget/assets');
     const manifest = JSON.parse(readFileSync(join(assetRoot, 'sources.json'), 'utf8'));
@@ -304,7 +312,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(external, /src="\/uploads\/photo.png"/);
     assert.match(home, /data-href="\/photos\/photo-window\/"/);
     assert.match(home, /data-href="https:\/\/friend.example.com\/hello\/"/);
-    assert.match(home, /<img[^>]*src="\/uploads\/avatar.png"[^>]*data-avatar-image/);
+    assert.match(profileAvatar(home), /<img[^>]*src="\/uploads\/avatar.png"/);
     assert.match(home, /后台测试名字/);
     assert.match(home, /后台保存的个人简介。/);
     assert.match(home, /href="https:\/\/contact.example.com\/"/);
@@ -345,6 +353,28 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(read('sitemap-0.xml'), /https:\/\/kaisenn.net\/photos\/photo-window\//);
   });
 
+  await t.test('links, avatars and navigation follow one rule across pages', () => {
+    const home = read('index.html');
+    const friends = read('friends/index.html');
+    for (const [path, html] of [['index.html', home], ['friends/index.html', friends], ['works/index.html', read('works/index.html')], ['works/minecraftwidget/index.html', read('works/minecraftwidget/index.html')]]) {
+      for (const [tag, href] of html.matchAll(/<a\b[^>]*\shref="([^"]+)"[^>]*>/g)) {
+        const opensTab = /\starget="_blank"/.test(tag) && /\srel="noopener noreferrer"/.test(tag);
+        const leaves = new URL(href, 'https://kaisenn.net/').host !== 'kaisenn.net';
+        assert.equal(opensTab, leaves, `${path}: ${href} opens a new tab exactly when it leaves the site`);
+        assert.ok(leaves || !/^https?:/.test(href), `${path}: ${href} links to the site's own page as a path`);
+      }
+    }
+    assert.match(friends, /<a class="friend-card" href="\/photos\/\?from=friends#top"(?![^>]*target=)[^>]*>/, 'a full address on this site stays in the tab and keeps its query and fragment');
+    assert.match(friends, /<span class="friend-avatar"[^>]*><span aria-hidden="true"[^>]*>测<\/span><img\b[^>]*onerror="this\.remove\(\)"/, 'a friend avatar that fails reveals the initial beneath it');
+    assert.match(home, /<span class="friend-initial" aria-hidden="true">测<img\b[^>]*onerror="this\.remove\(\)"/, 'homepage friend cards fall back the same way');
+    assert.match(profileAvatar(home), /<img\b[^>]*onerror="this\.remove\(\)"/, 'and so does the profile avatar');
+    const nav = path => read(path).match(/<nav class="primary-nav"[\s\S]*?<\/nav>/)[0];
+    assert.match(nav('posts/index.html'), /href="\/posts\/" aria-current="page"/);
+    assert.match(nav('posts/note-02/index.html'), /href="\/posts\/" aria-current="true"/, 'a note marks its section, not the page');
+    assert.match(nav('works/minecraftwidget/index.html'), /href="\/works\/" aria-current="true"/);
+    assert.doesNotMatch(nav('index.html'), /aria-current/);
+  });
+
   await t.test('omitting the optional avatar URL preserves the uploaded avatar', () => {
     const profile = { ...fixtureProfile };
     delete profile.avatarUrl;
@@ -353,8 +383,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       runAstro('check');
       build();
       const home = read('index.html');
-      assert.match(home, /data-avatar-placeholder/);
-      assert.match(home, /<img[^>]*src="\/uploads\/avatar.png"[^>]*data-avatar-image/);
+      assert.match(profileAvatar(home), /class="avatar-placeholder"/);
+      assert.match(profileAvatar(home), /<img[^>]*src="\/uploads\/avatar.png"/);
       assert.match(home, /<link rel="icon" href="\/uploads\/avatar.png"/);
       assert.match(home, /href="https:\/\/contact.example.com\/"/);
     } finally {
@@ -370,8 +400,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       runAstro('check');
       build();
       const home = read('index.html');
-      assert.match(home, /data-avatar-placeholder/);
-      assert.doesNotMatch(home, /<img\b[^>]*data-avatar-image/);
+      assert.match(profileAvatar(home), /class="avatar-placeholder"/);
+      assert.doesNotMatch(profileAvatar(home), /<img\b/);
       assert.match(home, /<link rel="icon" href="\/favicon.svg"/);
       assert.doesNotMatch(home, /contact\.example\.com/);
     } finally {
@@ -392,7 +422,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(read('rss.xml') + read('sitemap-0.xml'), /note-01/);
     assert.match(read('photos/photo-window/index.html'), /修改过标题的测试照片/);
     assert.match(read('index.html'), /data-href="\/photos\/photo-window\/"/);
-    assert.match(read('index.html'), /<img[^>]*src="https:\/\/avatars.example.com\/live-avatar.webp"[^>]*data-avatar-image/);
+    assert.match(profileAvatar(read('index.html')), /<img[^>]*src="https:\/\/avatars.example.com\/live-avatar.webp"/);
   });
 
   await t.test('CMS blank rows build empty folders without blocking published notes', () => {

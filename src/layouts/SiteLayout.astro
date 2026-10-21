@@ -1,10 +1,10 @@
 ---
 import '../styles/global.css';
 import { Icon } from 'astro-icon/components';
-import profile from '../lib/profile';
+import { profile } from '../lib/site-data';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import PageTransition from '../components/PageTransition.astro';
-import { imageSource } from '../lib/collections';
+import { linkProps } from '../lib/links';
 
 interface Props {
   title?: string;
@@ -17,9 +17,9 @@ interface Props {
 const { title, description = profile.bio, wide = false, noindex = false, articleDate, breadcrumbs = title ? [{ label: title }] : [] } = Astro.props;
 const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const favicon = profile.favicon?.trim() ? imageSource(profile.favicon, 'Site icon') : '/favicon.svg';
-const isPosts = Astro.url.pathname.startsWith('/posts/');
-const isWorks = Astro.url.pathname.startsWith('/works/');
+const favicon = profile.favicon ?? '/favicon.svg';
+// A section link is the current page on its own page, and marks the current section on pages inside it.
+const current = (section: string) => Astro.url.pathname === section ? 'page' : Astro.url.pathname.startsWith(section) ? 'true' : undefined;
 ---
 <!doctype html>
 <html lang="zh-CN" style="background-color:#f3f7f1;color-scheme:light">
@@ -48,9 +48,9 @@ const isWorks = Astro.url.pathname.startsWith('/works/');
       <header class:list={['site-header', { 'has-detail-path': breadcrumbs.length > 1 }]}>
         <Breadcrumbs items={breadcrumbs} />
         <nav class="primary-nav" aria-label="主要导航">
-          <a href="/posts/" aria-current={isPosts ? 'page' : undefined}>笔记</a>
-          <a href="/works/" aria-current={isWorks ? 'page' : undefined}>作品</a>
-          {profile.contactUrl && <a href={profile.contactUrl} target="_blank" rel="noopener noreferrer">联系<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" class="external-mark" /></a>}
+          <a href="/posts/" aria-current={current('/posts/')}>笔记</a>
+          <a href="/works/" aria-current={current('/works/')}>作品</a>
+          {profile.contactUrl && <a {...linkProps(profile.contactUrl)}>联系<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" class="external-mark" /></a>}
         </nav>
       </header>
       <main id="main" tabindex="-1"><slot /></main>

@@ -1,17 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
-import ts from 'typescript';
-
-const sourceUrl = new URL('../src/lib/collections.ts', import.meta.url);
-const compiled = ts.transpileModule(readFileSync(sourceUrl, 'utf8'), {
-  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
-});
-const collectionModule = {};
-new Function('exports', 'require', compiled.outputText)(collectionModule, createRequire(fileURLToPath(sourceUrl)));
-const { parsePhotos, parseFriends, parseWorks } = collectionModule;
+import { parsePhotos, parseFriends, parseProfile, parseWorks } from '../src/lib/collections.ts';
 
 const photo = { id: 'window', title: '窗边', date: '2026-09-21', src: '/uploads/window.webp', alt: '窗外的树', width: 1600, height: 900 };
 
@@ -105,12 +94,11 @@ test('works can be submitted with an icon, text and link without manual identifi
     { title: '暂无图标', icon: '', url: 'https://example.com/another/' },
   ] });
   assert.deepEqual(works.map(work => work.title), ['上传的作品', '独立页面', '暂无图标']);
-  assert.deepEqual(works.map(work => work.icon), ['/uploads/work-icon.png', 'https://images.example.com/icon.png', undefined]);
+  assert.deepEqual(works.map(work => work.image), ['/uploads/work-icon.png', 'https://images.example.com/icon.png', undefined]);
   assert.equal(works[0].description, '作品说明');
   assert.equal(works[1].url, '/projects/example/');
-  assert.equal(works[1].image, undefined);
   assert.equal(works[2].description, undefined);
-  assert.equal(parseWorks({ items: [{ title: '无图标字段', url: '/' }] })[0].icon, undefined);
+  assert.equal(parseWorks({ items: [{ title: '无图标字段', url: '/' }] })[0].image, undefined);
   for (const field of ['title', 'url']) {
     assert.throws(() => parseWorks({ items: [{ title: '作品', url: '/', [field]: '' }] }), new RegExp(`\\.${field}`));
   }
@@ -132,4 +120,33 @@ test('works reject duplicate identifiers, unsafe destinations and invalid cover 
   for (const image of ['/uploads/../private.png', '/uploads/%2e%2e/private.png', '/uploads/', '//example.com/photo.png', 'http://example.com/photo.png']) {
     assert.throws(() => parseWorks({ items: [{ ...work, image }] }), undefined, image);
   }
+});
+
+test('a legacy cover replaces the uploaded icon, and an external cover wins over both', () => {
+  const work = { title: '作品', url: '/', icon: '/uploads/icon.png' };
+  const works = parseWorks({ items: [work, { ...work, image: '/uploads/cover.png' }, { ...work, image: '/uploads/cover.png', imageUrl: 'https://cdn.example.com/cover.png' }] });
+  assert.deepEqual(works.map(work => work.image), ['/uploads/icon.png', '/uploads/cover.png', 'https://cdn.example.com/cover.png']);
+  assert.ok(works.every(work => !('icon' in work)), 'pages receive one image to show');
+  assert.throws(() => parseWorks({ items: [{ ...work, image: '/uploads/cover.png', icon: '/uploads/../private.png' }] }), /Work 1\.icon/, 'an unused icon is still validated');
+});
+
+test('friends carry the host shown on their cards', () => {
+  const [plain, www] = parseFriends({ items: [
+    { name: '朋友', url: 'https://friend.example.com/hello/' },
+    { name: '另一位', url: 'https://www.example.org/' },
+  ] });
+  assert.deepEqual([plain.host, www.host], ['friend.example.com', 'example.org']);
+});
+
+test('the profile is validated like other CMS data, with links taking priority over uploads', () => {
+  const profile = { name: ' 名字 ', bio: '简介', avatar: '/uploads/avatar.webp', avatarUrl: '', favicon: '/uploads/icon.png', contactUrl: 'https://contact.example.com/' };
+  assert.deepEqual(parseProfile(profile), { name: '名字', bio: '简介', avatar: '/uploads/avatar.webp', favicon: '/uploads/icon.png', contactUrl: 'https://contact.example.com/' });
+  assert.equal(parseProfile({ ...profile, avatarUrl: 'https://cdn.example.com/avatar.webp' }).avatar, 'https://cdn.example.com/avatar.webp');
+  assert.deepEqual(parseProfile({ name: '名字', bio: '简介', avatar: ' ', favicon: null, contactUrl: '' }), { name: '名字', bio: '简介', avatar: undefined, favicon: undefined, contactUrl: undefined });
+  for (const field of ['name', 'bio']) assert.throws(() => parseProfile({ ...profile, [field]: ' ' }), new RegExp(`Profile\\.${field}`));
+  for (const contactUrl of ['javascript:alert(1)', 'http://example.com/', '/contact/']) {
+    assert.throws(() => parseProfile({ ...profile, contactUrl }), /Profile\.contactUrl/, contactUrl);
+  }
+  assert.throws(() => parseProfile({ ...profile, avatarUrl: '/uploads/avatar.webp' }), /Profile\.avatarUrl.*HTTPS/);
+  assert.throws(() => parseProfile({ ...profile, favicon: '/uploads/../private.png' }), /Profile\.favicon/);
 });

@@ -1,16 +1,16 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { photoUrl } from '../../lib/collections';
-import { photos } from '../../lib/photos';
+import { photos } from '../../lib/site-data';
 import { displayDate } from '../../lib/post-data';
 import { responsiveImage } from '../../lib/upload-variants';
 ---
 <SiteLayout title="照片" wide>
   <header class="page-heading"><h1>照片</h1></header>
   {photos.length > 0 ? <photo-masonry><ul class="photo-list">{photos.map(photo => <li>
-    <a class="photo-entry" href={photoUrl(photo)}>
+    <a class="photo-entry" href={photoUrl(photo.id)}>
       <div class="photo-frame"><img src={photo.src} {...responsiveImage(photo.src, photo.width, '(max-width: 727px) 50vw, 320px')} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" /></div>
-      <div class="photo-caption"><h2>{photo.title}</h2><time datetime={photo.date}>{displayDate(new Date(`${photo.date}T00:00:00Z`))}</time></div>
+      <div class="photo-caption"><h2>{photo.title}</h2><time datetime={photo.date}>{displayDate(photo.date)}</time></div>
     </a>
   </li>)}</ul></photo-masonry> : <div class="empty-state"><p>暂无照片</p></div>}
 </SiteLayout>

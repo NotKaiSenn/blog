@@ -29,3 +29,13 @@ export function localImageDimensions(publicDir: URL) {
     }
   };
 }
+
+/** Gives each item the real size of its uploaded image. Remote images keep the size entered in the CMS. */
+export async function withImageDimensions<T extends Dimensions>(items: readonly T[], publicDir: URL, kind: 'photo' | 'work', source: (item: T) => string | undefined): Promise<T[]> {
+  const readDimensions = localImageDimensions(publicDir);
+  return Promise.all(items.map(async item => {
+    const src = source(item);
+    const dimensions = src && await readDimensions(src, kind);
+    return dimensions ? { ...item, ...dimensions } : item;
+  }));
+}

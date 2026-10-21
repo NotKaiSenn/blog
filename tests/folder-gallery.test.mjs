@@ -268,6 +268,60 @@ test('empty-folder decorations fan on hover and focus without becoming gallery c
   browser.decorations.forEach((decoration, index) => assert.equal(decoration.style.cssText, styles[index]));
 });
 
+test('hover chooses the fanned card nearest the pointer, even when every card is narrow', async () => {
+  const browser = galleryBrowser();
+  const wrap = browser.home.parentNode;
+  wrap.offsetWidth = wrap.clientWidth = 320;
+  wrap.offsetHeight = 250;
+  for (const card of browser.cards) card.dataset.cardWidth = '20';
+  browser.opener.emit('pointerenter');
+  const folderCenter = 20 + 320 / 2;
+  const [, middle, right] = browser.cards.map(card => folderCenter + Number(card.style.transform.match(/^translate\((-?[\d.]+)px/)[1]));
+  browser.opener.emit('pointermove', { clientX: middle + (right - middle) * .6, clientY: 140 });
+  assert.match(browser.cards[2].style.transform, /scale\(1\.05\)/, 'the card drawn closest to the pointer is lifted');
+  assert.doesNotMatch(browser.cards[1].style.transform, /scale\(1\.05\)/);
+  browser.opener.emit('pointerleave');
+  await browser.settle();
+});
+
+test('hover fans and settles the cards, decorations and flap at one pace', async () => {
+  const browser = galleryBrowser({ decorationCount: 2 });
+  const durations = () => new Set([...browser.animations].map(animation => animation.options.duration));
+  browser.opener.emit('pointerenter');
+  assert.deepEqual([...durations()], [350], 'fanning out');
+  await browser.settle();
+  browser.opener.emit('pointerleave');
+  assert.ok([...browser.animations].some(animation => animation.owner === browser.flap), 'the flap settles too');
+  assert.deepEqual([...durations()], [250], 'settling back, the flap lands with the cards');
+  await browser.settle();
+});
+
+test('opening and closing stagger the cards by the same limit', async () => {
+  const browser = galleryBrowser({ count: 6 });
+  const latestCard = () => Math.max(...[...browser.animations].filter(animation => browser.cards.includes(animation.owner)).map(animation => animation.options.delay));
+  browser.open();
+  const opening = latestCard();
+  await browser.settle();
+  browser.controls.close.emit('click');
+  assert.equal(latestCard(), opening, 'the farthest card waits as long when closing as when opening');
+  assert.equal(opening, 100);
+  await browser.settle();
+});
+
+test('after a swipe, a tap waits no longer than the wheel does between switches', async () => {
+  const browser = galleryBrowser({ count: 5 });
+  browser.open();
+  const first = browser.cards[0].querySelector('.card-content');
+  first.emit('pointerdown', { pointerType: 'touch', clientX: 180 });
+  first.emit('pointerup', { pointerType: 'touch', clientX: 70 });
+  assert.equal(browser.controls.count.textContent, '2 / 5');
+  browser.advanceTime(140);
+  assert.equal(browser.controls.next.emit('click').defaultPrevented, false, 'the swipe guard has ended by the time the wheel could switch again');
+  assert.equal(browser.controls.count.textContent, '3 / 5');
+  browser.controls.close.emit('click');
+  await browser.settle();
+});
+
 test('photo hover keeps short cards tucked into the folder while notes retain their full lift', async () => {
   const browser = galleryBrowser();
   const wrap = browser.home.parentNode;

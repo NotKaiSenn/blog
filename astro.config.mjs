@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
@@ -8,14 +9,18 @@ import icon from 'astro-icon';
 import minecraftAssets from './widgets/minecraft/astro-assets.mjs';
 import uploadImages from './src/integrations/upload-images.ts';
 import { rehypeUploadImages } from './src/lib/markdown-images.ts';
+import { SITE } from './src/lib/links.ts';
+
+const publicDir = new URL('./public/', import.meta.url);
 
 export default defineConfig({
-  site: 'https://kaisenn.net',
+  site: SITE,
+  publicDir: fileURLToPath(publicDir),
   output: 'static',
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath, [remarkAlert, { tagName: 'blockquote' }]],
-      rehypePlugins: [[rehypeKatex, { trust: false, strict: 'warn' }], [rehypeUploadImages, { publicDir: new URL('./public/', import.meta.url) }]],
+      rehypePlugins: [[rehypeKatex, { trust: false, strict: 'warn' }], [rehypeUploadImages, { publicDir }]],
     }),
     syntaxHighlight: { type: 'shiki', excludeLangs: ['math', 'mermaid'] },
   },

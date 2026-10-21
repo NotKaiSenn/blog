@@ -4,6 +4,29 @@ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 const galleries = new Map<HTMLDialogElement, () => void>();
 
+// Durations and per-card delays in milliseconds. Every motion in the gallery takes its pace from here.
+const MOTION = {
+  // Hover fans the cards, decorations and flap out of the folder, and they settle back together.
+  fanOut: 350, fanIn: 250, fanOutStagger: 40, fanInStagger: 20,
+  // Opening flies the cards onto the stage while the decorations retire and the flap swings away.
+  open: 500, openStagger: 25, openDecorations: 250, openFlap: 350,
+  // Moving between cards, and between the stack and the spread.
+  select: 450, view: 320,
+  // Closing flies everything home, then the flap shuts.
+  close: 400, closeStagger: 30, closeDecorations: 350, closeFlap: 300,
+  // However many cards there are, the last one never trails the first by more than this.
+  staggerLimit: 100,
+  easing: 'cubic-bezier(.22,.85,.24,1)',
+};
+
+// The shortest wait between two switches. The wheel cannot switch again sooner, and a tap this soon after
+// a swipe is taken as the swipe's own click, so a deliberate tap waits no longer than the wheel does.
+const SWITCH_WAIT = 140;
+
+function staggered(distance: number, step: number) {
+  return Math.min(distance * step, MOTION.staggerLimit);
+}
+
 function initializeGallery(dialog: HTMLDialogElement) {
   if (galleries.has(dialog)) return;
   const opener = document.querySelector<HTMLAnchorElement>(`[data-folder-open="${dialog.id}"]`);
@@ -53,7 +76,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     return { transform: computed.transform, opacity: computed.opacity };
   }
 
-  async function animate(element: HTMLElement, transform: string, opacity = 1, duration = 450, delay = 0, start = animationStart(element)) {
+  async function animate(element: HTMLElement, transform: string, opacity: number, duration: number, delay = 0, start = animationStart(element)) {
     animations.get(element)?.cancel();
     animations.delete(element);
     element.style.transform = transform;
@@ -65,7 +88,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }
     if (card) element.style.willChange = 'transform, opacity';
     const animation = element.animate([start, { transform, opacity }], {
-      duration, delay, easing: 'cubic-bezier(.22,.85,.24,1)', fill: 'backwards',
+      duration, delay, easing: MOTION.easing, fill: 'backwards',
     });
     animations.set(element, animation);
     await animation.finished.catch(() => {});
@@ -100,17 +123,18 @@ function initializeGallery(dialog: HTMLDialogElement) {
     gesture = null;
   }
 
-  function changeView(nextView: 'stack' | 'grid') {
+  function changeView(nextView: 'stack' | 'grid', index = active) {
     if (status !== 'open' || view === nextView || !viewButtons.length) return;
     const starts = screenPoses();
     dialog.classList.add('is-reflowing');
+    active = clampIndex(index);
     applyView(nextView);
     const origin = viewport!.getBoundingClientRect();
     const frames = starts.map((pose, i) => ({
       transform: transform({ ...pose, x: pose.x - origin.left, y: pose.y - origin.top }, sizes[i]),
       opacity: String(pose.opacity),
     }));
-    render(320, 0, frames);
+    render(MOTION.view, 0, frames);
   }
 
   function decorationHome(decoration: HTMLElement) {
@@ -128,8 +152,14 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }));
   }
 
-  function retireDecorations(duration = 250, poses = decorationRetirement()) {
+  function retireDecorations(duration: number, poses = decorationRetirement()) {
     poses.forEach((pose, i) => { void animate(decorations[i], pose.transform, 0, duration, 0, pose.start); });
+  }
+
+  // Spacing of fanned cards, as a percentage of the folder width. Hover hit-testing uses the same spacing.
+  function fanStep() {
+    const widest = Math.max(34, ...cards.map(card => Number(card.dataset.cardWidth)));
+    return (100 - widest) / Math.max(cards.length - 1, 1);
   }
 
   function fan(isExpanded: boolean, singled = -1) {
@@ -137,8 +167,8 @@ function initializeGallery(dialog: HTMLDialogElement) {
     expanded = isExpanded;
     focused = singled;
     const gaps = Math.max(cards.length - 1, 1);
-    const maxWidth = Math.max(34, ...cards.map(card => Number(card.dataset.cardWidth)));
-    const step = (100 - maxWidth) / gaps;
+    const step = fanStep();
+    const pace = expanded ? MOTION.fanOut : MOTION.fanIn;
     const wrapWidth = wrap!.clientWidth;
     const tuckLine = wrap!.offsetHeight * .4;
     const measurements = cards.map(card => ({ height: card.offsetHeight, top: card.offsetTop, start: animationStart(card) }));
@@ -157,8 +187,8 @@ function initializeGallery(dialog: HTMLDialogElement) {
       const y = expanded ? -tuckedLift : 0;
       const rotation = selected ? 0 : offset * ((expanded ? 11 : 6) / gaps);
       card.style.zIndex = String(selected ? cards.length + 1 : cards.length - Math.round(Math.abs(offset)));
-      const delay = singled < 0 ? Math.abs(offset) * (expanded ? 40 : 20) : 0;
-      void animate(card, `translate(${x}px,${y}px) rotate(${rotation}deg) scale(${selected ? 1.05 : 1})`, 1, expanded ? 350 : 250, delay, start);
+      const delay = singled < 0 ? staggered(Math.abs(offset), expanded ? MOTION.fanOutStagger : MOTION.fanInStagger) : 0;
+      void animate(card, `translate(${x}px,${y}px) rotate(${rotation}deg) scale(${selected ? 1.05 : 1})`, 1, pace, delay, start);
     });
     decorations.forEach((decoration, i) => {
       const { height, home, start } = decorationMeasurements[i];
@@ -167,12 +197,12 @@ function initializeGallery(dialog: HTMLDialogElement) {
       const pose = expanded
         ? `translate(${offset * wrapWidth * .14}px,${-height * .24}px) ${home} rotate(${offset * 5}deg)`
         : home;
-      void animate(decoration, pose, 1, expanded ? 350 : 250, 0, start);
+      void animate(decoration, pose, 1, pace, 0, start);
     });
-    void animate(flap!, `rotateX(${expanded ? -30 : 0}deg)`, 1, 350, 0, flapStart);
+    void animate(flap!, `rotateX(${expanded ? -30 : 0}deg)`, 1, pace, 0, flapStart);
   }
 
-  function render(duration = 450, stagger = 0, initialFrames?: ReturnType<typeof animationStart>[]) {
+  function render(duration = MOTION.select, stagger = 0, initialFrames?: ReturnType<typeof animationStart>[]) {
     if (status !== 'open') return;
     const renderingEpoch = ++layoutEpoch;
     const layout = view === 'grid' ? gridPoses(sizes, viewport!.clientWidth) : null;
@@ -196,7 +226,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
       }
       picker.tabIndex = view === 'grid' ? 0 : -1;
       picker.setAttribute('aria-label', `${view === 'grid' ? '查看照片' : '选择'}：${card.dataset.title}`);
-      return animate(card, transform(poses[i], sizes[i]), poses[i].opacity, duration, Math.min(Math.abs(i - active) * stagger, 100), starts[i]);
+      return animate(card, transform(poses[i], sizes[i]), poses[i].opacity, duration, staggered(Math.abs(i - active), stagger), starts[i]);
     });
     previous.setAttribute('aria-disabled', String(active === 0));
     next.setAttribute('aria-disabled', String(active >= cards.length - 1));
@@ -212,14 +242,25 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }
   }
 
-  function select(index: number, focusCard = false) {
-    if (status !== 'open' || !cards.length) return;
-    const selected = Math.max(0, Math.min(cards.length - 1, index));
-    if (selected === active) return;
+  function clampIndex(index: number) {
+    return Math.max(0, Math.min(cards.length - 1, index));
+  }
+
+  function focusActiveCard() {
+    cards[active].querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
+  }
+
+  // Buttons, arrow keys, the wheel, swipes and side-card pickers all move through the stack here.
+  // Focus follows the selection when it was already on a card. Returns whether the selection changed.
+  function select(index: number): boolean {
+    if (status !== 'open' || !cards.length) return false;
+    const selected = clampIndex(index);
+    if (selected === active) return false;
     const focusWasInCard = cards.some(card => card.contains(document.activeElement));
     active = selected;
     render();
-    if (focusCard || focusWasInCard) cards[active].querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
+    if (focusWasInCard) focusActiveCard();
+    return true;
   }
 
   function resetWheel() {
@@ -234,7 +275,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     status = 'open';
     epoch++;
     applyView('stack');
-    active = Math.max(0, Math.min(cards.length - 1, index));
+    active = clampIndex(index);
     sizes = cards.map(card => ({ width: card.offsetWidth, height: card.offsetHeight, kind: card.dataset.kind === 'note' ? 'note' : 'photo' }));
     const starts = screenPoses();
     const initialFrames = starts.map((pose, i) => ({ transform: transform(pose, sizes[i]), opacity: '1' }));
@@ -268,9 +309,9 @@ function initializeGallery(dialog: HTMLDialogElement) {
       stage!.append(card);
       card.style.transform = initialFrames[i].transform;
     });
-    retireDecorations(250, retiringDecorations);
-    void animate(flap!, 'rotateX(-80deg)', 0, 350, 0, flapStart);
-    render(500, 25, initialFrames);
+    retireDecorations(MOTION.openDecorations, retiringDecorations);
+    void animate(flap!, 'rotateX(-80deg)', 0, MOTION.openFlap, 0, flapStart);
+    render(MOTION.open, MOTION.openStagger, initialFrames);
     return true;
   }
 
@@ -333,12 +374,12 @@ function initializeGallery(dialog: HTMLDialogElement) {
       return { transform: transform(pose, sizes[i]), start: gridStarts?.[i] ?? animationStart(card) };
     });
     const decorationDestinations = decorations.map(decoration => ({ transform: decorationHome(decoration), start: animationStart(decoration) }));
-    const cardFlights = cards.map((card, i) => animate(card, destinations[i].transform, 1, 400, Math.abs(i - active) * 30, destinations[i].start));
-    const decorationFlights = decorations.map((decoration, i) => animate(decoration, decorationDestinations[i].transform, 1, 350, 0, decorationDestinations[i].start));
+    const cardFlights = cards.map((card, i) => animate(card, destinations[i].transform, 1, MOTION.close, staggered(Math.abs(i - active), MOTION.closeStagger), destinations[i].start));
+    const decorationFlights = decorations.map((decoration, i) => animate(decoration, decorationDestinations[i].transform, 1, MOTION.closeDecorations, 0, decorationDestinations[i].start));
     await Promise.all([...cardFlights, ...decorationFlights]);
     if (closingEpoch !== epoch) return;
     putContentsHome();
-    await animate(flap!, 'rotateX(0deg)', 1, 300);
+    await animate(flap!, 'rotateX(0deg)', 1, MOTION.closeFlap);
     if (closingEpoch !== epoch) return;
     restore(true);
   }
@@ -356,11 +397,11 @@ function initializeGallery(dialog: HTMLDialogElement) {
     if (!finePointer.matches || status !== 'closed' || !expanded || cards.length < 2) return;
     const bounds = wrap.getBoundingClientRect();
     if (event.clientY > bounds.top + bounds.height * .24) { if (focused >= 0) fan(true); return; }
+    const step = fanStep();
     let index = 0;
     let distance = Infinity;
     cards.forEach((_, i) => {
-      const offset = i - (cards.length - 1) / 2;
-      const center = bounds.left + bounds.width * (.5 + offset * ((100 - Math.max(...cards.map(c => Number(c.dataset.cardWidth)))) / (cards.length - 1)) / 100);
+      const center = bounds.left + bounds.width * (.5 + (i - (cards.length - 1) / 2) * step / 100);
       if (Math.abs(event.clientX - center) < distance) { distance = Math.abs(event.clientX - center); index = i; }
     });
     if (focused !== index) fan(true, index);
@@ -372,19 +413,14 @@ function initializeGallery(dialog: HTMLDialogElement) {
   viewButtons.forEach(button => button.addEventListener('click', () => changeView(button.dataset.galleryView === 'grid' ? 'grid' : 'stack'), { signal }));
   cards.forEach((card, index) => {
     card.querySelector('.card-picker')!.addEventListener('click', () => {
-      if (view === 'grid' && status === 'open') {
-        active = index;
-        changeView('stack');
-        card.querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
-      } else select(index, true);
+      // A picker brings its card to the front, leaving the spread if needed, and moves focus onto it.
+      if (view === 'grid') changeView('stack', index);
+      else select(index);
+      if (status === 'open') focusActiveCard();
     }, { signal });
     card.querySelector('.card-content')!.addEventListener('click', event => {
-      if (status !== 'open') {
-        event.preventDefault();
-      } else if (index !== active) {
-        event.preventDefault();
-        select(index, true);
-      }
+      // Only the front card of an open stack is a link. Side cards are inert and chosen through their pickers.
+      if (status !== 'open' || index !== active) event.preventDefault();
     }, { signal });
   });
   dialog.querySelector('[data-gallery-close]')!.addEventListener('click', () => void close(), { signal });
@@ -393,7 +429,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
   dialog.addEventListener('keydown', event => {
     if (status !== 'open' || view === 'grid' || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
-    select(active + (event.key === 'ArrowRight' ? 1 : -1), cards.some(card => card.contains(event.target as Node)));
+    select(active + (event.key === 'ArrowRight' ? 1 : -1));
   }, { signal });
   dialog.addEventListener('wheel', event => {
     if (status !== 'open' || view === 'grid' || cards.length < 2 || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -405,7 +441,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     const direction = Math.sign(delta);
     const magnitude = Math.abs(delta);
     const elapsed = now - wheelTime;
-    const ready = now - wheelChangeTime >= 140;
+    const ready = now - wheelChangeTime >= SWITCH_WAIT;
     const newGesture = elapsed > 120 || direction !== wheelDirection;
     const renewedPush = magnitude >= 24 && magnitude - wheelMagnitude >= 10 && magnitude >= wheelMagnitude * 1.4;
     // Repeated wheel notches can advance again; a fading trackpad tail cannot.
@@ -426,9 +462,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     if (Math.abs(wheelDistance) < 32) return;
     wheelConsumed = true;
     wheelDistance = 0;
-    const before = active;
-    select(active + direction);
-    if (active !== before) wheelChangeTime = now;
+    if (select(active + direction)) wheelChangeTime = now;
   }, { passive: false, signal });
   dialog.addEventListener('pointerdown', event => {
     if (status !== 'open' || event.button !== 0 || !event.isPrimary) return;
@@ -439,7 +473,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     const dx = event.clientX - gesture.x;
     const dy = event.clientY - gesture.y;
     if (view === 'stack' && gesture.touch && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 2) {
-      ignorePointerClickUntil = performance.now() + 350;
+      ignorePointerClickUntil = performance.now() + SWITCH_WAIT;
       select(active + (dx < 0 ? 1 : -1));
     }
     else if (gesture.background && (event.target === dialog || event.target === stage || event.target === viewport) && Math.abs(dx) < 8 && Math.abs(dy) < 8) void close();

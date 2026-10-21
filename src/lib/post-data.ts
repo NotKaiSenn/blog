@@ -32,8 +32,15 @@ export function postDescription(post: Post): string {
     .replace(/\s+/g, ' ').trim().slice(0, 120);
 }
 
-export function displayDate(date: Date): string {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
-  }).format(date);
+// Dates are calendar days stored in UTC, so they never shift with the build machine's time zone.
+const dateFormat = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+/** Formats a note date, or a photo's YYYY-MM-DD date, for reading. */
+export function displayDate(date: Date | string): string {
+  return dateFormat.format(typeof date === 'string' ? new Date(`${date}T00:00:00Z`) : date);
+}
+
+/** The YYYY-MM-DD form used by <time datetime>. */
+export function isoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
 }

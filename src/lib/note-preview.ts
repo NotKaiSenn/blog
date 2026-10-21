@@ -1,11 +1,12 @@
 import { htmlToHast, type HastNode } from 'satteri';
 import { toHtml } from 'hast-util-to-html';
+import { STAGE_NOTE_IMAGE_SIZES } from './folder-poses.ts';
 
 type Element = Extract<HastNode, { type: 'element' }>;
 const tags = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'strong', 'em', 'del', 's', 'code', 'pre', 'hr', 'br', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'sup', 'sub', 'span']);
 const omitted = new Set(['script', 'style', 'iframe', 'object', 'embed', 'form', 'button', 'textarea', 'select', 'svg', 'math']);
 const structureSpace: Record<string, number> = { h1: 30, h2: 30, h3: 30, h4: 30, h5: 30, h6: 30, li: 20, tr: 60, pre: 80, blockquote: 20 };
-const shapes = [
+export const NOTE_SHAPES = [
   { width: 33, top: 3, ratio: 3 / 4.6 },
   { width: 36, top: 10, ratio: 3 / 3.8 },
   { width: 32, top: 1, ratio: 3 / 5 },
@@ -61,10 +62,10 @@ export function notePreview(html: string, id: string, title: string) {
       if (images >= 2) return [];
       images++;
       Object.assign(properties, { src, alt: String(node.properties.alt ?? ''), loading: 'lazy', decoding: 'async' });
-      // Keep the site's own image variants. An open note card shows images at most about 400px wide.
+      // Keep the site's own image variants, sized for the open note card rather than the article column.
       const srcSet = String(node.properties.srcSet ?? '');
       if (srcSet && srcSet.split(',').every(candidate => /^\/_?uploads\/\S+ \d+w$/.test(candidate.trim()))) {
-        Object.assign(properties, { srcSet, sizes: '(max-width: 540px) 72vw, 400px' });
+        Object.assign(properties, { srcSet, sizes: STAGE_NOTE_IMAGE_SIZES });
       }
     }
     if (node.tagName === 'ol' && typeof node.properties.start === 'number') properties.start = node.properties.start;
@@ -89,7 +90,7 @@ export function notePreview(html: string, id: string, title: string) {
     }
   }
   const seed = Array.from(id).reduce((hash, character) => (Math.imul(hash, 31) + character.codePointAt(0)!) >>> 0, 0);
-  const shape = shapes[seed % shapes.length];
+  const shape = NOTE_SHAPES[seed % NOTE_SHAPES.length];
   const amount = 1600 - remaining + blocks * 24 + images * 180 + structure + title.length * 2;
   // Short notes keep a full sheet and breathing room. Longer previews use the original tall papers.
   const ratio = amount < 260 ? .80 + (seed % 4) * .02 : amount < 650 ? Math.max(.72, shape.ratio) : shape.ratio;

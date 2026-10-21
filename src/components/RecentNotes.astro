@@ -1,17 +1,17 @@
 ---
-import { postUrl, postDescription, displayDate, type Post } from '../lib/post-data';
+import { postUrl, postDescription, displayDate, isoDate, type Post } from '../lib/post-data';
 interface Props { posts: Post[]; year: number; }
 const { posts, year } = Astro.props;
 const headingId = `notes-year-${year}`;
 ---
 <section class="notes-card" aria-labelledby={headingId}>
   <header class="card-head"><h2 id={headingId}>{year}<span>年</span></h2><span class="year-count">{posts.length} 篇</span></header>
-  {posts.length ? <ol class="paper-notes">
+  <ol class="paper-notes">
     {posts.map(post => <li><a class="post-link" href={postUrl(post.id)}>
-      <time datetime={post.data.pubDate.toISOString().slice(0,10)} aria-label={displayDate(post.data.pubDate)}>{post.data.pubDate.toISOString().slice(5,10).replace('-', '.')}</time>
+      <time datetime={isoDate(post.data.pubDate)} aria-label={displayDate(post.data.pubDate)}>{isoDate(post.data.pubDate).slice(5).replace('-', '.')}</time>
       <h3>{post.data.title}</h3><p>{postDescription(post)}</p>
     </a></li>)}
-  </ol> : <div class="empty-state"><p>暂无笔记</p></div>}
+  </ol>
 </section>
 <style>
   .notes-card { position: relative; width: 100%; padding: 32px 34px 24px; border: 1px solid #49453714; border-radius: 16px 22px 14px 20px; background: linear-gradient(92deg,#fffffff0,#fcf9f1dc),repeating-linear-gradient(180deg,transparent 0 46px,#2627230d 47px 48px),linear-gradient(180deg,#dbc28b24,transparent 40%); box-shadow: 0 25px 55px #2f393115,inset 0 2px #ffffffb8; }
@@ -23,7 +23,7 @@ const headingId = `notes-year-${year}`;
   .paper-notes { list-style: none; padding: 0; margin: 0; }
   .post-link { position: relative; display: grid; grid-template-columns: 58px minmax(0,1fr); gap: 7px 14px; padding: 17px 0 17px 16px; border-top: 1px solid #27272317; }
   .post-link::after { content: ''; position: absolute; left: 0; top: 23px; width: 5px; height: 5px; border-radius: 50%; background: #b4873d; opacity: .42; }
-  time { color: #98723b; font-size: 13px; font-weight: 750; line-height: 1.75; font-variant-numeric: tabular-nums; }
+  time { color: var(--gold); font-size: 13px; font-weight: 750; line-height: 1.75; font-variant-numeric: tabular-nums; }
   h3 { color: #1f201ee6; font-size: 16px; font-weight: 650; line-height: 1.42; overflow-wrap: anywhere; }
   .post-link p { grid-column: 2; color: #687069; font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .post-link:hover h3 { color: var(--green); text-decoration: underline; text-decoration-thickness: 1px; }

@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { SLUG_PATTERN } from './lib/collections';
 
 const posts = defineCollection({
   loader: glob({
@@ -8,7 +9,7 @@ const posts = defineCollection({
     pattern: 'content/posts/*.md',
     generateId: ({ entry }) => {
       const id = entry.split('/').at(-1)!.replace(/\.md$/, '');
-      if (!/^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u.test(id)) {
+      if (!SLUG_PATTERN.test(id)) {
         throw new Error(`Invalid article filename: ${entry}. Use letters, numbers, hyphens or underscores.`);
       }
       return id;
