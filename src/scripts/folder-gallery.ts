@@ -100,10 +100,11 @@ function initializeGallery(dialog: HTMLDialogElement) {
     gesture = null;
   }
 
-  function changeView(nextView: 'stack' | 'grid') {
+  function changeView(nextView: 'stack' | 'grid', index = active) {
     if (status !== 'open' || view === nextView || !viewButtons.length) return;
     const starts = screenPoses();
     dialog.classList.add('is-reflowing');
+    active = clampIndex(index);
     applyView(nextView);
     const origin = viewport!.getBoundingClientRect();
     const frames = starts.map((pose, i) => ({
@@ -132,13 +133,18 @@ function initializeGallery(dialog: HTMLDialogElement) {
     poses.forEach((pose, i) => { void animate(decorations[i], pose.transform, 0, duration, 0, pose.start); });
   }
 
+  // Spacing of fanned cards, as a percentage of the folder width. Hover hit-testing uses the same spacing.
+  function fanStep() {
+    const widest = Math.max(34, ...cards.map(card => Number(card.dataset.cardWidth)));
+    return (100 - widest) / Math.max(cards.length - 1, 1);
+  }
+
   function fan(isExpanded: boolean, singled = -1) {
     if (status !== 'closed' || restoring) return;
     expanded = isExpanded;
     focused = singled;
     const gaps = Math.max(cards.length - 1, 1);
-    const maxWidth = Math.max(34, ...cards.map(card => Number(card.dataset.cardWidth)));
-    const step = (100 - maxWidth) / gaps;
+    const step = fanStep();
     const wrapWidth = wrap!.clientWidth;
     const tuckLine = wrap!.offsetHeight * .4;
     const measurements = cards.map(card => ({ height: card.offsetHeight, top: card.offsetTop, start: animationStart(card) }));
@@ -212,14 +218,25 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }
   }
 
-  function select(index: number, focusCard = false) {
-    if (status !== 'open' || !cards.length) return;
-    const selected = Math.max(0, Math.min(cards.length - 1, index));
-    if (selected === active) return;
+  function clampIndex(index: number) {
+    return Math.max(0, Math.min(cards.length - 1, index));
+  }
+
+  function focusActiveCard() {
+    cards[active].querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
+  }
+
+  // Buttons, arrow keys, the wheel, swipes and side-card pickers all move through the stack here.
+  // Focus follows the selection when it was already on a card. Returns whether the selection changed.
+  function select(index: number): boolean {
+    if (status !== 'open' || !cards.length) return false;
+    const selected = clampIndex(index);
+    if (selected === active) return false;
     const focusWasInCard = cards.some(card => card.contains(document.activeElement));
     active = selected;
     render();
-    if (focusCard || focusWasInCard) cards[active].querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
+    if (focusWasInCard) focusActiveCard();
+    return true;
   }
 
   function resetWheel() {
@@ -234,7 +251,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     status = 'open';
     epoch++;
     applyView('stack');
-    active = Math.max(0, Math.min(cards.length - 1, index));
+    active = clampIndex(index);
     sizes = cards.map(card => ({ width: card.offsetWidth, height: card.offsetHeight, kind: card.dataset.kind === 'note' ? 'note' : 'photo' }));
     const starts = screenPoses();
     const initialFrames = starts.map((pose, i) => ({ transform: transform(pose, sizes[i]), opacity: '1' }));
@@ -356,11 +373,11 @@ function initializeGallery(dialog: HTMLDialogElement) {
     if (!finePointer.matches || status !== 'closed' || !expanded || cards.length < 2) return;
     const bounds = wrap.getBoundingClientRect();
     if (event.clientY > bounds.top + bounds.height * .24) { if (focused >= 0) fan(true); return; }
+    const step = fanStep();
     let index = 0;
     let distance = Infinity;
     cards.forEach((_, i) => {
-      const offset = i - (cards.length - 1) / 2;
-      const center = bounds.left + bounds.width * (.5 + offset * ((100 - Math.max(...cards.map(c => Number(c.dataset.cardWidth)))) / (cards.length - 1)) / 100);
+      const center = bounds.left + bounds.width * (.5 + (i - (cards.length - 1) / 2) * step / 100);
       if (Math.abs(event.clientX - center) < distance) { distance = Math.abs(event.clientX - center); index = i; }
     });
     if (focused !== index) fan(true, index);
@@ -372,19 +389,14 @@ function initializeGallery(dialog: HTMLDialogElement) {
   viewButtons.forEach(button => button.addEventListener('click', () => changeView(button.dataset.galleryView === 'grid' ? 'grid' : 'stack'), { signal }));
   cards.forEach((card, index) => {
     card.querySelector('.card-picker')!.addEventListener('click', () => {
-      if (view === 'grid' && status === 'open') {
-        active = index;
-        changeView('stack');
-        card.querySelector<HTMLElement>('.card-content')!.focus({ preventScroll: true });
-      } else select(index, true);
+      // A picker brings its card to the front, leaving the spread if needed, and moves focus onto it.
+      if (view === 'grid') changeView('stack', index);
+      else select(index);
+      if (status === 'open') focusActiveCard();
     }, { signal });
     card.querySelector('.card-content')!.addEventListener('click', event => {
-      if (status !== 'open') {
-        event.preventDefault();
-      } else if (index !== active) {
-        event.preventDefault();
-        select(index, true);
-      }
+      // Only the front card of an open stack is a link. Side cards are inert and chosen through their pickers.
+      if (status !== 'open' || index !== active) event.preventDefault();
     }, { signal });
   });
   dialog.querySelector('[data-gallery-close]')!.addEventListener('click', () => void close(), { signal });
@@ -393,7 +405,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
   dialog.addEventListener('keydown', event => {
     if (status !== 'open' || view === 'grid' || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
-    select(active + (event.key === 'ArrowRight' ? 1 : -1), cards.some(card => card.contains(event.target as Node)));
+    select(active + (event.key === 'ArrowRight' ? 1 : -1));
   }, { signal });
   dialog.addEventListener('wheel', event => {
     if (status !== 'open' || view === 'grid' || cards.length < 2 || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -426,9 +438,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     if (Math.abs(wheelDistance) < 32) return;
     wheelConsumed = true;
     wheelDistance = 0;
-    const before = active;
-    select(active + direction);
-    if (active !== before) wheelChangeTime = now;
+    if (select(active + direction)) wheelChangeTime = now;
   }, { passive: false, signal });
   dialog.addEventListener('pointerdown', event => {
     if (status !== 'open' || event.button !== 0 || !event.isPrimary) return;
