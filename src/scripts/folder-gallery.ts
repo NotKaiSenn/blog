@@ -19,6 +19,10 @@ const MOTION = {
   easing: 'cubic-bezier(.22,.85,.24,1)',
 };
 
+// The shortest wait between two switches. The wheel cannot switch again sooner, and a tap this soon after
+// a swipe is taken as the swipe's own click, so a deliberate tap waits no longer than the wheel does.
+const SWITCH_WAIT = 140;
+
 function staggered(distance: number, step: number) {
   return Math.min(distance * step, MOTION.staggerLimit);
 }
@@ -437,7 +441,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     const direction = Math.sign(delta);
     const magnitude = Math.abs(delta);
     const elapsed = now - wheelTime;
-    const ready = now - wheelChangeTime >= 140;
+    const ready = now - wheelChangeTime >= SWITCH_WAIT;
     const newGesture = elapsed > 120 || direction !== wheelDirection;
     const renewedPush = magnitude >= 24 && magnitude - wheelMagnitude >= 10 && magnitude >= wheelMagnitude * 1.4;
     // Repeated wheel notches can advance again; a fading trackpad tail cannot.
@@ -469,7 +473,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     const dx = event.clientX - gesture.x;
     const dy = event.clientY - gesture.y;
     if (view === 'stack' && gesture.touch && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 2) {
-      ignorePointerClickUntil = performance.now() + 350;
+      ignorePointerClickUntil = performance.now() + SWITCH_WAIT;
       select(active + (dx < 0 ? 1 : -1));
     }
     else if (gesture.background && (event.target === dialog || event.target === stage || event.target === viewport) && Math.abs(dx) < 8 && Math.abs(dy) < 8) void close();

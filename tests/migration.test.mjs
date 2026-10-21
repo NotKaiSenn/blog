@@ -101,6 +101,13 @@ test('production CSS retains standard backdrop filters after vendor-prefix minif
   }
 });
 
+test('the gallery stage leaves horizontal swipes to the card switcher', () => {
+  const css = readdirSync(join(root, 'dist/_astro')).filter(file => file.endsWith('.css')).map(file => read(`_astro/${file}`)).join('');
+  const stage = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].find(([, selectors]) => selectors.trim() === '.stage-viewport');
+  assert.ok(stage, 'the stage viewport has its own rule');
+  assert.match(stage[2], /(?:^|;)touch-action:pan-y pinch-zoom(?:;|$)/, 'browsers otherwise claim a horizontal swipe as a pan and cancel it');
+});
+
 test('all content destinations use the client router without fading the page canvas', () => {
   const pages = readdirSync(join(root, 'dist'), { recursive: true })
     .filter(file => file.endsWith('.html') && !file.startsWith('pages/'));

@@ -308,6 +308,20 @@ test('opening and closing stagger the cards by the same limit', async () => {
   await browser.settle();
 });
 
+test('after a swipe, a tap waits no longer than the wheel does between switches', async () => {
+  const browser = galleryBrowser({ count: 5 });
+  browser.open();
+  const first = browser.cards[0].querySelector('.card-content');
+  first.emit('pointerdown', { pointerType: 'touch', clientX: 180 });
+  first.emit('pointerup', { pointerType: 'touch', clientX: 70 });
+  assert.equal(browser.controls.count.textContent, '2 / 5');
+  browser.advanceTime(140);
+  assert.equal(browser.controls.next.emit('click').defaultPrevented, false, 'the swipe guard has ended by the time the wheel could switch again');
+  assert.equal(browser.controls.count.textContent, '3 / 5');
+  browser.controls.close.emit('click');
+  await browser.settle();
+});
+
 test('photo hover keeps short cards tucked into the folder while notes retain their full lift', async () => {
   const browser = galleryBrowser();
   const wrap = browser.home.parentNode;

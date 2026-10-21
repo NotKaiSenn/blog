@@ -36,7 +36,8 @@ const { id, title, subtitle, href, emptyMessage = '暂无笔记', tiled = false 
   .stage-views [data-icon] { width: 16px; height: 16px; }
   .stage-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #4853400c; border-radius: 50%; color: #7a8275; background: #ffffffb3; cursor: pointer; }
   .stage-cards { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-  .stage-viewport { position: absolute; inset: 0; overflow: hidden; }
+  /* Horizontal swipes switch cards in the stack, so the browser must not claim them as a pan. */
+  .stage-viewport { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y pinch-zoom; }
   .folder-stage.is-grid .stage-viewport { inset: 92px 0 18px; width: min(900px,calc(100% - 48px)); margin-inline: auto; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
   .folder-stage.is-reflowing .stage-viewport { overflow: visible; touch-action: none; }
   .folder-stage.is-grid .stage-cards { bottom: auto; }
