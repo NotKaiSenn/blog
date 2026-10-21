@@ -2,24 +2,19 @@
 import { ClientRouter } from 'astro:transitions';
 ---
 <ClientRouter fallback="swap" />
+<script>import '../scripts/navigation-feedback';</script>
 <style is:inline>
-  main { view-transition-name: page-content; }
-  ::view-transition { pointer-events: none; }
-  ::view-transition-group(*) { animation: none; }
-  ::view-transition-old(*), ::view-transition-new(*) {
-    animation: none;
-    mix-blend-mode: normal;
-    opacity: 1;
-  }
-  ::view-transition-old(*) { display: none; }
-  ::view-transition-image-pair(page-content) { isolation: isolate; }
-  ::view-transition-old(page-content), ::view-transition-new(page-content) { mix-blend-mode: plus-lighter; }
-  ::view-transition-old(page-content) { display: block; animation: 180ms ease-out both content-leave; }
-  ::view-transition-new(page-content) { animation: 180ms ease-out both content-enter; }
-  @keyframes content-leave { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-5px); } }
-  @keyframes content-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  /* Navigation snapshots nothing, so leaving a page never waits on a capture of it, and the page canvas
+     never fades. The new content eases in on its own instead. */
+  :root { view-transition-name: none; }
+  main.is-entering { animation: content-enter 180ms ease-out both; }
+  @keyframes content-enter { from { opacity: 0; transform: translateY(5px); } }
+  /* A thin bar for pages that take a moment to arrive, also above an open gallery's backdrop. */
+  html::before, .folder-stage::after { content: ''; position: fixed; z-index: 1000; inset: 0 0 auto; height: 2px; background: var(--green); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+  /* Both phases are transitions, so finishing runs on from wherever the slow crawl had reached. */
+  html[data-navigation="loading"]::before, html[data-navigation="loading"] .folder-stage::after { transform: scaleX(.9); transition: transform 8s cubic-bezier(.1,.7,.2,1); }
+  html[data-navigation="done"]::before { transform: scaleX(1); opacity: 0; transition: transform 200ms ease-out, opacity 200ms ease-out 150ms; }
   @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-    ::view-transition-old(page-content) { display: none; }
+    main.is-entering { animation: none; }
   }
 </style>

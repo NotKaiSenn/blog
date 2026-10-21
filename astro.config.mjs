@@ -24,6 +24,8 @@ export default defineConfig({
     }),
     syntaxHighlight: { type: 'shiki', excludeLangs: ['math', 'mermaid'] },
   },
+  // Fetch a page as soon as a link to it is on screen, so most clicks swap at once.
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   trailingSlash: 'always',
   server: {
     host: true,
