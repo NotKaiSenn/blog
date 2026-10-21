@@ -4,6 +4,25 @@ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 const galleries = new Map<HTMLDialogElement, () => void>();
 
+// Durations and per-card delays in milliseconds. Every motion in the gallery takes its pace from here.
+const MOTION = {
+  // Hover fans the cards, decorations and flap out of the folder, and they settle back together.
+  fanOut: 350, fanIn: 250, fanOutStagger: 40, fanInStagger: 20,
+  // Opening flies the cards onto the stage while the decorations retire and the flap swings away.
+  open: 500, openStagger: 25, openDecorations: 250, openFlap: 350,
+  // Moving between cards, and between the stack and the spread.
+  select: 450, view: 320,
+  // Closing flies everything home, then the flap shuts.
+  close: 400, closeStagger: 30, closeDecorations: 350, closeFlap: 300,
+  // However many cards there are, the last one never trails the first by more than this.
+  staggerLimit: 100,
+  easing: 'cubic-bezier(.22,.85,.24,1)',
+};
+
+function staggered(distance: number, step: number) {
+  return Math.min(distance * step, MOTION.staggerLimit);
+}
+
 function initializeGallery(dialog: HTMLDialogElement) {
   if (galleries.has(dialog)) return;
   const opener = document.querySelector<HTMLAnchorElement>(`[data-folder-open="${dialog.id}"]`);
@@ -53,7 +72,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     return { transform: computed.transform, opacity: computed.opacity };
   }
 
-  async function animate(element: HTMLElement, transform: string, opacity = 1, duration = 450, delay = 0, start = animationStart(element)) {
+  async function animate(element: HTMLElement, transform: string, opacity: number, duration: number, delay = 0, start = animationStart(element)) {
     animations.get(element)?.cancel();
     animations.delete(element);
     element.style.transform = transform;
@@ -65,7 +84,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }
     if (card) element.style.willChange = 'transform, opacity';
     const animation = element.animate([start, { transform, opacity }], {
-      duration, delay, easing: 'cubic-bezier(.22,.85,.24,1)', fill: 'backwards',
+      duration, delay, easing: MOTION.easing, fill: 'backwards',
     });
     animations.set(element, animation);
     await animation.finished.catch(() => {});
@@ -111,7 +130,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
       transform: transform({ ...pose, x: pose.x - origin.left, y: pose.y - origin.top }, sizes[i]),
       opacity: String(pose.opacity),
     }));
-    render(320, 0, frames);
+    render(MOTION.view, 0, frames);
   }
 
   function decorationHome(decoration: HTMLElement) {
@@ -129,7 +148,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     }));
   }
 
-  function retireDecorations(duration = 250, poses = decorationRetirement()) {
+  function retireDecorations(duration: number, poses = decorationRetirement()) {
     poses.forEach((pose, i) => { void animate(decorations[i], pose.transform, 0, duration, 0, pose.start); });
   }
 
@@ -145,6 +164,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
     focused = singled;
     const gaps = Math.max(cards.length - 1, 1);
     const step = fanStep();
+    const pace = expanded ? MOTION.fanOut : MOTION.fanIn;
     const wrapWidth = wrap!.clientWidth;
     const tuckLine = wrap!.offsetHeight * .4;
     const measurements = cards.map(card => ({ height: card.offsetHeight, top: card.offsetTop, start: animationStart(card) }));
@@ -163,8 +183,8 @@ function initializeGallery(dialog: HTMLDialogElement) {
       const y = expanded ? -tuckedLift : 0;
       const rotation = selected ? 0 : offset * ((expanded ? 11 : 6) / gaps);
       card.style.zIndex = String(selected ? cards.length + 1 : cards.length - Math.round(Math.abs(offset)));
-      const delay = singled < 0 ? Math.abs(offset) * (expanded ? 40 : 20) : 0;
-      void animate(card, `translate(${x}px,${y}px) rotate(${rotation}deg) scale(${selected ? 1.05 : 1})`, 1, expanded ? 350 : 250, delay, start);
+      const delay = singled < 0 ? staggered(Math.abs(offset), expanded ? MOTION.fanOutStagger : MOTION.fanInStagger) : 0;
+      void animate(card, `translate(${x}px,${y}px) rotate(${rotation}deg) scale(${selected ? 1.05 : 1})`, 1, pace, delay, start);
     });
     decorations.forEach((decoration, i) => {
       const { height, home, start } = decorationMeasurements[i];
@@ -173,12 +193,12 @@ function initializeGallery(dialog: HTMLDialogElement) {
       const pose = expanded
         ? `translate(${offset * wrapWidth * .14}px,${-height * .24}px) ${home} rotate(${offset * 5}deg)`
         : home;
-      void animate(decoration, pose, 1, expanded ? 350 : 250, 0, start);
+      void animate(decoration, pose, 1, pace, 0, start);
     });
-    void animate(flap!, `rotateX(${expanded ? -30 : 0}deg)`, 1, 350, 0, flapStart);
+    void animate(flap!, `rotateX(${expanded ? -30 : 0}deg)`, 1, pace, 0, flapStart);
   }
 
-  function render(duration = 450, stagger = 0, initialFrames?: ReturnType<typeof animationStart>[]) {
+  function render(duration = MOTION.select, stagger = 0, initialFrames?: ReturnType<typeof animationStart>[]) {
     if (status !== 'open') return;
     const renderingEpoch = ++layoutEpoch;
     const layout = view === 'grid' ? gridPoses(sizes, viewport!.clientWidth) : null;
@@ -202,7 +222,7 @@ function initializeGallery(dialog: HTMLDialogElement) {
       }
       picker.tabIndex = view === 'grid' ? 0 : -1;
       picker.setAttribute('aria-label', `${view === 'grid' ? '查看照片' : '选择'}：${card.dataset.title}`);
-      return animate(card, transform(poses[i], sizes[i]), poses[i].opacity, duration, Math.min(Math.abs(i - active) * stagger, 100), starts[i]);
+      return animate(card, transform(poses[i], sizes[i]), poses[i].opacity, duration, staggered(Math.abs(i - active), stagger), starts[i]);
     });
     previous.setAttribute('aria-disabled', String(active === 0));
     next.setAttribute('aria-disabled', String(active >= cards.length - 1));
@@ -285,9 +305,9 @@ function initializeGallery(dialog: HTMLDialogElement) {
       stage!.append(card);
       card.style.transform = initialFrames[i].transform;
     });
-    retireDecorations(250, retiringDecorations);
-    void animate(flap!, 'rotateX(-80deg)', 0, 350, 0, flapStart);
-    render(500, 25, initialFrames);
+    retireDecorations(MOTION.openDecorations, retiringDecorations);
+    void animate(flap!, 'rotateX(-80deg)', 0, MOTION.openFlap, 0, flapStart);
+    render(MOTION.open, MOTION.openStagger, initialFrames);
     return true;
   }
 
@@ -350,12 +370,12 @@ function initializeGallery(dialog: HTMLDialogElement) {
       return { transform: transform(pose, sizes[i]), start: gridStarts?.[i] ?? animationStart(card) };
     });
     const decorationDestinations = decorations.map(decoration => ({ transform: decorationHome(decoration), start: animationStart(decoration) }));
-    const cardFlights = cards.map((card, i) => animate(card, destinations[i].transform, 1, 400, Math.abs(i - active) * 30, destinations[i].start));
-    const decorationFlights = decorations.map((decoration, i) => animate(decoration, decorationDestinations[i].transform, 1, 350, 0, decorationDestinations[i].start));
+    const cardFlights = cards.map((card, i) => animate(card, destinations[i].transform, 1, MOTION.close, staggered(Math.abs(i - active), MOTION.closeStagger), destinations[i].start));
+    const decorationFlights = decorations.map((decoration, i) => animate(decoration, decorationDestinations[i].transform, 1, MOTION.closeDecorations, 0, decorationDestinations[i].start));
     await Promise.all([...cardFlights, ...decorationFlights]);
     if (closingEpoch !== epoch) return;
     putContentsHome();
-    await animate(flap!, 'rotateX(0deg)', 1, 300);
+    await animate(flap!, 'rotateX(0deg)', 1, MOTION.closeFlap);
     if (closingEpoch !== epoch) return;
     restore(true);
   }

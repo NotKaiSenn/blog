@@ -284,6 +284,30 @@ test('hover chooses the fanned card nearest the pointer, even when every card is
   await browser.settle();
 });
 
+test('hover fans and settles the cards, decorations and flap at one pace', async () => {
+  const browser = galleryBrowser({ decorationCount: 2 });
+  const durations = () => new Set([...browser.animations].map(animation => animation.options.duration));
+  browser.opener.emit('pointerenter');
+  assert.deepEqual([...durations()], [350], 'fanning out');
+  await browser.settle();
+  browser.opener.emit('pointerleave');
+  assert.ok([...browser.animations].some(animation => animation.owner === browser.flap), 'the flap settles too');
+  assert.deepEqual([...durations()], [250], 'settling back, the flap lands with the cards');
+  await browser.settle();
+});
+
+test('opening and closing stagger the cards by the same limit', async () => {
+  const browser = galleryBrowser({ count: 6 });
+  const latestCard = () => Math.max(...[...browser.animations].filter(animation => browser.cards.includes(animation.owner)).map(animation => animation.options.delay));
+  browser.open();
+  const opening = latestCard();
+  await browser.settle();
+  browser.controls.close.emit('click');
+  assert.equal(latestCard(), opening, 'the farthest card waits as long when closing as when opening');
+  assert.equal(opening, 100);
+  await browser.settle();
+});
+
 test('photo hover keeps short cards tucked into the folder while notes retain their full lift', async () => {
   const browser = galleryBrowser();
   const wrap = browser.home.parentNode;
