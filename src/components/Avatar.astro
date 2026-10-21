@@ -1,27 +1,14 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { profile } from '../lib/site-data';
+// Like friend avatars, an image that fails to load removes itself and reveals the placeholder beneath it.
 ---
-<div class="avatar-print" data-avatar-placeholder aria-hidden="true">
-  <span class="avatar-placeholder"><Icon is:inline name="ph:user" aria-hidden="true" focusable="false" /></span>
-  {profile.avatar && <img src={profile.avatar} alt="" width="56" height="56" loading="eager" decoding="async" data-avatar-image />}
+<div class="avatar-print" aria-hidden="true">
+  <span class="avatar-placeholder"><Icon is:inline aria-hidden="true" focusable="false" name="ph:user" /></span>
+  {profile.avatar && <img src={profile.avatar} alt="" width="56" height="56" loading="eager" decoding="async" onerror="this.remove()" />}
 </div>
 <style>
   .avatar-print { position: relative; }
   .avatar-placeholder { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 9px; color: #86937f; background: #e9eee5; font-size: 28px; }
   .avatar-print img { position: absolute; top: 3px; left: 3px; }
 </style>
-<script>
-  const initialized = new WeakSet<HTMLImageElement>();
-  function initializeAvatars() {
-    document.querySelectorAll<HTMLImageElement>('[data-avatar-image]').forEach(image => {
-      if (initialized.has(image)) return;
-      initialized.add(image);
-      const fallback = () => image.remove();
-      image.addEventListener('error', fallback, { once: true });
-      if (image.complete && !image.naturalWidth) fallback();
-    });
-  }
-  initializeAvatars();
-  document.addEventListener('astro:page-load', initializeAvatars);
-</script>

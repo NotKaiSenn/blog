@@ -36,7 +36,7 @@ const friendPreviews = folderPreviews(friends);
       {friendPreviews.map((friend,index) => <CollectionCard kind="friend" title={friend.name} href={friend.url} index={index} total={friendPreviews.length} imageSrc={friend.avatar} description={friend.description} address={friend.host} />)}
     </Folder>
   </section>
-  <FolderGallery id="posts-gallery" title="笔记" subtitle={`全部 ${posts.length} 篇`} href="/posts/" />
+  <FolderGallery id="posts-gallery" title="笔记" subtitle={`全部 ${posts.length} 篇`} href="/posts/" emptyMessage="暂无笔记" />
   <FolderGallery id="works-gallery" title="作品" subtitle={`全部 ${works.length} 项`} href="/works/" emptyMessage="暂无作品" />
   <FolderGallery id="photos-gallery" title="照片" subtitle={`全部 ${photos.length} 张`} href="/photos/" emptyMessage="暂无照片" tiled />
   <FolderGallery id="friends-gallery" title="朋友" subtitle={`全部 ${friends.length} 位`} href="/friends/" emptyMessage="暂无链接" />

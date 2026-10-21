@@ -13,8 +13,9 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 const { post } = Astro.props;
 const { Content } = await render(post);
-// KaTeX styles and fonts are only needed by notes that contain math.
+// KaTeX styles and fonts, and the diagram renderer, are only loaded by notes that use them.
 const hasMath = post.rendered?.html.includes('class="katex"') ?? true;
+const hasDiagrams = post.rendered?.html.includes('language-mermaid') ?? true;
 ---
 <SiteLayout title={post.data.title} description={postDescription(post)} articleDate={post.data.pubDate.toISOString()} breadcrumbs={[{ label: '笔记', href: '/posts/' }, { label: post.data.title }]}>
   {hasMath && <link slot="head" rel="stylesheet" href={katexStylesheet} />}
@@ -24,7 +25,7 @@ const hasMath = post.rendered?.html.includes('class="katex"') ?? true;
       <time datetime={isoDate(post.data.pubDate)}>{displayDate(post.data.pubDate)}</time>
     </header>
     <div class="prose"><Content /></div>
-    <NoteDiagrams />
+    {hasDiagrams && <NoteDiagrams />}
     <div class="article-end"><a class="back-link" href="/posts/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回笔记列表</a></div>
   </article>
 </SiteLayout>

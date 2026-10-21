@@ -1,6 +1,9 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import { Icon } from 'astro-icon/components';
 import MinecraftWidget from '../../components/MinecraftWidget.astro';
+import { linkAttributes } from '../../lib/links';
+const source = 'https://github.com/NotKaiSenn/blog/tree/main/widgets/minecraft';
 ---
 <SiteLayout title="壹方天地" description="一个可以互动的 Minecraft 四季小组件。" breadcrumbs={[{ label: '作品', href: '/works/' }, { label: '壹方天地' }]}>
   <header class="page-heading detail-heading"><h1>壹方天地</h1></header>
@@ -9,7 +12,7 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
       <MinecraftWidget />
     </minecraft-season-items>
   </div>
-  <p class="work-note"><a href="https://github.com/NotKaiSenn/blog/tree/minecraft-widget/widgets/minecraft">github.com/NotKaiSenn/blog ↗</a></p>
+  <p class="work-note"><a href={source} {...linkAttributes(source)}>github.com/NotKaiSenn/blog<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a></p>
 </SiteLayout>
 
 <script>
@@ -20,6 +23,7 @@ import MinecraftWidget from '../../components/MinecraftWidget.astro';
 <style>
   .minecraft-showcase { position: relative; isolation: isolate; width: 440px; max-width: 100%; margin-inline: auto; padding-top: 24px; }
   .work-note { margin-top: 36px; color: var(--muted); font-size: .75rem; text-align: center; }
+  .work-note a { display: inline-flex; align-items: center; gap: 3px; }
   @media (max-width: 540px) {
     .minecraft-showcase { width: calc(100% + 28px); max-width: none; margin-inline: -14px; }
   }

@@ -1,7 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
-interface Props { id: string; title: string; subtitle: string; href: string; emptyMessage?: string; tiled?: boolean; }
-const { id, title, subtitle, href, emptyMessage = '暂无笔记', tiled = false } = Astro.props;
+interface Props { id: string; title: string; subtitle: string; href: string; emptyMessage: string; tiled?: boolean; }
+const { id, title, subtitle, href, emptyMessage, tiled = false } = Astro.props;
 ---
 <dialog id={id} class="folder-stage" aria-labelledby={`${id}-title`}>
   <header class="stage-bar">
