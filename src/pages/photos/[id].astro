@@ -3,7 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { Icon } from 'astro-icon/components';
 import type { Photo } from '../../lib/collections';
-import { photos } from '../../lib/photos';
+import { photos } from '../../lib/site-data';
 import { displayDate } from '../../lib/post-data';
 import { responsiveImage } from '../../lib/upload-variants';
 
@@ -13,7 +13,7 @@ const { photo } = Astro.props;
 ---
 <SiteLayout title={photo.title} description={photo.description ?? photo.alt} breadcrumbs={[{ label: '照片', href: '/photos/' }, { label: photo.title }]} wide>
   <article class="photo-detail">
-    <header class="page-heading detail-heading"><h1>{photo.title}</h1><time datetime={photo.date}>{displayDate(new Date(`${photo.date}T00:00:00Z`))}</time></header>
+    <header class="page-heading detail-heading"><h1>{photo.title}</h1><time datetime={photo.date}>{displayDate(photo.date)}</time></header>
     <figure>
       <div class="photo-frame"><img src={photo.src} {...responsiveImage(photo.src, photo.width, '(max-width: 727px) 100vw, 680px')} alt={photo.alt} width={photo.width} height={photo.height} fetchpriority="high" decoding="async" /></div>
       {photo.description && <figcaption>{photo.description}</figcaption>}

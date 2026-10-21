@@ -1,5 +1,5 @@
 ---
-import { postUrl, postDescription, displayDate, type Post } from '../lib/post-data';
+import { postUrl, postDescription, displayDate, isoDate, type Post } from '../lib/post-data';
 interface Props { posts: Post[]; year: number; }
 const { posts, year } = Astro.props;
 const headingId = `notes-year-${year}`;
@@ -8,7 +8,7 @@ const headingId = `notes-year-${year}`;
   <header class="card-head"><h2 id={headingId}>{year}<span>年</span></h2><span class="year-count">{posts.length} 篇</span></header>
   {posts.length ? <ol class="paper-notes">
     {posts.map(post => <li><a class="post-link" href={postUrl(post.id)}>
-      <time datetime={post.data.pubDate.toISOString().slice(0,10)} aria-label={displayDate(post.data.pubDate)}>{post.data.pubDate.toISOString().slice(5,10).replace('-', '.')}</time>
+      <time datetime={isoDate(post.data.pubDate)} aria-label={displayDate(post.data.pubDate)}>{isoDate(post.data.pubDate).slice(5).replace('-', '.')}</time>
       <h3>{post.data.title}</h3><p>{postDescription(post)}</p>
     </a></li>)}
   </ol> : <div class="empty-state"><p>暂无笔记</p></div>}

@@ -1,13 +1,10 @@
 ---
 import { Icon } from 'astro-icon/components';
-import profile from '../lib/profile';
-import { imageSource } from '../lib/collections';
-const value = profile.avatarUrl?.trim() || profile.avatar?.trim();
-const source = value ? imageSource(value, 'Profile avatar') : undefined;
+import { profile } from '../lib/site-data';
 ---
 <div class="avatar-print" data-avatar-placeholder aria-hidden="true">
   <span class="avatar-placeholder"><Icon is:inline name="ph:user" aria-hidden="true" focusable="false" /></span>
-  {source && <img src={source} alt="" width="56" height="56" loading="eager" decoding="async" data-avatar-image />}
+  {profile.avatar && <img src={profile.avatar} alt="" width="56" height="56" loading="eager" decoding="async" data-avatar-image />}
 </div>
 <style>
   .avatar-print { position: relative; }

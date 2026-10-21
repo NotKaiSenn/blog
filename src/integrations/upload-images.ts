@@ -3,7 +3,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import sharp, { type Sharp } from 'sharp';
-import { parseVariantPath } from '../lib/upload-variants.ts';
+import { parseVariantPath, VARIANT_PREFIX } from '../lib/upload-variants.ts';
 
 // Follow links before checking, so a variant URL can only read files inside /uploads/.
 async function uploadFile(uploadsDir: string, file: string): Promise<string> {
@@ -68,7 +68,7 @@ export default function uploadImages(): AstroIntegration {
         for (const [file, widths] of requested) {
           const image = source(await uploadFile(uploadsDir, file));
           await Promise.all([...widths].map(async width => {
-            const target = join(outDir, '_uploads', String(width), `${file}.webp`);
+            const target = join(outDir, VARIANT_PREFIX, String(width), `${file}.webp`);
             await mkdir(dirname(target), { recursive: true });
             await variant(image, width).toFile(target);
             count++;

@@ -1,12 +1,11 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { responsiveImage } from '../lib/upload-variants';
-interface Props { title: string; icon?: string; image?: string; width?: number; height?: number; description?: string; sizes: string; }
-const { icon, image, width = 1, height = 1, sizes } = Astro.props;
-const source = image || icon;
+interface Props { image?: string; width?: number; height?: number; sizes: string; }
+const { image, width = 1, height = 1, sizes } = Astro.props;
 ---
 <div class="work-visual" style={`aspect-ratio:${width}/${height}`}>
-  {source ? <img class="work-art" src={source} {...responsiveImage(source, width, sizes)} alt="" width={width} height={height} loading="lazy" decoding="async" /> : <Icon is:inline aria-hidden="true" focusable="false" name="ph:stack" class="work-placeholder" />}
+  {image ? <img class="work-art" src={image} {...responsiveImage(image, width, sizes)} alt="" width={width} height={height} loading="lazy" decoding="async" /> : <Icon is:inline aria-hidden="true" focusable="false" name="ph:stack" class="work-placeholder" />}
 </div>
 <style>
   .work-visual { display: grid; place-items: center; width: 100%; height: 100%; }

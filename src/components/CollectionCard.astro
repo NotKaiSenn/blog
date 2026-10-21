@@ -1,14 +1,15 @@
 ---
 import { Icon } from 'astro-icon/components';
 import WorkVisual from './WorkVisual.astro';
-import { displayDate } from '../lib/post-data';
+import { displayDate, isoDate } from '../lib/post-data';
+import { STAGE_IMAGE_SIZES } from '../lib/folder-poses';
 import { responsiveImage } from '../lib/upload-variants';
 interface Props {
   title: string; href: string; kind: 'note' | 'photo' | 'friend'; index: number; total: number;
   preview?: { html: string; width: number; top: number; ratio: number }; date?: Date; imageSrc?: string;
-  imageWidth?: number; imageHeight?: number; imageAlt?: string; description?: string; artwork?: boolean; iconSrc?: string;
+  imageWidth?: number; imageHeight?: number; imageAlt?: string; description?: string; address?: string; artwork?: boolean;
 }
-const { title, href, kind, index, total, preview, date, imageSrc, imageWidth, imageHeight, imageAlt = '', description, artwork = false, iconSrc } = Astro.props;
+const { title, href, kind, index, total, preview, date, imageSrc, imageWidth, imageHeight, imageAlt = '', description, address, artwork = false } = Astro.props;
 const shapes: Record<Props['kind'], Array<{ width: number; top: number; ratio?: number }>> = {
   note: [{ width: 33, top: 3, ratio: 3 / 4.6 }],
   photo: [
@@ -30,21 +31,18 @@ const restingTop = kind === 'photo' ? Math.max(shape.top, 40 - heightPercent) : 
 const top = artwork ? Math.max(restingTop, heightPercent * .365 + 1) : restingTop;
 const offset = index - (total - 1) / 2;
 const rotation = offset * (6 / Math.max(total - 1, 1));
-// The gallery scales this card up to its stage pose: min(46vw, 52vh) on its longer side, or 76vw on phones.
-// sizes cannot rely on min(), and 52vh is the smaller term in landscape windows.
-const stageSizes = '(max-width: 540px) 76vw, 52vh';
 ---
 <li class:list={['folder-item', { 'is-artwork': artwork }]} data-kind={kind === 'friend' ? 'photo' : kind} data-layout={kind} data-title={title} data-href={href} data-card-width={width} data-ratio={ratio} style={`--card-width:${width}%;--card-ratio:${ratio};--home-x:${offset * 6 / width * 100}%;--home-turn:${rotation}deg;--top:${top}%;z-index:${total - Math.round(Math.abs(offset))}`}>
   <div class="collection-frame">
     <a class="card-content" href={href} aria-label={title}>
-      {kind === 'photo' && artwork ? <WorkVisual image={imageSrc} icon={iconSrc} title={title} width={imageWidth} height={imageHeight} sizes={stageSizes} /> : kind === 'photo' ? <figure class="photo-print">
-        <img src={imageSrc} {...responsiveImage(imageSrc, imageWidth, stageSizes)} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" decoding="async" />
+      {kind === 'photo' && artwork ? <WorkVisual image={imageSrc} width={imageWidth} height={imageHeight} sizes={STAGE_IMAGE_SIZES} /> : kind === 'photo' ? <figure class="photo-print">
+        <img src={imageSrc} {...responsiveImage(imageSrc, imageWidth, STAGE_IMAGE_SIZES)} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" decoding="async" />
       </figure> : kind === 'note' ? <article class="note-preview">
-        <header class="note-heading"><h3>{title}</h3>{date && <time datetime={date.toISOString().slice(0,10)}>{displayDate(date)}</time>}</header>
+        <header class="note-heading"><h3>{title}</h3>{date && <time datetime={isoDate(date)}>{displayDate(date)}</time>}</header>
         <div class="excerpt-text" set:html={preview?.html ?? ''} />
       </article> : <article class="friend-preview">
-        {imageSrc ? <img class="friend-avatar" src={imageSrc} alt="" width="64" height="64" loading="lazy" /> : <span class="friend-initial" aria-hidden="true">{title.slice(0,1)}</span>}
-        <h3>{title}</h3>{description && <p>{description}</p>}<span class="friend-address"><span>{new URL(href).hostname}</span><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></span>
+        {imageSrc ? <img class="friend-avatar" src={imageSrc} alt="" width="64" height="64" loading="lazy" /> : <span class="friend-initial" aria-hidden="true">{Array.from(title)[0]}</span>}
+        <h3>{title}</h3>{description && <p>{description}</p>}<span class="friend-address"><span>{address}</span><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></span>
       </article>}
     </a>
     <button class="card-picker" type="button" aria-label={`选择：${title}`} tabindex="-1"></button>

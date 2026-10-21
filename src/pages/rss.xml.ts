@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
-import profile from '../lib/profile';
+import { profile } from '../lib/site-data';
 import { getPosts } from '../lib/posts';
 import { postUrl, postDescription } from '../lib/post-data';
 

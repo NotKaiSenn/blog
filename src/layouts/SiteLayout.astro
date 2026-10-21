@@ -1,10 +1,9 @@
 ---
 import '../styles/global.css';
 import { Icon } from 'astro-icon/components';
-import profile from '../lib/profile';
+import { profile } from '../lib/site-data';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import PageTransition from '../components/PageTransition.astro';
-import { imageSource } from '../lib/collections';
 
 interface Props {
   title?: string;
@@ -17,7 +16,7 @@ interface Props {
 const { title, description = profile.bio, wide = false, noindex = false, articleDate, breadcrumbs = title ? [{ label: title }] : [] } = Astro.props;
 const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const favicon = profile.favicon?.trim() ? imageSource(profile.favicon, 'Site icon') : '/favicon.svg';
+const favicon = profile.favicon ?? '/favicon.svg';
 const isPosts = Astro.url.pathname.startsWith('/posts/');
 const isWorks = Astro.url.pathname.startsWith('/works/');
 ---

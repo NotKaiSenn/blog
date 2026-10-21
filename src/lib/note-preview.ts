@@ -1,5 +1,6 @@
 import { htmlToHast, type HastNode } from 'satteri';
 import { toHtml } from 'hast-util-to-html';
+import { STAGE_NOTE_IMAGE_SIZES } from './folder-poses.ts';
 
 type Element = Extract<HastNode, { type: 'element' }>;
 const tags = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'strong', 'em', 'del', 's', 'code', 'pre', 'hr', 'br', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'sup', 'sub', 'span']);
@@ -61,10 +62,10 @@ export function notePreview(html: string, id: string, title: string) {
       if (images >= 2) return [];
       images++;
       Object.assign(properties, { src, alt: String(node.properties.alt ?? ''), loading: 'lazy', decoding: 'async' });
-      // Keep the site's own image variants. An open note card shows images at most about 400px wide.
+      // Keep the site's own image variants, sized for the open note card rather than the article column.
       const srcSet = String(node.properties.srcSet ?? '');
       if (srcSet && srcSet.split(',').every(candidate => /^\/_?uploads\/\S+ \d+w$/.test(candidate.trim()))) {
-        Object.assign(properties, { srcSet, sizes: '(max-width: 540px) 72vw, 400px' });
+        Object.assign(properties, { srcSet, sizes: STAGE_NOTE_IMAGE_SIZES });
       }
     }
     if (node.tagName === 'ol' && typeof node.properties.start === 'number') properties.start = node.properties.start;

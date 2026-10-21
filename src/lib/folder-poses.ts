@@ -1,6 +1,12 @@
 export interface CardSize { width: number; height: number; kind: 'note' | 'photo'; }
 export interface CardPose { x: number; y: number; rotation: number; scale: number; opacity: number; }
 
+// Image sizes for cards on the stage, following stagePoses. A card's longer side reaches min(46vw, 52vh),
+// or 76vw on phones; sizes cannot use min(), and 52vh is the smaller term in landscape windows.
+export const STAGE_IMAGE_SIZES = '(max-width: 540px) 76vw, 52vh';
+// An open note fills the reading width (at most 480px), and its text column is 84% of the card.
+export const STAGE_NOTE_IMAGE_SIZES = '(max-width: 540px) 72vw, 400px';
+
 export function stagePoses(cards: CardSize[], active: number, width: number, height: number): CardPose[] {
   if (!cards.length) return [];
   const mobile = width <= 540;
