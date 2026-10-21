@@ -119,11 +119,11 @@ test('all content destinations use the client router without fading the page can
     assert.match(head, /<meta name="astro-view-transitions-fallback" content="swap"/, `${file} must swap without a fallback fade`);
     assert.doesNotMatch(head, /@view-transition\s*\{\s*navigation:\s*auto/, `${file} must not start a second cross-document transition`);
     const transitionStyle = [...head.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)]
-      .map(([, css]) => css).find(css => css.includes('::view-transition-new(*)'));
+      .map(([, css]) => css).find(css => css.includes('main.is-entering'));
     assert.ok(transitionStyle, `${file} needs the shared transition styles`);
-    const canvasStyle = transitionStyle.match(/::view-transition-old\(\*\),\s*::view-transition-new\(\*\)\s*\{([^}]+)\}/)?.[1] ?? '';
-    assert.match(canvasStyle, /animation:\s*none\s*;/, `${file} must not animate the entire page canvas`);
-    assert.match(canvasStyle, /opacity:\s*1\s*;/, `${file} must keep the page canvas opaque`);
+    // Nothing is snapshotted, so the page canvas can neither fade nor wait on a capture of the old page.
+    assert.match(transitionStyle, /:root\s*\{\s*view-transition-name:\s*none;\s*\}/, `${file} must not snapshot the page canvas`);
+    assert.doesNotMatch(transitionStyle, /view-transition-name:\s*(?!none)[\w-]+/, `${file} must not snapshot any element`);
     assert.match(html, /<html\b[^>]*style="[^"]*background-color:#[0-9a-f]{6};color-scheme:light"/, `${file} needs its canvas color before external CSS loads`);
   }
 });

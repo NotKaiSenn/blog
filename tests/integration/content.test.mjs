@@ -22,10 +22,13 @@ function profileAvatar(html) {
   return html.match(/<div class="avatar-print"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
 }
 
+// Every page shares the client router, its prefetch setup and navigation feedback; content adds no scripts.
 function assertNoContentScripts(html, note = false) {
   if (note) html = html.replace(/<script\b[^>]*src="\/_astro\/NoteDiagrams\.[^"]+\.js"[^>]*><\/script>/g, "");
-  const withoutRouter = html.replace(/<script\b[^>]*src="\/_astro\/ClientRouter\.[^"]+\.js"[^>]*><\/script>/g, '');
-  assert.doesNotMatch(withoutRouter, /<script\b/);
+  const shared = html
+    .replace(/<script\b[^>]*src="\/_astro\/(?:ClientRouter|page)\.[^"]+\.js"[^>]*><\/script>/g, '')
+    .replace(/<script type="module">(?:(?!<\/script>)[\s\S])*astro:before-preparation[\s\S]*?<\/script>/g, '');
+  assert.doesNotMatch(shared, /<script\b/);
 }
 
 test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', async (t) => {
