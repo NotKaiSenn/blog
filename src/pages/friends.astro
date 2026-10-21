@@ -2,12 +2,12 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { Icon } from 'astro-icon/components';
 import { friends } from '../lib/site-data';
-import { linkAttributes } from '../lib/links';
+import { linkProps } from '../lib/links';
 ---
 <SiteLayout title="朋友">
   <header class="page-heading"><h1>朋友</h1></header>
   {friends.length > 0 ? <ul class="friend-list">{friends.map(friend => <li>
-    <a class="friend-card" href={friend.url} {...linkAttributes(friend.url)}>
+    <a class="friend-card" {...linkProps(friend.url)}>
       <span class="friend-avatar"><span aria-hidden="true">{Array.from(friend.name)[0]}</span>{friend.avatar && <img src={friend.avatar} alt="" width="48" height="48" loading="lazy" decoding="async" onerror="this.remove()" />}</span>
       <div class="friend-copy"><h2>{friend.name}</h2>{friend.description && <p>{friend.description}</p>}<span class="friend-address">{friend.host}</span></div>
       <Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" class="friend-arrow" />

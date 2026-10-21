@@ -4,7 +4,7 @@ import WorkVisual from './WorkVisual.astro';
 import { displayDate, isoDate } from '../lib/post-data';
 import { STAGE_IMAGE_SIZES } from '../lib/folder-poses';
 import { responsiveImage } from '../lib/upload-variants';
-import { linkAttributes } from '../lib/links';
+import { linkProps } from '../lib/links';
 import { NOTE_SHAPES } from '../lib/note-preview';
 interface Props {
   title: string; href: string; kind: 'note' | 'photo' | 'friend'; index: number; total: number;
@@ -33,10 +33,11 @@ const restingTop = kind === 'photo' ? Math.max(shape.top, 40 - heightPercent) : 
 const top = artwork ? Math.max(restingTop, heightPercent * .365 + 1) : restingTop;
 const offset = index - (total - 1) / 2;
 const rotation = offset * (6 / Math.max(total - 1, 1));
+const link = linkProps(href);
 ---
-<li class:list={['folder-item', { 'is-artwork': artwork }]} data-kind={kind === 'friend' ? 'photo' : kind} data-layout={kind} data-title={title} data-href={href} data-card-width={width} data-ratio={ratio} style={`--card-width:${width}%;--card-ratio:${ratio};--home-x:${offset * 6 / width * 100}%;--home-turn:${rotation}deg;--top:${top}%;z-index:${total - Math.round(Math.abs(offset))}`}>
+<li class:list={['folder-item', { 'is-artwork': artwork }]} data-kind={kind === 'friend' ? 'photo' : kind} data-layout={kind} data-title={title} data-href={link.href} data-card-width={width} data-ratio={ratio} style={`--card-width:${width}%;--card-ratio:${ratio};--home-x:${offset * 6 / width * 100}%;--home-turn:${rotation}deg;--top:${top}%;z-index:${total - Math.round(Math.abs(offset))}`}>
   <div class="collection-frame">
-    <a class="card-content" href={href} {...linkAttributes(href)} aria-label={title}>
+    <a class="card-content" {...link} aria-label={title}>
       {kind === 'photo' && artwork ? <WorkVisual image={imageSrc} width={imageWidth} height={imageHeight} sizes={STAGE_IMAGE_SIZES} /> : kind === 'photo' ? <figure class="photo-print">
         <img src={imageSrc} {...responsiveImage(imageSrc, imageWidth, STAGE_IMAGE_SIZES)} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" decoding="async" />
       </figure> : kind === 'note' ? <article class="note-preview">

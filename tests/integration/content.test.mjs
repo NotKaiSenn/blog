@@ -67,6 +67,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     { name: '外链头像测试友链', url: 'https://another.example.com/', avatar: '/uploads/avatar.png', avatarUrl: 'https://avatars.example.com/friend.webp' },
     ...Array.from({ length: 6 }, (_, index) => ({ name: `其他友链 ${index + 3}`, url: `https://friend-${index + 3}.example.com/` })),
   ];
+  // A CMS entry may write one of the site's own pages as a full address.
+  fixtureFriends[7].url = 'https://kaisenn.net/photos/?from=friends#top';
   writeFileSync(friendsPath, JSON.stringify({ items: fixtureFriends }));
   const worksPath = join(fixture, 'src/data/works.json');
   const fixtureWorks = Array.from({ length: 8 }, (_, index) => ({
@@ -357,9 +359,12 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     for (const [path, html] of [['index.html', home], ['friends/index.html', friends], ['works/index.html', read('works/index.html')], ['works/minecraftwidget/index.html', read('works/minecraftwidget/index.html')]]) {
       for (const [tag, href] of html.matchAll(/<a\b[^>]*\shref="([^"]+)"[^>]*>/g)) {
         const opensTab = /\starget="_blank"/.test(tag) && /\srel="noopener noreferrer"/.test(tag);
-        assert.equal(opensTab, /^https?:/.test(href), `${path}: ${href} opens a new tab exactly when it leaves the site`);
+        const leaves = new URL(href, 'https://kaisenn.net/').host !== 'kaisenn.net';
+        assert.equal(opensTab, leaves, `${path}: ${href} opens a new tab exactly when it leaves the site`);
+        assert.ok(leaves || !/^https?:/.test(href), `${path}: ${href} links to the site's own page as a path`);
       }
     }
+    assert.match(friends, /<a class="friend-card" href="\/photos\/\?from=friends#top"(?![^>]*target=)[^>]*>/, 'a full address on this site stays in the tab and keeps its query and fragment');
     assert.match(friends, /<span class="friend-avatar"[^>]*><span aria-hidden="true"[^>]*>测<\/span><img\b[^>]*onerror="this\.remove\(\)"/, 'a friend avatar that fails reveals the initial beneath it');
     assert.match(home, /<span class="friend-initial" aria-hidden="true">测<img\b[^>]*onerror="this\.remove\(\)"/, 'homepage friend cards fall back the same way');
     assert.match(profileAvatar(home), /<img\b[^>]*onerror="this\.remove\(\)"/, 'and so does the profile avatar');

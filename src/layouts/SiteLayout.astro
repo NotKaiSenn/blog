@@ -4,7 +4,7 @@ import { Icon } from 'astro-icon/components';
 import { profile } from '../lib/site-data';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import PageTransition from '../components/PageTransition.astro';
-import { linkAttributes } from '../lib/links';
+import { linkProps } from '../lib/links';
 
 interface Props {
   title?: string;
@@ -50,7 +50,7 @@ const current = (section: string) => Astro.url.pathname === section ? 'page' : A
         <nav class="primary-nav" aria-label="主要导航">
           <a href="/posts/" aria-current={current('/posts/')}>笔记</a>
           <a href="/works/" aria-current={current('/works/')}>作品</a>
-          {profile.contactUrl && <a href={profile.contactUrl} {...linkAttributes(profile.contactUrl)}>联系<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" class="external-mark" /></a>}
+          {profile.contactUrl && <a {...linkProps(profile.contactUrl)}>联系<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" class="external-mark" /></a>}
         </nav>
       </header>
       <main id="main" tabindex="-1"><slot /></main>

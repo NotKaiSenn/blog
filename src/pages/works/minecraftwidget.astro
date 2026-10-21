@@ -2,7 +2,7 @@
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { Icon } from 'astro-icon/components';
 import MinecraftWidget from '../../components/MinecraftWidget.astro';
-import { linkAttributes } from '../../lib/links';
+import { linkProps } from '../../lib/links';
 const source = 'https://github.com/NotKaiSenn/blog/tree/main/widgets/minecraft';
 ---
 <SiteLayout title="壹方天地" description="一个可以互动的 Minecraft 四季小组件。" breadcrumbs={[{ label: '作品', href: '/works/' }, { label: '壹方天地' }]}>
@@ -12,7 +12,7 @@ const source = 'https://github.com/NotKaiSenn/blog/tree/main/widgets/minecraft';
       <MinecraftWidget />
     </minecraft-season-items>
   </div>
-  <p class="work-note"><a href={source} {...linkAttributes(source)}>github.com/NotKaiSenn/blog<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a></p>
+  <p class="work-note"><a {...linkProps(source)}>github.com/NotKaiSenn/blog<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a></p>
 </SiteLayout>
 
 <script>
