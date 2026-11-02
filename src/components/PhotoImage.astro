@@ -1,0 +1,26 @@
+---
+import { responsiveImage } from '../lib/upload-variants';
+interface Props {
+  src: string; alt: string; width?: number; height?: number; sizes: string;
+  loading?: 'lazy' | 'eager'; fetchpriority?: 'high' | 'low' | 'auto';
+}
+const { src, alt, width, height, sizes, loading, fetchpriority } = Astro.props;
+// Marks the photo as settled, whether it arrived or failed, so it shows and its slot stops waiting.
+const settle = "this.dataset.loaded = ''";
+---
+<span class="photo-slot"><img src={src} {...responsiveImage(src, width, sizes)} alt={alt} width={width} height={height} loading={loading} fetchpriority={fetchpriority} decoding="async" onload={settle} onerror={settle} /></span>
+<style>
+  /* Until the photo arrives, its place breathes between a deeper tint and the usual placeholder, so it reads as a photo on its way. */
+  .photo-slot { display: block; overflow: hidden; background: #e0e7da; animation: photo-wait 1.8s ease-in-out infinite alternate; }
+  /* The tint stays until the photo has come in, then clears any letterbox around it. */
+  .photo-slot:has(> img[data-loaded]) { background-color: transparent; transition: background-color 0s 300ms; animation: none; }
+  /* The photo develops like a print: it surfaces pale and washed out, and its colour comes up. */
+  img { width: 100%; height: 100%; transition: opacity 300ms ease-out, filter 900ms cubic-bezier(.2,.6,.3,1); }
+  /* Only hide what a script will reveal; without scripting the photo shows as it loads. */
+  @media (scripting: enabled) { img:not([data-loaded]) { opacity: 0; filter: grayscale(.85) brightness(1.3) contrast(.7); } }
+  @keyframes photo-wait { to { background-color: var(--placeholder); } }
+  @media (prefers-reduced-motion: reduce) {
+    .photo-slot { animation: none; }
+    img { transition: none; }
+  }
+</style>

@@ -108,6 +108,38 @@ test('the gallery stage leaves horizontal swipes to the card switcher', () => {
   assert.match(stage[2], /(?:^|;)touch-action:pan-y pinch-zoom(?:;|$)/, 'browsers otherwise claim a horizontal swipe as a pan and cancel it');
 });
 
+test('photos breathe while they wait, then develop like prints and clear their place', () => {
+  // A page's styles: small ones are inlined, the rest are linked.
+  const pageCss = file => {
+    const html = read(file);
+    const inline = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map(([, css]) => css);
+    const linked = [...html.matchAll(/<link rel="stylesheet" href="\/(_astro\/[^"]+\.css)"/g)].map(([, href]) => read(href));
+    return [...inline, ...linked].join('');
+  };
+  // Scoped styles carry Astro's attribute after each part, so match the parts rather than the exact selector.
+  const has = (css, pattern, declaration) => [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)]
+    .some(([, selectors, declarations]) => pattern.test(selectors.trim()) && declaration.test(declarations));
+  const photoPage = readdirSync(join(root, 'dist/photos')).find(entry => existsSync(join(root, 'dist/photos', entry, 'index.html')));
+  for (const file of ['photos/index.html', `photos/${photoPage}/index.html`, 'index.html']) {
+    const photos = [...read(file).matchAll(/<span class="photo-slot"[^>]*><img\b[^>]*>/g)].map(([tag]) => tag);
+    assert.ok(photos.length > 0, `${file} wraps its photos in a slot`);
+    for (const tag of photos) {
+      // Both outcomes settle the photo, so a failed one never stays hidden.
+      for (const event of ['onload', 'onerror']) assert.match(tag, new RegExp(`${event}="this\\.dataset\\.loaded = ''"`), `${file}: ${event}`);
+      assert.doesNotMatch(tag, /class="[^"]*"[^>]*class=/, `${file}: one class attribute`);
+    }
+    const css = pageCss(file);
+    assert.ok(has(css, /^\.photo-slot(\[[^\]]+\])?$/, /animation:[^;]*photo-wait/), `${file}: the slot breathes while it waits`);
+    assert.match(css, /@keyframes photo-wait\s*\{\s*to\s*\{\s*background-color:\s*var\(--placeholder\)/, `${file}: it breathes towards the shared placeholder tint`);
+    assert.ok(has(css, /\.photo-slot(\[[^\]]+\])?:has\(>\s*img\[data-loaded\]\)/, /background-color:(#0000|transparent)/), `${file}: a loaded photo clears its slot`);
+    // Without scripting nothing would reveal the photo, so it is only hidden when scripts run.
+    assert.match(css, /@media\s*\(scripting:\s*enabled\)\s*\{[^{}]*img[^{}]*:not\(\[data-loaded\]\)[^{}]*\{opacity:0;filter:grayscale\([^{}]*\}/, `${file}: hidden and washed out only until loaded`);
+    const still = css.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{(\.photo-slot[^@]*?\})\}/)?.[1] ?? '';
+    assert.match(still, /\.photo-slot[^{}]*\{animation:none\}/, `${file}: no breathing under reduced motion`);
+    assert.match(still, /img[^{}]*\{transition:none\}/, `${file}: no developing under reduced motion`);
+  }
+});
+
 test('all content destinations use the client router without fading the page canvas', () => {
   const pages = readdirSync(join(root, 'dist'), { recursive: true })
     .filter(file => file.endsWith('.html') && !file.startsWith('pages/'));
