@@ -24,7 +24,7 @@ const { photo } = Astro.props;
 <style>
   figure { margin: 0; }
   .photo-frame { padding: 9px; border-radius: 14px; background: #fff; box-shadow: 0 2px 5px #2633210a, 0 12px 26px #2633210a; }
-  img { width: 100%; height: auto; border-radius: 5px; }
+  img { width: 100%; height: auto; border-radius: 5px; background: var(--placeholder); }
   figcaption { margin-top: 22px; color: var(--body); font-size: .9375rem; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
   figcaption, .photo-return { width: min(640px, 100%); margin-inline: auto; }
   .photo-return { margin-top: 35px; }

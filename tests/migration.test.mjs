@@ -108,6 +108,30 @@ test('the gallery stage leaves horizontal swipes to the card switcher', () => {
   assert.match(stage[2], /(?:^|;)touch-action:pan-y pinch-zoom(?:;|$)/, 'browsers otherwise claim a horizontal swipe as a pan and cancel it');
 });
 
+test('photos hold a tinted place while they load, and gallery cards drop it once theirs is in', () => {
+  // A page's styles: small ones are inlined, the rest are linked.
+  const pageCss = file => {
+    const html = read(file);
+    const inline = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map(([, css]) => css);
+    const linked = [...html.matchAll(/<link rel="stylesheet" href="\/(_astro\/[^"]+\.css)"/g)].map(([, href]) => read(href));
+    return [...inline, ...linked].join('');
+  };
+  // Scoped styles carry Astro's attribute after each part, so match the parts rather than the exact selector.
+  const has = (css, pattern, declaration) => [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)]
+    .some(([, selectors, declarations]) => pattern.test(selectors) && declaration.test(declarations));
+  const tint = /(?:^|;)background:var\(--placeholder\)/;
+  const photoPage = readdirSync(join(root, 'dist/photos')).find(entry => existsSync(join(root, 'dist/photos', entry, 'index.html')));
+  for (const file of ['photos/index.html', `photos/${photoPage}/index.html`]) {
+    assert.ok(has(pageCss(file), /\.photo-frame(\[[^\]]+\])? img|^img\[/, tint), `${file} needs the placeholder tint under its photos`);
+  }
+  const home = pageCss('index.html');
+  assert.ok(has(home, /\.photo-print img(?!\[data-loaded\])/, tint), 'gallery photos need the placeholder tint');
+  assert.ok(has(home, /\.photo-print img\[data-loaded\]/, /(?:^|;)background:(?:none|0 0)(?:;|$)/), 'a loaded gallery photo must not show the tint in its letterbox');
+  const cards = [...read('index.html').matchAll(/<figure class="photo-print[^"]*"[^>]*>\s*<img\b[^>]*>/g)];
+  assert.ok(cards.length > 0);
+  for (const [card] of cards) assert.match(card, /onload="this\.dataset\.loaded = ''"/);
+});
+
 test('all content destinations use the client router without fading the page canvas', () => {
   const pages = readdirSync(join(root, 'dist'), { recursive: true })
     .filter(file => file.endsWith('.html') && !file.startsWith('pages/'));
