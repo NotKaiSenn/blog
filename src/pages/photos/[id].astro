@@ -5,7 +5,7 @@ import { Icon } from 'astro-icon/components';
 import type { Photo } from '../../lib/collections';
 import { photos } from '../../lib/site-data';
 import { displayDate } from '../../lib/post-data';
-import { responsiveImage } from '../../lib/upload-variants';
+import PhotoImage from '../../components/PhotoImage.astro';
 
 export const getStaticPaths = (() => photos.map(photo => ({ params: { id: photo.id }, props: { photo } }))) satisfies GetStaticPaths;
 interface Props { photo: Photo }
@@ -15,7 +15,7 @@ const { photo } = Astro.props;
   <article class="photo-detail">
     <header class="page-heading detail-heading"><h1>{photo.title}</h1><time datetime={photo.date}>{displayDate(photo.date)}</time></header>
     <figure>
-      <div class="photo-frame"><img src={photo.src} {...responsiveImage(photo.src, photo.width, '(max-width: 727px) 100vw, 680px')} alt={photo.alt} width={photo.width} height={photo.height} fetchpriority="high" decoding="async" /></div>
+      <div class="photo-frame"><PhotoImage src={photo.src} sizes="(max-width: 727px) 100vw, 680px" alt={photo.alt} width={photo.width} height={photo.height} fetchpriority="high" /></div>
       {photo.description && <figcaption>{photo.description}</figcaption>}
     </figure>
     <div class="photo-return"><a class="back-link" href="/photos/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回照片</a></div>
@@ -24,7 +24,7 @@ const { photo } = Astro.props;
 <style>
   figure { margin: 0; }
   .photo-frame { padding: 9px; border-radius: 14px; background: #fff; box-shadow: 0 2px 5px #2633210a, 0 12px 26px #2633210a; }
-  img { width: 100%; height: auto; border-radius: 5px; background: var(--placeholder); }
+  .photo-frame :global(.photo-slot) { border-radius: 5px; }
   figcaption { margin-top: 22px; color: var(--body); font-size: .9375rem; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
   figcaption, .photo-return { width: min(640px, 100%); margin-inline: auto; }
   .photo-return { margin-top: 35px; }

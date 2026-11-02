@@ -3,13 +3,13 @@ import SiteLayout from '../../layouts/SiteLayout.astro';
 import { photoUrl } from '../../lib/collections';
 import { photos } from '../../lib/site-data';
 import { displayDate } from '../../lib/post-data';
-import { responsiveImage } from '../../lib/upload-variants';
+import PhotoImage from '../../components/PhotoImage.astro';
 ---
 <SiteLayout title="照片" wide>
   <header class="page-heading"><h1>照片</h1></header>
   {photos.length > 0 ? <photo-masonry><ul class="photo-list">{photos.map(photo => <li>
     <a class="photo-entry" href={photoUrl(photo.id)}>
-      <div class="photo-frame"><img src={photo.src} {...responsiveImage(photo.src, photo.width, '(max-width: 727px) 50vw, 320px')} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" /></div>
+      <div class="photo-frame"><PhotoImage src={photo.src} sizes="(max-width: 727px) 50vw, 320px" alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" /></div>
       <div class="photo-caption"><h2>{photo.title}</h2><time datetime={photo.date}>{displayDate(photo.date)}</time></div>
     </a>
   </li>)}</ul></photo-masonry> : <div class="empty-state"><p>暂无照片</p></div>}
@@ -52,14 +52,14 @@ import { responsiveImage } from '../../lib/upload-variants';
   .photo-list li { min-width: 0; }
   .photo-entry { display: block; border-radius: 12px; }
   .photo-frame { padding: 7px; border-radius: 12px; background: #fff; box-shadow: var(--surface-edge-shadow); }
-  .photo-frame img { width: 100%; height: auto; border-radius: 6px; background: var(--placeholder); }
+  .photo-frame :global(.photo-slot) { border-radius: 6px; }
   .photo-caption { padding-top: 12px; }
   time { display: block; margin-top: 4px; color: var(--muted); font-size: .75rem; line-height: 1.5; }
   h2 { font-size: .9375rem; line-height: 1.6; font-weight: 550; overflow-wrap: anywhere; }
   @media (max-width: 479px) {
     .photo-list { --photo-gap: 24px; column-gap: 14px; }
     .photo-frame { padding: 5px; border-radius: 10px; }
-    .photo-frame img { border-radius: 5px; }
+    .photo-frame :global(.photo-slot) { border-radius: 5px; }
     .photo-caption { padding-top: 10px; }
     time { font-size: .6875rem; }
     h2 { font-size: .8125rem; }

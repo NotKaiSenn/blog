@@ -1,9 +1,9 @@
 ---
 import { Icon } from 'astro-icon/components';
 import WorkVisual from './WorkVisual.astro';
+import PhotoImage from './PhotoImage.astro';
 import { displayDate, isoDate } from '../lib/post-data';
 import { STAGE_IMAGE_SIZES } from '../lib/folder-poses';
-import { responsiveImage } from '../lib/upload-variants';
 import { linkProps } from '../lib/links';
 import { NOTE_SHAPES } from '../lib/note-preview';
 interface Props {
@@ -39,7 +39,7 @@ const link = linkProps(href);
   <div class="collection-frame">
     <a class="card-content" {...link} aria-label={title}>
       {kind === 'photo' && artwork ? <WorkVisual image={imageSrc} width={imageWidth} height={imageHeight} sizes={STAGE_IMAGE_SIZES} /> : kind === 'photo' ? <figure class="photo-print">
-        <img src={imageSrc} {...responsiveImage(imageSrc, imageWidth, STAGE_IMAGE_SIZES)} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" decoding="async" onload="this.dataset.loaded = ''" />
+        <PhotoImage src={imageSrc!} sizes={STAGE_IMAGE_SIZES} alt={imageAlt} width={imageWidth} height={imageHeight} loading="lazy" />
       </figure> : kind === 'note' ? <article class="note-preview">
         <header class="note-heading"><h3>{title}</h3>{date && <time datetime={isoDate(date)}>{displayDate(date)}</time>}</header>
         <div class="excerpt-text" set:html={preview?.html ?? ''} />
@@ -58,9 +58,9 @@ const link = linkProps(href);
   .card-content:hover { color: var(--ink); }
   .photo-print, .note-preview, .friend-preview { width: 100%; height: 100%; margin: 0; border-radius: var(--radius); overflow: hidden; }
   .photo-print { padding: 3cqw; background: white; -webkit-user-select: none; user-select: none; }
-  .photo-print img { width: 100%; height: 100%; object-fit: contain; border-radius: calc(var(--radius) - 3cqw); background: var(--placeholder); }
-  /* The card can be a hair off the photo's shape, or 4:3 when its size is unknown, so the tint goes once the photo is in. */
-  .photo-print img[data-loaded] { background: none; }
+  /* The card can be a hair off the photo's shape, or 4:3 when its size is unknown, so the photo is fitted inside it. */
+  .photo-print .photo-slot { height: 100%; border-radius: calc(var(--radius) - 3cqw); }
+  .photo-print img { object-fit: contain; }
   .folder-item.is-artwork .card-content { overflow: visible; border-radius: 0; box-shadow: none; }
   .note-preview { display: grid; grid-template-rows: auto minmax(0,1fr); gap: 5cqw; padding: 8cqw; background: #fffefa; }
   .note-heading h3 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; font-size: 7.5cqw; font-weight: 700; line-height: 1.35; letter-spacing: -.025em; overflow-wrap: anywhere; }
