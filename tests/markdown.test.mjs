@@ -66,3 +66,12 @@ test('invalid or untrusted TeX cannot add active links or stop publication', asy
   assert.match(code, /unknowncommand/);
   assert.doesNotMatch(code, /href="javascript:|<script\b/);
 });
+
+test('bold closes after Chinese punctuation, as Chinese writing places it', async () => {
+  const { code } = await processor.render('**人们想要“设计感”，却不在乎设计本身。**虽然有点爹味。\n\n**这就是我们想要的世界吗？**\n\n中文**加粗**中文，English **bold** stays.');
+  assert.match(code, /<strong>人们想要“设计感”，却不在乎设计本身。<\/strong>虽然/);
+  assert.match(code, /<strong>这就是我们想要的世界吗？<\/strong>/);
+  assert.match(code, /中文<strong>加粗<\/strong>中文/);
+  assert.match(code, /English <strong>bold<\/strong> stays/);
+  assert.doesNotMatch(code, /\*\*/, 'no asterisks are left showing');
+});

@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
+import remarkCjkFriendly from 'remark-cjk-friendly';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { remarkAlert } from 'remark-github-blockquote-alert';
@@ -19,7 +20,8 @@ export default defineConfig({
   output: 'static',
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath, [remarkAlert, { tagName: 'blockquote' }]],
+      // Lets **bold** close after Chinese punctuation, as in **一句话。**下一句, which CommonMark alone leaves as literal asterisks.
+      remarkPlugins: [remarkCjkFriendly, remarkMath, [remarkAlert, { tagName: 'blockquote' }]],
       rehypePlugins: [[rehypeKatex, { trust: false, strict: 'warn' }], [rehypeUploadImages, { publicDir }]],
     }),
     syntaxHighlight: { type: 'shiki', excludeLangs: ['math', 'mermaid'] },
