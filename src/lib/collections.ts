@@ -35,7 +35,19 @@ export interface Work {
   height: number;
 }
 
-// Note filenames, photo IDs and work IDs all become URLs.
+export interface Thing {
+  id: string;
+  name: string;
+  brand?: string;
+  category: string;
+  note?: string;
+  link?: string;
+  image?: string;
+  width: number;
+  height: number;
+}
+
+// Note filenames, photo, work and thing IDs all become URLs.
 export const SLUG_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u;
 
 function record(value: unknown, label: string): Record<string, unknown> {
@@ -197,4 +209,34 @@ export function parseWorks(value: unknown): Work[] {
   });
 }
 
+export function parseThings(value: unknown): Thing[] {
+  const ids = new Set<string>();
+  return entries(value, 'Things').map(({ item, index }) => {
+    const label = `Thing ${index + 1}`;
+    const thing = record(item, label);
+    const id = slug(thing.id, `${label}.id`);
+    if (ids.has(id)) throw new Error(`Duplicate thing id: ${id}`);
+    ids.add(id);
+    return {
+      id,
+      name: text(thing.name, `${label}.name`),
+      brand: optionalText(thing.brand, `${label}.brand`),
+      category: text(thing.category, `${label}.category`),
+      note: optionalText(thing.note, `${label}.note`),
+      link: optionalHttpsUrl(thing.link, `${label}.link`),
+      image: preferredImage(thing, 'imageUrl', 'image', label),
+      width: dimension(thing.width, `${label}.width`, 1),
+      height: dimension(thing.height, `${label}.height`, 1),
+    };
+  });
+}
+
+// Categories in the order they first appear, so the list's order sets the filter's order too.
+export function thingCategories(things: Thing[]): Array<{ name: string; count: number }> {
+  const counts = new Map<string, number>();
+  for (const { category } of things) counts.set(category, (counts.get(category) ?? 0) + 1);
+  return [...counts].map(([name, count]) => ({ name, count }));
+}
+
 export const photoUrl = (id: string): string => `/photos/${encodeURIComponent(id)}/`;
+export const thingUrl = (id: string): string => `/things/${encodeURIComponent(id)}/`;

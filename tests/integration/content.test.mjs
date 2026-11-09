@@ -83,6 +83,14 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     ...(index === 5 ? { image: '/uploads/work-portrait.png' } : {}),
   }));
   writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
+  // The things list only exists once the CMS saves it, so the fixture writes one and the empty test removes it.
+  const thingsPath = join(fixture, 'src/data/things.json');
+  const fixtureThings = [
+    { id: 'kettle', name: '手冲壶', brand: '测试品牌', category: '咖啡', image: '/uploads/wide.png', note: '第一行感受。\n第二行感受。', link: 'https://shop.example.com/kettle' },
+    { id: 'reader', name: '阅读器', category: '数码', imageUrl: 'https://images.example.com/reader.webp', width: 600, height: 800 },
+    { id: 'beans', name: '咖啡豆', brand: '烘焙店', category: '咖啡' },
+  ];
+  writeFileSync(thingsPath, JSON.stringify({ items: fixtureThings }));
   const profilePath = join(fixture, 'src/data/site.json');
   const fixtureProfile = {
     ...JSON.parse(readFileSync(profilePath, 'utf8')),
@@ -378,6 +386,64 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(nav('index.html'), /aria-current/);
   });
 
+  await t.test('things list in CMS order, filter by category and each get a page of their own', () => {
+    const list = read('things/index.html');
+    const grid = list.match(/<ul class="thing-grid"[^>]*>([\s\S]*?)<\/ul>/)?.[1] ?? '';
+    const names = [...grid.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, name]) => name);
+    assert.deepEqual(names, ['手冲壶', '阅读器', '咖啡豆']);
+    // Categories keep the order they first appear in, each with its count; the filter waits for its script.
+    const filter = list.match(/<div class="thing-filter"[^>]*hidden[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    assert.deepEqual([...filter.matchAll(/data-category="([^"]*)"[^>]*>([^<]+)<span[^>]*>(\d+)<\/span>/g)].map(([, key, label, count]) => [key, label, count]),
+      [['', '全部', '3'], ['咖啡', '咖啡', '2'], ['数码', '数码', '1']]);
+    assert.match(list, /<li data-category="咖啡"[^>]*>\s*<a class="thing-link"[^>]*href="\/things\/kettle\/"[^>]*aria-label="测试品牌 手冲壶"/);
+    assert.match(list, /srcset="[^"]*\/_uploads\/\d+\/wide\.png\.webp/, 'uploaded cutouts get WebP variants');
+    assert.match(list, /src="https:\/\/images\.example\.com\/reader\.webp"[^>]*width="600" height="800"/, 'an image link takes priority and keeps its entered size');
+    assert.doesNotMatch(list, /noindex/);
+    // The grid opens cards in place, so it does not prefetch every thing's page as it scrolls by.
+    assert.equal([...list.matchAll(/<a class="thing-link"[^>]*data-astro-prefetch="false"/g)].length, 3);
+    // Every thing has its card ready in the sheet, hidden until opened, with its note and link.
+    const sheet = list.match(/<dialog class="thing-sheet"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
+    const cards = [...sheet.matchAll(/<article class="thing-card"[^>]*data-thing="([^"]+)"[^>]*hidden[^>]*>([\s\S]*?)<\/article>/g)];
+    assert.deepEqual(cards.map(([, id]) => id), ['kettle', 'reader', 'beans']);
+    const [, , kettleCard] = cards[0];
+    assert.match(kettleCard, /<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-brand"[^>]*>测试品牌<\/p>/, 'the brand sits under the name');
+    assert.doesNotMatch(kettleCard, /card-category/, 'the filter already names the category');
+    assert.match(kettleCard, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
+    assert.match(kettleCard, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
+    assert.match(kettleCard, /<a class="card-close" href="\/things\/"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
+    assert.doesNotMatch(cards[2][2], /card-note|card-link/);
+    // A thing's own page is the list with that thing's card already open, so both read the same.
+    const openCard = (path) => {
+      const html = read(path);
+      const sheet = html.match(/<dialog class="thing-sheet[^"]*"([^>]*)>([\s\S]*?)<\/dialog>/);
+      assert.ok(sheet, `${path} carries the card sheet`);
+      const shown = [...sheet[2].matchAll(/<article class="thing-card"([^>]*)>([\s\S]*?)<\/article>/g)].filter(([, attributes]) => !/\bhidden\b/.test(attributes));
+      assert.equal(shown.length, 1, `${path} opens exactly one card`);
+      return { html, sheetAttributes: sheet[1], card: shown[0][2], id: shown[0][1].match(/data-thing="([^"]+)"/)[1] };
+    };
+    assert.doesNotMatch(list.match(/<dialog class="thing-sheet[^"]*"([^>]*)>/)[1], /\bopen\b/, 'the list opens no card by itself');
+    const kettle = openCard('things/kettle/index.html');
+    assert.equal(kettle.id, 'kettle');
+    assert.match(kettle.sheetAttributes, /\bopen\b/);
+    assert.match(kettle.html, /<title>手冲壶 [-·] /);
+    assert.match(kettle.html, /<ul class="thing-grid"/, 'the list stays behind the open card');
+    assert.match(kettle.card, /<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-brand"[^>]*>测试品牌<\/p>/);
+    assert.match(kettle.card, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
+    assert.match(kettle.card, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
+    assert.match(kettle.card, /<a class="card-close" href="\/things\/"/, 'without scripts, closing returns to the list');
+    assert.match(kettle.card, /<img[^>]*loading="eager"/, 'the open card does not wait to load its picture');
+    assert.match(kettle.html, /href="\/things\/"[^>]*>物件<\/a>/, 'breadcrumbs lead back to the list');
+    const beans = openCard('things/beans/index.html');
+    assert.equal(beans.id, 'beans');
+    assert.match(beans.card, /thing-placeholder/, 'a thing without a picture shows a placeholder');
+    assert.doesNotMatch(beans.card, /card-note|card-link/);
+    // The page has no entry in the nav yet; it is reached by its address.
+    for (const path of ['index.html', 'posts/index.html', 'things/index.html']) {
+      assert.doesNotMatch(read(path).match(/<nav class="primary-nav"[\s\S]*?<\/nav>/)[0], /\/things\//, `${path} keeps things out of the nav`);
+    }
+    assert.match(read('sitemap-0.xml'), /\/things\/kettle\//);
+  });
+
   await t.test('omitting the optional avatar URL preserves the uploaded avatar', () => {
     const profile = { ...fixtureProfile };
     delete profile.avatarUrl;
@@ -456,8 +522,13 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       writeFileSync(photosPath, JSON.stringify({ items: [] }));
       writeFileSync(friendsPath, JSON.stringify({ items: [] }));
       writeFileSync(worksPath, JSON.stringify({ items: [] }));
+      rmSync(thingsPath);
       writeFileSync(profilePath, JSON.stringify({ ...fixtureProfile, avatar: '', avatarUrl: '', favicon: '', contactUrl: '' }));
       build();
+      // Before the CMS has saved any things, the page waits quietly: no nav link and nothing to index.
+      assert.match(read('things/index.html'), /还没有添加物件/);
+      assert.match(read('things/index.html'), /noindex, follow/);
+      assert.ok(!existsSync(join(fixture, 'dist/things/kettle')));
       assert.match(read('index.html'), /暂无笔记/);
       assert.match(read('posts/index.html'), /暂无笔记/);
       assert.match(read('index.html'), /href="\/posts\/" data-folder-open="posts-gallery"/);
@@ -504,6 +575,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       writeFileSync(photosPath, JSON.stringify({ items: fixturePhotos }));
       writeFileSync(friendsPath, JSON.stringify({ items: fixtureFriends }));
       writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
+      writeFileSync(thingsPath, JSON.stringify({ items: fixtureThings }));
       writeFileSync(profilePath, JSON.stringify(fixtureProfile));
     }
   });

@@ -151,6 +151,79 @@ content:
             label: 图片高度
             type: number
             description: 上传图片会自动读取；外链图片可填写原图高度（像素）。
+  - name: things
+    label: 物件
+    type: file
+    path: src/data/things.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: items
+        label: 物件
+        type: object
+        description: 按列表顺序展示；分类按第一次出现的顺序排成筛选。
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: id
+            label: 固定网址
+            type: string
+            required: true
+            description: 每件物品使用不同名称，保存后保持不变。修改名称不会改变网址。
+            pattern:
+              regex: '^[A-Za-z0-9][A-Za-z0-9_-]*$'
+              message: 请使用字母、数字、短横线或下划线。
+          - name: name
+            label: 名称
+            type: string
+            required: true
+          - name: brand
+            label: 品牌
+            type: string
+          - name: category
+            label: 分类
+            type: string
+            required: true
+            description: 例如：数码、咖啡、书、衣物。写法相同的会归到同一分类。
+          - name: image
+            label: 图片
+            type: image
+            options:
+              media: uploads
+            description: 建议使用白底或透明背景的抠图，完整显示不裁切；填写外链时可留空。
+          - name: imageUrl
+            label: 图片外链
+            type: string
+            required: false
+            description: 可选，填写 HTTPS 图片直链；优先于上传图片。
+            pattern:
+              regex: '^(?:https://[^\s]+)?$'
+              message: 请填写完整的 HTTPS 图片地址，或留空。
+          - name: note
+            label: 感受
+            type: text
+            description: 为什么喜欢、怎么用它；显示在物品页里，可以换行。
+          - name: link
+            label: 相关链接
+            type: string
+            required: false
+            description: 可选，例如官网或购买页，填写完整的 HTTPS 地址。
+            pattern:
+              regex: '^(?:https://[^\s]+)?$'
+              message: 请填写完整的 HTTPS 地址，或留空。
+          - name: width
+            label: 图片宽度
+            type: number
+            description: 上传图片会自动读取；外链图片可填写原图宽度（像素）。
+          - name: height
+            label: 图片高度
+            type: number
+            description: 上传图片会自动读取；外链图片可填写原图高度（像素）。
   - name: photos
     label: 照片
     type: file
