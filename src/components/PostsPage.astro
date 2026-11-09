@@ -15,7 +15,7 @@ for (const post of currentPosts) {
   postsByYear.set(year, yearPosts);
 }
 ---
-<SiteLayout title={page > 1 ? `笔记 · 第 ${page} 页` : '笔记'} breadcrumbs={page > 1 ? [{ label: '笔记', href: '/posts/' }, { label: `第 ${page} 页` }] : [{ label: '笔记' }]}>
+<SiteLayout title={page > 1 ? `笔记 第 ${page} 页` : '笔记'} breadcrumbs={page > 1 ? [{ label: '笔记', href: '/posts/' }, { label: `第 ${page} 页` }] : [{ label: '笔记' }]}>
   <header class="page-heading"><h1>笔记</h1></header>
   {currentPosts.length ? <div class="year-archive">
     {Array.from(postsByYear, ([year, yearPosts]) => <RecentNotes year={year} posts={yearPosts} />)}
