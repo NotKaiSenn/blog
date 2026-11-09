@@ -406,13 +406,14 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     const cards = [...sheet.matchAll(/<article class="thing-card"[^>]*data-thing="([^"]+)"[^>]*hidden[^>]*>([\s\S]*?)<\/article>/g)];
     assert.deepEqual(cards.map(([, id]) => id), ['kettle', 'reader', 'beans']);
     const [, , kettleCard] = cards[0];
-    assert.match(kettleCard, /<p class="card-brand"[^>]*>测试品牌<\/p>\s*<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-category"[^>]*>咖啡<\/p>/);
+    assert.match(kettleCard, /<p class="card-brand"[^>]*>测试品牌<\/p>\s*<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>/);
+    assert.doesNotMatch(kettleCard, /card-category/, 'the filter already names the category');
     assert.match(kettleCard, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
     assert.match(kettleCard, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
     assert.match(kettleCard, /<button class="card-close"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
     assert.doesNotMatch(cards[2][2], /card-note|card-link/);
     const kettle = read('things/kettle/index.html');
-    assert.match(kettle, /<title>手冲壶 · /);
+    assert.match(kettle, /<title>手冲壶 [-·] /);
     assert.match(kettle, /<p class="brand"[^>]*>测试品牌<\/p>\s*<h1[^>]*>手冲壶<\/h1>/);
     assert.match(kettle, /<p class="note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
     assert.match(kettle, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);

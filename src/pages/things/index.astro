@@ -29,7 +29,6 @@ const categories = thingCategories(things);
         <div class="card-text">
           {thing.brand && <p class="card-brand">{thing.brand}</p>}
           <h2 id={`thing-${thing.id}`}>{thing.name}</h2>
-          <p class="card-category">{thing.category}</p>
           {thing.note && <p class="card-note">{thing.note}</p>}
           {thing.link && <a class="card-link" {...linkProps(thing.link)}>相关链接<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a>}
         </div>
@@ -41,12 +40,12 @@ const categories = thingCategories(things);
 <script>import '../../scripts/thing-shelf';</script>
 <style>
   thing-shelf { display: block; }
-  .thing-filter { display: flex; gap: 4px; margin: -10px 0 36px; overflow-x: auto; scrollbar-width: none; }
+  .thing-filter { display: flex; gap: 8px; margin: -10px -10px 36px; overflow-x: auto; scrollbar-width: none; }
   .thing-filter[hidden] { display: none; }
-  .thing-filter button { display: inline-flex; align-items: baseline; gap: 6px; flex-shrink: 0; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; color: var(--muted); background: none; font-size: .875rem; line-height: 32px; cursor: pointer; }
+  .thing-filter button { display: inline-flex; align-items: baseline; gap: 6px; flex-shrink: 0; height: 32px; padding: 0 10px; border: 0; color: var(--muted); background: none; font-size: .875rem; line-height: 32px; cursor: pointer; }
   .thing-filter button span { font-size: .75rem; font-variant-numeric: tabular-nums; opacity: .8; }
   .thing-filter button:hover { color: var(--ink); }
-  .thing-filter button[aria-pressed="true"] { color: var(--ink); background: var(--placeholder); }
+  .thing-filter button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
   .thing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 20px; padding: 0; margin: 0; list-style: none; }
   .thing-grid li[hidden] { display: none; }
   .thing-link { display: block; text-align: center; border-radius: 12px; }
@@ -70,7 +69,6 @@ const categories = thingCategories(things);
   .card-text { align-self: stretch; display: flex; flex-direction: column; padding: 56px 48px 44px 16px; }
   .card-brand { color: var(--muted); font-size: .8125rem; }
   .card-text h2 { margin-top: 4px; font-size: 1.5rem; font-weight: 550; line-height: 1.35; letter-spacing: -.02em; overflow-wrap: anywhere; }
-  .card-category { align-self: start; margin-top: 12px; padding: 2px 10px; border-radius: 999px; color: var(--muted); background: #0000000a; font-size: .75rem; line-height: 1.6; }
   .card-note { margin-top: 24px; color: var(--body); font-size: .9375rem; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; }
   .card-link { display: inline-flex; align-items: center; gap: 3px; align-self: start; margin-top: auto; padding-top: 24px; color: var(--muted); font-size: .8125rem; text-decoration: underline; text-underline-offset: 4px; }
   .card-close { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: #0000000a; cursor: pointer; }
