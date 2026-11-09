@@ -22,7 +22,7 @@ const { id, title, subtitle, href, emptyMessage, tiled = false } = Astro.props;
 <style is:global>
   html:has(.folder-stage[open]) { overflow: hidden; }
   .folder-stage { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0; border: none; overflow: hidden; color: var(--ink); background: transparent; }
-  .folder-stage::backdrop { background: #ffffffdb; -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); transition: opacity 300ms ease; }
+  .folder-stage::backdrop { background: color-mix(in srgb, var(--background) 86%, transparent); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); transition: opacity 300ms ease; }
   .folder-stage.is-closing::backdrop { opacity: 0; }
   .stage-bar { position: absolute; z-index: 100; inset: 0 0 auto; padding: 24px; display: flex; align-items: start; justify-content: space-between; gap: 20px; }
   .stage-bar h2 { font-size: 14px; font-weight: 550; }

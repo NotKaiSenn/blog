@@ -2,11 +2,19 @@
 import { Icon } from 'astro-icon/components';
 interface Props { href: string; title: string; subtitle: string; variant: 'posts' | 'works' | 'photos' | 'friends'; empty?: boolean; }
 const { href, title, subtitle, variant, empty = false } = Astro.props;
+// Each folder carries a tint so faint it reads as white from afar, and only side by side as four different folders.
+const tints: Record<Props['variant'], [string, string]> = {
+  posts: ['#faf6ea', '#ece4cc'],
+  works: ['#f2f5f9', '#dde4ee'],
+  photos: ['#f9f2f0', '#ecdcd7'],
+  friends: ['#f0f5f4', '#d9e6e4'],
+};
+const tint = tints[variant];
 const outline = 'M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z';
 ---
 <div class:list={['folder',`folder-${variant}`]} data-folder={variant}>
   <div class="folder-object">
-    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5" /><stop offset="1" stop-color="#e4e4e4" /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="black" stroke-opacity=".07" /></svg>
+    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color={tint[0]} /><stop offset="1" stop-color={tint[1]} /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="black" stroke-opacity=".07" /></svg>
     <ul class="folder-items" aria-hidden="true" inert><slot />
       {empty && [0,1].map(index => <li class={`folder-decoration decoration-${variant}`} data-decor-index={index} style={`--decor-x:${index ? 9 : -9}%;--decor-turn:${index ? 5 : -5}deg;z-index:${index+1}`}>
         <div class="decoration-face">
