@@ -9,6 +9,7 @@ export const CONTENT_PATHS = [
   'src/data/works.json',
   'src/data/photos.json',
   'src/data/friends.json',
+  'src/data/things.json',
   'public/uploads',
 ];
 

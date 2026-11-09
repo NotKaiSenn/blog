@@ -22,8 +22,8 @@ a:hover { color: var(--green); }
 /* Pressing anything clickable answers at once, before the next page arrives: text dims, cards press in. */
 a { transition: opacity 120ms ease; }
 a:active { opacity: .6; }
-:is(.card-content, .photo-entry, .work-print, .friend-card), .folder-object { transition: transform 120ms ease; }
-:is(.card-content, .photo-entry, .work-print, .friend-card):active, .folder:has(.folder-trigger:active) .folder-object { opacity: 1; transform: scale(.98); }
+:is(.card-content, .photo-entry, .work-print, .friend-card, .thing-link), .folder-object { transition: transform 120ms ease; }
+:is(.card-content, .photo-entry, .work-print, .friend-card, .thing-link):active, .folder:has(.folder-trigger:active) .folder-object { opacity: 1; transform: scale(.98); }
 button, input { font: inherit; }
 svg[data-icon] { display: block; width: 1em; height: 1em; flex-shrink: 0; }
 img { display: block; max-width: 100%; height: auto; }

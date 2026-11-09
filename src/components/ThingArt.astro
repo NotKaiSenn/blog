@@ -1,0 +1,18 @@
+---
+import { Icon } from 'astro-icon/components';
+import { responsiveImage } from '../lib/upload-variants';
+import type { Thing } from '../lib/collections';
+interface Props { thing: Thing; sizes: string; eager?: boolean; }
+const { thing, sizes, eager = false } = Astro.props;
+---
+<div class="thing-art">
+  {thing.image
+    ? <img src={thing.image} {...responsiveImage(thing.image, thing.width, sizes)} alt="" width={thing.width} height={thing.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    : <Icon is:inline aria-hidden="true" focusable="false" name="ph:cube" class="thing-placeholder" />}
+</div>
+<style>
+  /* Things are photographed as cutouts, so each one sits in a box of the same height and keeps its own shape. */
+  .thing-art { display: flex; align-items: center; justify-content: center; height: 100%; }
+  img { width: auto; max-width: 100%; height: auto; max-height: 100%; min-width: 0; min-height: 0; object-fit: contain; }
+  .thing-art :global(.thing-placeholder) { width: 40%; max-width: 64px; height: auto; color: #a3a3a3; }
+</style>

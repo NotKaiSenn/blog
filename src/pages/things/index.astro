@@ -1,0 +1,68 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ThingArt from '../../components/ThingArt.astro';
+import { thingCategories, thingUrl } from '../../lib/collections';
+import { things } from '../../lib/site-data';
+
+const categories = thingCategories(things);
+---
+<SiteLayout title="物件" description="日常在用、也喜欢的东西。" noindex={things.length === 0} wide>
+  <header class="page-heading"><h1>物件</h1></header>
+  {things.length > 0 ? <thing-shelf>
+    {categories.length > 1 && <div class="thing-filter" role="group" aria-label="按分类筛选" hidden>
+      <button type="button" aria-pressed="true" data-category="">全部<span>{things.length}</span></button>
+      {categories.map(({ name, count }) => <button type="button" aria-pressed="false" data-category={name}>{name}<span>{count}</span></button>)}
+    </div>}
+    <ul class="thing-grid">{things.map(thing => <li data-category={thing.category}>
+      <a class="thing-link" href={thingUrl(thing.id)} aria-label={[thing.brand, thing.name].filter(Boolean).join(' ')}>
+        <div class="thing-frame"><ThingArt thing={thing} sizes="(max-width: 479px) 40vw, 160px" /></div>
+        <h2>{thing.name}</h2>
+        {thing.brand && <p>{thing.brand}</p>}
+      </a>
+    </li>)}</ul>
+  </thing-shelf> : <div class="empty-state"><p>还没有添加物件</p></div>}
+</SiteLayout>
+<script>
+  // Filtering only hides items, so without scripts every thing is still listed and the filter stays hidden.
+  class ThingShelf extends HTMLElement {
+    connectedCallback() {
+      const filter = this.querySelector<HTMLElement>('.thing-filter');
+      if (!filter) return;
+      const buttons = Array.from(filter.querySelectorAll<HTMLButtonElement>('button'));
+      const items = Array.from(this.querySelectorAll<HTMLElement>('.thing-grid > li'));
+      filter.hidden = false;
+      filter.addEventListener('click', event => {
+        const button = (event.target as Element).closest('button');
+        if (!button) return;
+        const category = button.dataset.category;
+        for (const each of buttons) each.setAttribute('aria-pressed', String(each === button));
+        for (const item of items) item.hidden = Boolean(category) && item.dataset.category !== category;
+      });
+    }
+  }
+
+  if (!customElements.get('thing-shelf')) customElements.define('thing-shelf', ThingShelf);
+</script>
+<style>
+  thing-shelf { display: block; }
+  .thing-filter { display: flex; gap: 4px; margin: -10px 0 36px; overflow-x: auto; scrollbar-width: none; }
+  .thing-filter[hidden] { display: none; }
+  .thing-filter button { display: inline-flex; align-items: baseline; gap: 6px; flex-shrink: 0; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; color: var(--muted); background: none; font-size: .875rem; line-height: 32px; cursor: pointer; }
+  .thing-filter button span { font-size: .75rem; font-variant-numeric: tabular-nums; opacity: .8; }
+  .thing-filter button:hover { color: var(--ink); }
+  .thing-filter button[aria-pressed="true"] { color: var(--ink); background: var(--placeholder); }
+  .thing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 20px; padding: 0; margin: 0; list-style: none; }
+  .thing-grid li[hidden] { display: none; }
+  .thing-link { display: block; text-align: center; border-radius: 12px; }
+  .thing-frame { height: 112px; transition: transform 300ms cubic-bezier(.22,1,.36,1); }
+  .thing-link:hover .thing-frame { transform: scale(1.04); }
+  .thing-link:hover { color: inherit; }
+  h2 { margin-top: 16px; font-size: .9375rem; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+  p { margin-top: 2px; color: var(--muted); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+  @media (max-width: 639px) { .thing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 479px) {
+    .thing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 14px; }
+    .thing-frame { height: 96px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .thing-frame { transition: none; } }
+</style>

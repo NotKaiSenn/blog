@@ -83,6 +83,14 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     ...(index === 5 ? { image: '/uploads/work-portrait.png' } : {}),
   }));
   writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
+  // The things list only exists once the CMS saves it, so the fixture writes one and the empty test removes it.
+  const thingsPath = join(fixture, 'src/data/things.json');
+  const fixtureThings = [
+    { id: 'kettle', name: '手冲壶', brand: '测试品牌', category: '咖啡', image: '/uploads/wide.png', note: '第一行感受。\n第二行感受。', link: 'https://shop.example.com/kettle' },
+    { id: 'reader', name: '阅读器', category: '数码', imageUrl: 'https://images.example.com/reader.webp', width: 600, height: 800 },
+    { id: 'beans', name: '咖啡豆', brand: '烘焙店', category: '咖啡' },
+  ];
+  writeFileSync(thingsPath, JSON.stringify({ items: fixtureThings }));
   const profilePath = join(fixture, 'src/data/site.json');
   const fixtureProfile = {
     ...JSON.parse(readFileSync(profilePath, 'utf8')),
@@ -378,6 +386,34 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(nav('index.html'), /aria-current/);
   });
 
+  await t.test('things list in CMS order, filter by category and each get a page of their own', () => {
+    const list = read('things/index.html');
+    const names = [...list.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, name]) => name);
+    assert.deepEqual(names, ['手冲壶', '阅读器', '咖啡豆']);
+    // Categories keep the order they first appear in, each with its count; the filter waits for its script.
+    const filter = list.match(/<div class="thing-filter"[^>]*hidden[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    assert.deepEqual([...filter.matchAll(/data-category="([^"]*)"[^>]*>([^<]+)<span[^>]*>(\d+)<\/span>/g)].map(([, key, label, count]) => [key, label, count]),
+      [['', '全部', '3'], ['咖啡', '咖啡', '2'], ['数码', '数码', '1']]);
+    assert.match(list, /<li data-category="咖啡"[^>]*>\s*<a class="thing-link"[^>]*href="\/things\/kettle\/"[^>]*aria-label="测试品牌 手冲壶"/);
+    assert.match(list, /srcset="[^"]*\/_uploads\/\d+\/wide\.png\.webp/, 'uploaded cutouts get WebP variants');
+    assert.match(list, /src="https:\/\/images\.example\.com\/reader\.webp"[^>]*width="600" height="800"/, 'an image link takes priority and keeps its entered size');
+    assert.doesNotMatch(list, /noindex/);
+    const kettle = read('things/kettle/index.html');
+    assert.match(kettle, /<title>手冲壶 · /);
+    assert.match(kettle, /<p class="brand"[^>]*>测试品牌<\/p>\s*<h1[^>]*>手冲壶<\/h1>/);
+    assert.match(kettle, /<p class="note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
+    assert.match(kettle, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
+    assert.match(kettle, /href="\/things\/"[^>]*>物件<\/a>/, 'breadcrumbs lead back to the list');
+    const beans = read('things/beans/index.html');
+    assert.match(beans, /thing-placeholder/, 'a thing without a picture shows a placeholder');
+    assert.doesNotMatch(beans, /class="note"|相关链接/);
+    for (const path of ['index.html', 'posts/index.html', 'things/index.html']) {
+      assert.match(read(path), /<a href="\/things\/"[^>]*>物件<\/a>/, `${path} links to things once there are some`);
+    }
+    assert.match(read('things/kettle/index.html'), /<a href="\/things\/" aria-current="true">物件<\/a>/);
+    assert.match(read('sitemap-0.xml'), /\/things\/kettle\//);
+  });
+
   await t.test('omitting the optional avatar URL preserves the uploaded avatar', () => {
     const profile = { ...fixtureProfile };
     delete profile.avatarUrl;
@@ -456,8 +492,14 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       writeFileSync(photosPath, JSON.stringify({ items: [] }));
       writeFileSync(friendsPath, JSON.stringify({ items: [] }));
       writeFileSync(worksPath, JSON.stringify({ items: [] }));
+      rmSync(thingsPath);
       writeFileSync(profilePath, JSON.stringify({ ...fixtureProfile, avatar: '', avatarUrl: '', favicon: '', contactUrl: '' }));
       build();
+      // Before the CMS has saved any things, the page waits quietly: no nav link and nothing to index.
+      assert.match(read('things/index.html'), /还没有添加物件/);
+      assert.match(read('things/index.html'), /noindex, follow/);
+      assert.doesNotMatch(read('index.html'), /href="\/things\/"/);
+      assert.ok(!existsSync(join(fixture, 'dist/things/kettle')));
       assert.match(read('index.html'), /暂无笔记/);
       assert.match(read('posts/index.html'), /暂无笔记/);
       assert.match(read('index.html'), /href="\/posts\/" data-folder-open="posts-gallery"/);
@@ -504,6 +546,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       writeFileSync(photosPath, JSON.stringify({ items: fixturePhotos }));
       writeFileSync(friendsPath, JSON.stringify({ items: fixtureFriends }));
       writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
+      writeFileSync(thingsPath, JSON.stringify({ items: fixtureThings }));
       writeFileSync(profilePath, JSON.stringify(fixtureProfile));
     }
   });
