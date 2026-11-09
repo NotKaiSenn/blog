@@ -15,8 +15,8 @@ const title = [thing.brand, thing.name].filter(Boolean).join(' ');
 <SiteLayout title={thing.name} description={thing.note ?? title} breadcrumbs={[{ label: '物件', href: '/things/' }, { label: thing.name }]}>
   <article class="thing-detail">
     <header>
-      {thing.brand && <p class="brand">{thing.brand}</p>}
       <h1>{thing.name}</h1>
+      {thing.brand && <p class="brand">{thing.brand}</p>}
     </header>
     <div class="art"><ThingArt thing={thing} sizes="(max-width: 479px) 80vw, 320px" eager /></div>
     {thing.note && <p class="note">{thing.note}</p>}
@@ -27,8 +27,8 @@ const title = [thing.brand, thing.name].filter(Boolean).join(' ');
 <style>
   .thing-detail { margin-top: 67px; }
   header { text-align: center; }
-  .brand { color: var(--muted); font-size: .875rem; }
-  h1 { margin-top: 4px; font-size: clamp(1.5rem, 4vw, 1.875rem); font-weight: 550; line-height: 1.4; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .brand { margin-top: 6px; color: var(--muted); font-size: .875rem; }
+  h1 { font-size: clamp(1.5rem, 4vw, 1.875rem); font-weight: 550; line-height: 1.4; letter-spacing: -.02em; overflow-wrap: anywhere; }
   .art { height: 280px; margin: 40px auto 0; }
   .note { margin-top: 44px; color: var(--body); line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
   .link { margin-top: 20px; font-size: .875rem; }
