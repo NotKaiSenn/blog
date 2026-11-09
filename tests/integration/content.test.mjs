@@ -205,7 +205,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(detail, /<img\b(?=[^>]*\bslot="poster")(?=[^>]*\bsrc="\/minecraft-widget\/assets\/posters\/spring\.webp")[^>]*>/, 'the scene shows a poster before its script loads');
     assert.match(detail, /<minecraft-season-picker\b/);
     assert.equal((detail.match(/<button\b[^>]*data-season=/g) ?? []).length, 4);
-    assert.match(detail, /<title>壹方天地 · /);
+    assert.match(detail, /<title>壹方天地 - /);
     assert.match(detail, /href="https:\/\/github\.com\/NotKaiSenn\/blog\/tree\/main\/widgets\/minecraft"/);
     for (const name of ['LICENSE', 'NOTICE']) assert.deepEqual(readFileSync(join(fixture, 'dist/minecraft-widget', name)), readFileSync(join(fixture, 'widgets/minecraft', name)));
     const assetRoot = join(fixture, 'dist/minecraft-widget/assets');

@@ -6,7 +6,7 @@ const outline = 'M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0
 ---
 <div class:list={['folder',`folder-${variant}`]} data-folder={variant}>
   <div class="folder-object">
-    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3f5f1" /><stop offset="1" stop-color="#e1e6de" /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="white" stroke-opacity=".8" /></svg>
+    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5" /><stop offset="1" stop-color="#e4e4e4" /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="white" stroke-opacity=".8" /></svg>
     <ul class="folder-items" aria-hidden="true" inert><slot />
       {empty && [0,1].map(index => <li class={`folder-decoration decoration-${variant}`} data-decor-index={index} style={`--decor-x:${index ? 9 : -9}%;--decor-turn:${index ? 5 : -5}deg;z-index:${index+1}`}>
         <div class="decoration-face">
@@ -21,19 +21,19 @@ const outline = 'M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0
 <style>
   .folder { position: relative; }
   .folder-object { position: relative; aspect-ratio: 20 / 17; perspective: 1000px; perspective-origin: bottom center; }
-  .folder-back { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 2px #2833280e) drop-shadow(0 6px 12px #2833280e) drop-shadow(0 18px 32px #28332810); }
+  .folder-back { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 2px #0000000e) drop-shadow(0 6px 12px #0000000e) drop-shadow(0 18px 32px #00000010); }
   .folder-items { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-  .folder-decoration { position: absolute; top: 5%; left: 29%; width: 42%; aspect-ratio: 3 / 4; padding: 3%; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px #28332813,0 5px 12px #28332815; transform: translateX(var(--decor-x)) rotate(var(--decor-turn)); color: #a5b19e; }
-  .decoration-face { display: grid; place-items: center; height: 100%; border-radius: 5px; background: #e8ece3; }
+  .folder-decoration { position: absolute; top: 5%; left: 29%; width: 42%; aspect-ratio: 3 / 4; padding: 3%; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px #00000013,0 5px 12px #00000015; transform: translateX(var(--decor-x)) rotate(var(--decor-turn)); color: #a3a3a3; }
+  .decoration-face { display: grid; place-items: center; height: 100%; border-radius: 5px; background: #ececec; }
   .decoration-face :global([data-icon]) { width: 52%; height: auto; }
   .decoration-friends { aspect-ratio: 4 / 3; }
-  .decoration-friends .decoration-face { background: #edf0e9; }
+  .decoration-friends .decoration-face { background: #f0f0f0; }
   .folder-flap { position: absolute; inset: 24% 0 0; z-index: 10; border-radius: 7.5% / 11.6%; background: linear-gradient(#ffffff80,#ffffff61); -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%); box-shadow: var(--surface-edge-shadow); transform-origin: bottom center; }
   .folder-label { position: absolute; inset: auto 20px 20px; display: flex; justify-content: space-between; align-items: end; gap: 12px; }
   .folder-label h2 { font-size: 14px; font-weight: 550; }
-  .folder-label p { margin-top: 2px; font-size: 12px; color: #6b7469; }
-  .folder-label :global(.folder-arrow) { width: 16px; height: 16px; color: #899185; }
+  .folder-label p { margin-top: 2px; font-size: 12px; color: var(--muted); }
+  .folder-label :global(.folder-arrow) { width: 16px; height: 16px; color: #a3a3a3; }
   .folder-trigger { position: absolute; inset: 0; z-index: 20; border-radius: 7.5%; -webkit-tap-highlight-color: transparent; }
-  .folder-trigger:focus-visible { outline: 2px solid var(--green); outline-offset: 7px; }
+  .folder-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 7px; }
   @media (max-width: 767px) { .folder-object { perspective: 4000px; } }
 </style>

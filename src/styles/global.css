@@ -1,14 +1,27 @@
 :root {
   color-scheme: light;
-  --background: #f3f7f1;
-  --ink: #252a26;
-  --body: #505951;
-  --muted: #697367;
-  --green: #536c4e;
-  --gold: #98723b;
-  --line: #dfe6dc;
+  /* Neutral greys on #fafafa: no tint, so text and photos carry the page. */
+  --background: #fafafa;
+  --ink: #1a1a1a;
+  --body: #2c2c2c;
+  --muted: #717171;
+  --accent: #1a1a1a;
+  --line: #e8e8e8;
+  /* Quote rules and checkbox edges: a line that has to be seen. */
+  --line-strong: #cccccc;
+  /* Inline code, table heads: a surface just off the page. */
+  --wash: #f0f0f0;
   /* Fills a picture's place until it arrives; opaque photos cover it completely once loaded. */
-  --placeholder: #e9eee5;
+  --placeholder: #eeeeee;
+  /* The one colour: the notes card's tape, selected text, and the underline under links in notes. */
+  --highlight: #c5e3b5;
+  --link-underline: #9fc58f;
+  /* The tape's green, deep enough to read as text: dates and dots on the notes card. */
+  --highlight-ink: #4d7a40;
+  /* The folders' soft, layered shadow, for anything that sits on the page like a card. */
+  --soft-shadow: 0 1px 2px #0000000e, 0 6px 12px #0000000e, 0 18px 32px #00000010;
+  /* The same shadow, held a little closer, for white prints whose edge must read against the page. */
+  --print-shadow: 0 0 1px #00000024, 0 1px 3px #00000014, 0 6px 14px #00000012, 0 18px 32px #00000010;
   --surface-edge-shadow: inset 0 0 0 1px #ffffff99,0 -2px 6px -1px #00000014;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-synthesis: none;
@@ -16,9 +29,9 @@
 }
 * { box-sizing: border-box; }
 html { background: var(--background); scroll-padding-top: 32px; overflow-y: scroll; scrollbar-gutter: stable; }
-body { margin: 0; min-height: 100vh; color: var(--ink); font-size: 1rem; line-height: 1.75; -webkit-font-smoothing: antialiased; background: radial-gradient(ellipse at 15% 12%,#ffffffb0,transparent 42%),radial-gradient(ellipse at 85% 18%,#dce8d680,transparent 42%),linear-gradient(180deg,#f0f6ef,#f8f9f3 65%,#f2f7ef); }
+body { margin: 0; min-height: 100vh; color: var(--ink); font-size: 1rem; line-height: 1.75; -webkit-font-smoothing: antialiased; background: var(--background); }
 a { color: inherit; text-decoration: none; text-underline-offset: 4px; }
-a:hover { color: var(--green); }
+a:hover { color: var(--muted); }
 /* Pressing anything clickable answers at once, before the next page arrives: text dims, cards press in. */
 a { transition: opacity 120ms ease; }
 a:active { opacity: .6; }
@@ -28,22 +41,23 @@ button, input { font: inherit; }
 svg[data-icon] { display: block; width: 1em; height: 1em; flex-shrink: 0; }
 img { display: block; max-width: 100%; height: auto; }
 h1, h2, h3, p { margin: 0; }
-::selection { background: #dce5d4; color: #263321; }
-:focus-visible { outline: 2px solid var(--green); outline-offset: 5px; border-radius: 3px; }
+::selection { background: color-mix(in srgb, var(--highlight) 70%, white); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 3px; }
 main:focus { outline: none; }
 .skip-link { position: fixed; top: 10px; left: 12px; z-index: 20; padding: 8px 14px; background: #fff; transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); }
-.site-shell { width: min(640px, calc(100% - 48px)); margin: 0 auto; }
+/* The footer rests at the bottom of the window even when a page is short. */
+.site-shell { display: flex; flex-direction: column; width: min(640px, calc(100% - 48px)); min-height: 100vh; min-height: 100dvh; margin: 0 auto; }
+.site-shell > main { flex: 1 0 auto; }
 .reading-shell { width: min(680px, calc(100% - 48px)); }
 .site-header, .site-footer { width: min(640px, 100%); margin-inline: auto; }
 .site-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 36px 0 0; font-size: .875rem; }
 .site-header .breadcrumbs { flex: 1; }
 .primary-nav { display: flex; align-items: center; gap: 26px; flex-shrink: 0; }
 .primary-nav a { display: inline-flex; align-items: center; min-height: 36px; }
-.primary-nav a[aria-current] { color: var(--green); }
 .external-mark { margin-left: 3px; font-size: .875rem; color: var(--muted); }
 .intro { margin: 73px 0 64px; scroll-margin-top: 36px; }
-.avatar-print { width: 62px; height: 62px; padding: 3px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px #23331c12, 0 5px 10px #23331c0c; transform: rotate(-4deg); }
+.avatar-print { width: 62px; height: 62px; padding: 3px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px #00000012, 0 5px 10px #0000000c; transform: rotate(-4deg); }
 .avatar-print img { width: 56px; height: 56px; border-radius: 9px; object-fit: cover; }
 .intro h1 { margin-top: 23px; font-size: 1.1875rem; font-weight: 600; letter-spacing: -.02em; }
 .intro p { margin-top: 12px; color: var(--body); line-height: 1.9; }

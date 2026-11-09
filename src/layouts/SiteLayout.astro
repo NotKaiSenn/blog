@@ -15,18 +15,18 @@ interface Props {
   breadcrumbs?: Array<{ label: string; href?: string }>;
 }
 const { title, description = profile.bio, wide = false, noindex = false, articleDate, breadcrumbs = title ? [{ label: title }] : [] } = Astro.props;
-const pageTitle = title ? `${title} · ${profile.name}` : profile.name;
+const pageTitle = title ? `${title} - ${profile.name}` : profile.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const favicon = profile.favicon ?? '/favicon.svg';
 // A section link is the current page on its own page, and marks the current section on pages inside it.
 const current = (section: string) => Astro.url.pathname === section ? 'page' : Astro.url.pathname.startsWith(section) ? 'true' : undefined;
 ---
 <!doctype html>
-<html lang="zh-CN" style="background-color:#f3f7f1;color-scheme:light">
+<html lang="zh-CN" style="background-color:#fafafa;color-scheme:light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f3f7f1" />
+    <meta name="theme-color" content="#fafafa" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
