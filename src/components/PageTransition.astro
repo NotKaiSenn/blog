@@ -10,7 +10,7 @@ import { ClientRouter } from 'astro:transitions';
   main.is-entering { animation: content-enter 180ms ease-out both; }
   @keyframes content-enter { from { opacity: 0; transform: translateY(5px); } }
   /* A thin bar for pages that take a moment to arrive, also above an open gallery's backdrop. */
-  html::before, .folder-stage::after { content: ''; position: fixed; z-index: 1000; inset: 0 0 auto; height: 2px; background: var(--green); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+  html::before, .folder-stage::after { content: ''; position: fixed; z-index: 1000; inset: 0 0 auto; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
   /* Both phases are transitions, so finishing runs on from wherever the slow crawl had reached. */
   html[data-navigation="loading"]::before, html[data-navigation="loading"] .folder-stage::after { transform: scaleX(.9); transition: transform 8s cubic-bezier(.1,.7,.2,1); }
   html[data-navigation="done"]::before { transform: scaleX(1); opacity: 0; transition: transform 200ms ease-out, opacity 200ms ease-out 150ms; }

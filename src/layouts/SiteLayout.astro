@@ -22,11 +22,11 @@ const favicon = profile.favicon ?? '/favicon.svg';
 const current = (section: string) => Astro.url.pathname === section ? 'page' : Astro.url.pathname.startsWith(section) ? 'true' : undefined;
 ---
 <!doctype html>
-<html lang="zh-CN" style="background-color:#f3f7f1;color-scheme:light">
+<html lang="zh-CN" style="background-color:#ffffff;color-scheme:light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f3f7f1" />
+    <meta name="theme-color" content="#ffffff" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

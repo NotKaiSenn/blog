@@ -10,8 +10,8 @@ const settle = "this.dataset.loaded = ''";
 ---
 <span class="photo-slot"><img src={src} {...responsiveImage(src, width, sizes)} alt={alt} width={width} height={height} loading={loading} fetchpriority={fetchpriority} decoding="async" onload={settle} onerror={settle} /></span>
 <style>
-  /* Until the photo arrives, its place breathes between a deeper tint and the usual placeholder, so it reads as a photo on its way. */
-  .photo-slot { display: block; overflow: hidden; background: #e0e7da; animation: photo-wait 1.8s ease-in-out infinite alternate; }
+  /* Until the photo arrives, its place breathes between a deeper grey and the usual placeholder, so it reads as a photo on its way. */
+  .photo-slot { display: block; overflow: hidden; background: #e4e4e4; animation: photo-wait 1.8s ease-in-out infinite alternate; }
   /* The tint stays until the photo has come in, then clears any letterbox around it. */
   .photo-slot:has(> img[data-loaded]) { background-color: transparent; transition: background-color 0s 300ms; animation: none; }
   /* The photo develops like a print: it surfaces pale and washed out, and its colour comes up. */

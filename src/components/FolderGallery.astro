@@ -22,19 +22,19 @@ const { id, title, subtitle, href, emptyMessage, tiled = false } = Astro.props;
 <style is:global>
   html:has(.folder-stage[open]) { overflow: hidden; }
   .folder-stage { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0; border: none; overflow: hidden; color: var(--ink); background: transparent; }
-  .folder-stage::backdrop { background: #f5f8f3db; -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); transition: opacity 300ms ease; }
+  .folder-stage::backdrop { background: #ffffffdb; -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%); transition: opacity 300ms ease; }
   .folder-stage.is-closing::backdrop { opacity: 0; }
   .stage-bar { position: absolute; z-index: 100; inset: 0 0 auto; padding: 24px; display: flex; align-items: start; justify-content: space-between; gap: 20px; }
   .stage-bar h2 { font-size: 14px; font-weight: 550; }
   .stage-bar a { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 12px; color: var(--muted); }
   .stage-actions { display: flex; align-items: center; gap: 22px; }
   .stage-views { display: flex; align-items: center; gap: 16px; }
-  .stage-views button { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 2px; border: 0; color: #7a8275; background: none; font-size: 13px; line-height: 1; cursor: pointer; }
+  .stage-views button { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 2px; border: 0; color: var(--muted); background: none; font-size: 13px; line-height: 1; cursor: pointer; }
   .stage-views button[aria-pressed="true"] { color: var(--ink); }
   .stage-views button[aria-pressed="true"]::after { content: ''; position: absolute; inset: auto 2px 0; height: 1px; background: currentColor; opacity: .3; }
   .stage-views button:hover { color: var(--ink); }
   .stage-views [data-icon] { width: 16px; height: 16px; }
-  .stage-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #4853400c; border-radius: 50%; color: #7a8275; background: #ffffffb3; cursor: pointer; }
+  .stage-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #0000000c; border-radius: 50%; color: var(--muted); background: #ffffffb3; cursor: pointer; }
   .stage-cards { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
   /* Horizontal swipes switch cards in the stack, so the browser must not claim them as a pan. */
   .stage-viewport { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y pinch-zoom; }
@@ -45,7 +45,7 @@ const { id, title, subtitle, href, emptyMessage, tiled = false } = Astro.props;
   .folder-stage.is-grid .card-content { pointer-events: none; }
   .folder-stage.is-grid .card-picker:focus-visible { outline-width: calc(2px / var(--stage-scale,1)); outline-offset: calc(5px / var(--stage-scale,1)); }
   .stage-footer { position: absolute; z-index: 100; inset: auto 24px 18px; display: flex; justify-content: center; align-items: center; gap: 30px; }
-  .stage-controls { display: flex; align-items: center; gap: 6px; color: #7a8275; }
+  .stage-controls { display: flex; align-items: center; gap: 6px; color: var(--muted); }
   .stage-controls button { display: grid; place-items: center; width: 32px; height: 32px; border: none; padding: 0; background: none; color: inherit; cursor: pointer; }
   .stage-controls button[aria-disabled="true"] { opacity: .3; cursor: default; }
   [data-gallery-count] { min-width: 48px; color: var(--body); font-size: 13px; font-weight: 500; line-height: 1; font-variant-numeric: lining-nums tabular-nums; text-align: center; }

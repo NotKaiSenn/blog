@@ -16,8 +16,8 @@ import { linkProps } from '../lib/links';
 </SiteLayout>
 <style>
   .friend-list { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
-  .friend-card { display: flex; align-items: flex-start; gap: 17px; padding: 23px; border: 1px solid #fff; border-radius: 14px; background: #ffffffb3; box-shadow: 0 3px 9px #26332104, 0 12px 24px #26332105; }
-  .friend-avatar { display: grid; place-items: center; width: 54px; height: 54px; flex-shrink: 0; padding: 3px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px #2633210a; color: var(--green); }
+  .friend-card { display: flex; align-items: flex-start; gap: 17px; padding: 23px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 3px 9px #00000004, 0 12px 24px #00000005; }
+  .friend-avatar { display: grid; place-items: center; width: 54px; height: 54px; flex-shrink: 0; padding: 3px; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px var(--line), 0 2px 5px #0000000a; color: var(--muted); }
   /* The initial waits beneath the image and shows if the friend's avatar cannot load. */
   .friend-avatar > * { grid-area: 1 / 1; }
   .friend-avatar img { width: 48px; height: 48px; object-fit: contain; border-radius: 9px; background: #fff; }
