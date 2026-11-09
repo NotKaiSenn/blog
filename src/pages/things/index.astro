@@ -1,7 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import ThingArt from '../../components/ThingArt.astro';
 import { thingCategories, thingUrl } from '../../lib/collections';
+import { linkProps } from '../../lib/links';
 import { things } from '../../lib/site-data';
 
 const categories = thingCategories(things);
@@ -14,35 +16,29 @@ const categories = thingCategories(things);
       {categories.map(({ name, count }) => <button type="button" aria-pressed="false" data-category={name}>{name}<span>{count}</span></button>)}
     </div>}
     <ul class="thing-grid">{things.map(thing => <li data-category={thing.category}>
-      <a class="thing-link" href={thingUrl(thing.id)} aria-label={[thing.brand, thing.name].filter(Boolean).join(' ')}>
+      {/* The card opens in place, so the thing's own page is only fetched when someone really goes there. */}
+      <a class="thing-link" href={thingUrl(thing.id)} data-thing={thing.id} data-astro-prefetch="false" aria-label={[thing.brand, thing.name].filter(Boolean).join(' ')}>
         <div class="thing-frame"><ThingArt thing={thing} sizes="(max-width: 479px) 40vw, 160px" /></div>
         <h2>{thing.name}</h2>
         {thing.brand && <p>{thing.brand}</p>}
       </a>
     </li>)}</ul>
+    <dialog class="thing-sheet">
+      {things.map(thing => <article class="thing-card" data-thing={thing.id} aria-labelledby={`thing-${thing.id}`} hidden>
+        <div class="card-art"><ThingArt thing={thing} sizes="(max-width: 639px) 70vw, 320px" /></div>
+        <div class="card-text">
+          {thing.brand && <p class="card-brand">{thing.brand}</p>}
+          <h2 id={`thing-${thing.id}`}>{thing.name}</h2>
+          <p class="card-category">{thing.category}</p>
+          {thing.note && <p class="card-note">{thing.note}</p>}
+          {thing.link && <a class="card-link" {...linkProps(thing.link)}>相关链接<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a>}
+        </div>
+        <button class="card-close" type="button" aria-label={`关闭${thing.name}`} autofocus><Icon is:inline aria-hidden="true" focusable="false" name="close" /></button>
+      </article>)}
+    </dialog>
   </thing-shelf> : <div class="empty-state"><p>还没有添加物件</p></div>}
 </SiteLayout>
-<script>
-  // Filtering only hides items, so without scripts every thing is still listed and the filter stays hidden.
-  class ThingShelf extends HTMLElement {
-    connectedCallback() {
-      const filter = this.querySelector<HTMLElement>('.thing-filter');
-      if (!filter) return;
-      const buttons = Array.from(filter.querySelectorAll<HTMLButtonElement>('button'));
-      const items = Array.from(this.querySelectorAll<HTMLElement>('.thing-grid > li'));
-      filter.hidden = false;
-      filter.addEventListener('click', event => {
-        const button = (event.target as Element).closest('button');
-        if (!button) return;
-        const category = button.dataset.category;
-        for (const each of buttons) each.setAttribute('aria-pressed', String(each === button));
-        for (const item of items) item.hidden = Boolean(category) && item.dataset.category !== category;
-      });
-    }
-  }
-
-  if (!customElements.get('thing-shelf')) customElements.define('thing-shelf', ThingShelf);
-</script>
+<script>import '../../scripts/thing-shelf';</script>
 <style>
   thing-shelf { display: block; }
   .thing-filter { display: flex; gap: 4px; margin: -10px 0 36px; overflow-x: auto; scrollbar-width: none; }
@@ -57,12 +53,47 @@ const categories = thingCategories(things);
   .thing-frame { height: 112px; transition: transform 300ms cubic-bezier(.22,1,.36,1); }
   .thing-link:hover .thing-frame { transform: scale(1.04); }
   .thing-link:hover { color: inherit; }
-  h2 { margin-top: 16px; font-size: .9375rem; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
-  p { margin-top: 2px; color: var(--muted); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
-  @media (max-width: 639px) { .thing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  /* While its card is open, the thing has flown out of the grid. */
+  .thing-link.is-away .thing-frame { visibility: hidden; }
+  .thing-grid h2 { margin-top: 16px; font-size: .9375rem; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+  .thing-grid p { margin-top: 2px; color: var(--muted); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+
+  /* The card floats on the page, blurred behind it, as a pane of the same frosted glass as the folders. */
+  :global(html:has(.thing-sheet[open])) { overflow: hidden; }
+  .thing-sheet { position: fixed; inset: 0; display: none; place-items: center; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 24px; border: 0; color: var(--ink); background: transparent; overflow: auto; overscroll-behavior: contain; }
+  .thing-sheet[open] { display: grid; }
+  .thing-sheet::backdrop { background: color-mix(in srgb, var(--background) 55%, transparent); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); opacity: 0; transition: opacity 320ms ease; }
+  .thing-sheet.is-shown::backdrop { opacity: 1; }
+  .thing-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; width: min(760px, 100%); border-radius: 28px; background: linear-gradient(#ffffffc4, #ffffffa3); -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%); box-shadow: var(--surface-edge-shadow), 0 1px 2px #0000000a, 0 24px 60px -18px #00000030; }
+  .thing-card[hidden] { display: none; }
+  .card-art { height: 360px; padding: 44px; }
+  .card-text { align-self: stretch; display: flex; flex-direction: column; padding: 56px 48px 44px 16px; }
+  .card-brand { color: var(--muted); font-size: .8125rem; }
+  .card-text h2 { margin-top: 4px; font-size: 1.5rem; font-weight: 550; line-height: 1.35; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .card-category { align-self: start; margin-top: 12px; padding: 2px 10px; border-radius: 999px; color: var(--muted); background: #0000000a; font-size: .75rem; line-height: 1.6; }
+  .card-note { margin-top: 24px; color: var(--body); font-size: .9375rem; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; }
+  .card-link { display: inline-flex; align-items: center; gap: 3px; align-self: start; margin-top: auto; padding-top: 24px; color: var(--muted); font-size: .8125rem; text-decoration: underline; text-underline-offset: 4px; }
+  .card-close { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: #0000000a; cursor: pointer; }
+  .card-close:hover { color: var(--ink); background: #00000012; }
+  .card-close [data-icon] { width: 16px; height: 16px; }
+  /* The picture that flies between the grid and the card. */
+  :global(.thing-flight) { position: fixed; z-index: 2147483647; margin: 0; pointer-events: none; object-fit: contain; transform-origin: 0 0; }
+
+  @media (max-width: 639px) {
+    .thing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .thing-sheet { align-items: end; padding: 12px; }
+    .thing-card { grid-template-columns: minmax(0, 1fr); gap: 0; border-radius: 26px; }
+    .card-art { height: 240px; padding: 36px 36px 8px; }
+    .card-text { padding: 16px 24px 28px; }
+    .card-text h2 { font-size: 1.3125rem; }
+    .card-note { margin-top: 16px; }
+  }
   @media (max-width: 479px) {
     .thing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 14px; }
     .thing-frame { height: 96px; }
   }
-  @media (prefers-reduced-motion: reduce) { .thing-frame { transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .thing-frame { transition: none; }
+    .thing-sheet::backdrop { transition: none; }
+  }
 </style>

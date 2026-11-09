@@ -388,7 +388,8 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
 
   await t.test('things list in CMS order, filter by category and each get a page of their own', () => {
     const list = read('things/index.html');
-    const names = [...list.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, name]) => name);
+    const grid = list.match(/<ul class="thing-grid"[^>]*>([\s\S]*?)<\/ul>/)?.[1] ?? '';
+    const names = [...grid.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, name]) => name);
     assert.deepEqual(names, ['手冲壶', '阅读器', '咖啡豆']);
     // Categories keep the order they first appear in, each with its count; the filter waits for its script.
     const filter = list.match(/<div class="thing-filter"[^>]*hidden[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
@@ -398,6 +399,18 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.match(list, /srcset="[^"]*\/_uploads\/\d+\/wide\.png\.webp/, 'uploaded cutouts get WebP variants');
     assert.match(list, /src="https:\/\/images\.example\.com\/reader\.webp"[^>]*width="600" height="800"/, 'an image link takes priority and keeps its entered size');
     assert.doesNotMatch(list, /noindex/);
+    // The grid opens cards in place, so it does not prefetch every thing's page as it scrolls by.
+    assert.equal([...list.matchAll(/<a class="thing-link"[^>]*data-astro-prefetch="false"/g)].length, 3);
+    // Every thing has its card ready in the sheet, hidden until opened, with its note and link.
+    const sheet = list.match(/<dialog class="thing-sheet"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
+    const cards = [...sheet.matchAll(/<article class="thing-card"[^>]*data-thing="([^"]+)"[^>]*hidden[^>]*>([\s\S]*?)<\/article>/g)];
+    assert.deepEqual(cards.map(([, id]) => id), ['kettle', 'reader', 'beans']);
+    const [, , kettleCard] = cards[0];
+    assert.match(kettleCard, /<p class="card-brand"[^>]*>测试品牌<\/p>\s*<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-category"[^>]*>咖啡<\/p>/);
+    assert.match(kettleCard, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
+    assert.match(kettleCard, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
+    assert.match(kettleCard, /<button class="card-close"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
+    assert.doesNotMatch(cards[2][2], /card-note|card-link/);
     const kettle = read('things/kettle/index.html');
     assert.match(kettle, /<title>手冲壶 · /);
     assert.match(kettle, /<p class="brand"[^>]*>测试品牌<\/p>\s*<h1[^>]*>手冲壶<\/h1>/);
