@@ -1,22 +1,23 @@
 :root {
   color-scheme: light;
-  /* A white with the faintest warmth, and neutral greys, so text and photos carry the page. */
-  --background: #fbfbf8;
-  --ink: #1a1a1b;
-  --body: #2c2c2e;
-  --muted: #707073;
-  --accent: #1a1a1b;
-  --line: #ebebe6;
+  /* Neutral greys on #fafafa: no tint, so text and photos carry the page. */
+  --background: #fafafa;
+  --ink: #1a1a1a;
+  --body: #2c2c2c;
+  --muted: #717171;
+  --accent: #1a1a1a;
+  --gold: #98723b;
+  --line: #e8e8e8;
   /* Quote rules and checkbox edges: a line that has to be seen. */
-  --line-strong: #cfcfc8;
+  --line-strong: #cccccc;
   /* Inline code, table heads: a surface just off the page. */
-  --wash: #f2f2ee;
+  --wash: #f0f0f0;
   /* Fills a picture's place until it arrives; opaque photos cover it completely once loaded. */
-  --placeholder: #efefea;
+  --placeholder: #eeeeee;
   /* The one colour: the notes card's tape, selected text, and the underline under links in notes. */
   --highlight: #c5e3b5;
   --link-underline: #9fc58f;
-  --surface-edge-shadow: 0 0 0 1px #0000000d,0 2px 6px -1px #00000012;
+  --surface-edge-shadow: inset 0 0 0 1px #ffffff99,0 -2px 6px -1px #00000014;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -49,7 +50,6 @@ main:focus { outline: none; }
 .site-header .breadcrumbs { flex: 1; }
 .primary-nav { display: flex; align-items: center; gap: 26px; flex-shrink: 0; }
 .primary-nav a { display: inline-flex; align-items: center; min-height: 36px; }
-.primary-nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
 .external-mark { margin-left: 3px; font-size: .875rem; color: var(--muted); }
 .intro { margin: 73px 0 64px; scroll-margin-top: 36px; }
 .avatar-print { width: 62px; height: 62px; padding: 3px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px #00000012, 0 5px 10px #0000000c; transform: rotate(-4deg); }

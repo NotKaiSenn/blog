@@ -6,7 +6,7 @@ const outline = 'M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0
 ---
 <div class:list={['folder',`folder-${variant}`]} data-folder={variant}>
   <div class="folder-object">
-    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5" /><stop offset="1" stop-color="#e4e4e4" /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="black" stroke-opacity=".07" /></svg>
+    <svg class="folder-back" viewBox="0 0 400 340" aria-hidden="true"><defs><linearGradient id={`folder-fill-${variant}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f5f5" /><stop offset="1" stop-color="#e4e4e4" /></linearGradient></defs><path d={outline} fill={`url(#folder-fill-${variant})`} /><path d={outline} fill="none" stroke="white" stroke-opacity=".8" /></svg>
     <ul class="folder-items" aria-hidden="true" inert><slot />
       {empty && [0,1].map(index => <li class={`folder-decoration decoration-${variant}`} data-decor-index={index} style={`--decor-x:${index ? 9 : -9}%;--decor-turn:${index ? 5 : -5}deg;z-index:${index+1}`}>
         <div class="decoration-face">
