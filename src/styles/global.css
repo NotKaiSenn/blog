@@ -20,6 +20,8 @@
   --highlight-ink: #4d7a40;
   /* The folders' soft, layered shadow, for anything that sits on the page like a card. */
   --soft-shadow: 0 1px 2px #0000000e, 0 6px 12px #0000000e, 0 18px 32px #00000010;
+  /* The same shadow, held a little closer, for white prints whose edge must read against the page. */
+  --print-shadow: 0 0 1px #00000024, 0 1px 3px #00000014, 0 6px 14px #00000012, 0 18px 32px #00000010;
   --surface-edge-shadow: inset 0 0 0 1px #ffffff99,0 -2px 6px -1px #00000014;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-synthesis: none;
