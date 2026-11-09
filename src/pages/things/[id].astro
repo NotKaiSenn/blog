@@ -1,41 +1,15 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import { Icon } from 'astro-icon/components';
 import SiteLayout from '../../layouts/SiteLayout.astro';
-import ThingArt from '../../components/ThingArt.astro';
+import ThingShelf from '../../components/ThingShelf.astro';
 import type { Thing } from '../../lib/collections';
-import { linkProps } from '../../lib/links';
 import { things } from '../../lib/site-data';
 
 export const getStaticPaths = (() => things.map(thing => ({ params: { id: thing.id }, props: { thing } }))) satisfies GetStaticPaths;
 interface Props { thing: Thing }
 const { thing } = Astro.props;
-const title = [thing.brand, thing.name].filter(Boolean).join(' ');
 ---
-<SiteLayout title={thing.name} description={thing.note ?? title} breadcrumbs={[{ label: '物件', href: '/things/' }, { label: thing.name }]}>
-  <article class="thing-detail">
-    <header>
-      <h1>{thing.name}</h1>
-      {thing.brand && <p class="brand">{thing.brand}</p>}
-    </header>
-    <div class="art"><ThingArt thing={thing} sizes="(max-width: 479px) 80vw, 320px" eager /></div>
-    {thing.note && <p class="note">{thing.note}</p>}
-    {thing.link && <p class="link"><a {...linkProps(thing.link)}>相关链接<Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-up-right" /></a></p>}
-    <div class="thing-return"><a class="back-link" href="/things/"><Icon is:inline aria-hidden="true" focusable="false" name="ph:arrow-left" />返回物件</a></div>
-  </article>
+<SiteLayout title={thing.name} description={thing.note ?? [thing.name, thing.brand].filter(Boolean).join(' ')} breadcrumbs={[{ label: '物件', href: '/things/' }, { label: thing.name }]} wide>
+  <header class="page-heading"><h1>物件</h1></header>
+  <ThingShelf open={thing.id} listTitle="物件" />
 </SiteLayout>
-<style>
-  .thing-detail { margin-top: 67px; }
-  header { text-align: center; }
-  .brand { margin-top: 6px; color: var(--muted); font-size: .875rem; }
-  h1 { font-size: clamp(1.5rem, 4vw, 1.875rem); font-weight: 550; line-height: 1.4; letter-spacing: -.02em; overflow-wrap: anywhere; }
-  .art { height: 280px; margin: 40px auto 0; }
-  .note { margin-top: 44px; color: var(--body); line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
-  .link { margin-top: 20px; font-size: .875rem; }
-  .link a { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
-  .thing-return { margin-top: 44px; }
-  @media (max-width: 479px) {
-    .thing-detail { margin-top: 47px; }
-    .art { height: 220px; }
-  }
-</style>

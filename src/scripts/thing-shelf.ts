@@ -71,6 +71,16 @@ class ThingShelf extends HTMLElement {
     let open: { link: HTMLAnchorElement; card: HTMLElement } | null = null;
     let busy = false;
 
+    // Closing the card on a thing's own page leaves the list behind it, so the address and title follow.
+    const listUrl = this.dataset.listUrl ?? '/things/';
+    const listTitle = this.dataset.listTitle ?? '';
+    const leaveThingPage = (card: HTMLElement) => {
+      if (location.pathname === listUrl) return;
+      const name = card.querySelector('h2')?.textContent ?? '';
+      history.replaceState(history.state, '', listUrl);
+      if (name && document.title.startsWith(name)) document.title = listTitle + document.title.slice(name.length);
+    };
+
     const parts = (link: HTMLAnchorElement, card: HTMLElement) => ({
       spot: link.querySelector<HTMLElement>('.thing-frame')!,
       thumb: link.querySelector<HTMLImageElement>('.thing-frame img'),
@@ -153,6 +163,7 @@ class ThingShelf extends HTMLElement {
       }
       await Promise.all(motions.map(motion => motion.catch(() => {})));
       sheet.close();
+      leaveThingPage(card);
       card.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
       sheet.querySelectorAll('.thing-flight').forEach(flight => flight.remove());
       if (picture) picture.style.visibility = '';
@@ -170,8 +181,23 @@ class ThingShelf extends HTMLElement {
     }, { signal });
     sheet.addEventListener('click', event => {
       const target = event.target as Element;
-      if (target === sheet || target.closest('.card-close')) void hide();
+      if (target !== sheet && !target.closest('.card-close')) return;
+      // The close control is a link back to the list, for visits without scripts.
+      event.preventDefault();
+      void hide();
     }, { signal });
+
+    // A thing's own page arrives with its card already open. Take it over as a modal, without animating it in.
+    const preopened = sheet.open ? sheet.querySelector<HTMLElement>('.thing-card:not([hidden])') : null;
+    const preopenedLink = preopened && this.querySelector<HTMLAnchorElement>(`a.thing-link[data-thing="${CSS.escape(preopened.dataset.thing ?? '')}"]`);
+    if (preopened && preopenedLink) {
+      sheet.close();
+      sheet.setAttribute('aria-labelledby', preopened.getAttribute('aria-labelledby') ?? '');
+      sheet.showModal();
+      // Nobody chose the close button here, so rather than ring it, hold focus on the sheet itself.
+      sheet.focus({ preventScroll: true });
+      open = { link: preopenedLink, card: preopened };
+    }
     sheet.addEventListener('cancel', event => { event.preventDefault(); void hide(); }, { signal });
   }
 }

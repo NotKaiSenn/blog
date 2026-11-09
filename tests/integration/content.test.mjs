@@ -410,17 +410,33 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(kettleCard, /card-category/, 'the filter already names the category');
     assert.match(kettleCard, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
     assert.match(kettleCard, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
-    assert.match(kettleCard, /<button class="card-close"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
+    assert.match(kettleCard, /<a class="card-close" href="\/things\/"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
     assert.doesNotMatch(cards[2][2], /card-note|card-link/);
-    const kettle = read('things/kettle/index.html');
-    assert.match(kettle, /<title>手冲壶 [-·] /);
-    assert.match(kettle, /<h1[^>]*>手冲壶<\/h1>\s*<p class="brand"[^>]*>测试品牌<\/p>/);
-    assert.match(kettle, /<p class="note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
-    assert.match(kettle, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
-    assert.match(kettle, /href="\/things\/"[^>]*>物件<\/a>/, 'breadcrumbs lead back to the list');
-    const beans = read('things/beans/index.html');
-    assert.match(beans, /thing-placeholder/, 'a thing without a picture shows a placeholder');
-    assert.doesNotMatch(beans, /class="note"|相关链接/);
+    // A thing's own page is the list with that thing's card already open, so both read the same.
+    const openCard = (path) => {
+      const html = read(path);
+      const sheet = html.match(/<dialog class="thing-sheet[^"]*"([^>]*)>([\s\S]*?)<\/dialog>/);
+      assert.ok(sheet, `${path} carries the card sheet`);
+      const shown = [...sheet[2].matchAll(/<article class="thing-card"([^>]*)>([\s\S]*?)<\/article>/g)].filter(([, attributes]) => !/\bhidden\b/.test(attributes));
+      assert.equal(shown.length, 1, `${path} opens exactly one card`);
+      return { html, sheetAttributes: sheet[1], card: shown[0][2], id: shown[0][1].match(/data-thing="([^"]+)"/)[1] };
+    };
+    assert.doesNotMatch(list.match(/<dialog class="thing-sheet[^"]*"([^>]*)>/)[1], /\bopen\b/, 'the list opens no card by itself');
+    const kettle = openCard('things/kettle/index.html');
+    assert.equal(kettle.id, 'kettle');
+    assert.match(kettle.sheetAttributes, /\bopen\b/);
+    assert.match(kettle.html, /<title>手冲壶 [-·] /);
+    assert.match(kettle.html, /<ul class="thing-grid"/, 'the list stays behind the open card');
+    assert.match(kettle.card, /<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-brand"[^>]*>测试品牌<\/p>/);
+    assert.match(kettle.card, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
+    assert.match(kettle.card, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
+    assert.match(kettle.card, /<a class="card-close" href="\/things\/"/, 'without scripts, closing returns to the list');
+    assert.match(kettle.card, /<img[^>]*loading="eager"/, 'the open card does not wait to load its picture');
+    assert.match(kettle.html, /href="\/things\/"[^>]*>物件<\/a>/, 'breadcrumbs lead back to the list');
+    const beans = openCard('things/beans/index.html');
+    assert.equal(beans.id, 'beans');
+    assert.match(beans.card, /thing-placeholder/, 'a thing without a picture shows a placeholder');
+    assert.doesNotMatch(beans.card, /card-note|card-link/);
     for (const path of ['index.html', 'posts/index.html', 'things/index.html']) {
       assert.match(read(path), /<a href="\/things\/"[^>]*>物件<\/a>/, `${path} links to things once there are some`);
     }
