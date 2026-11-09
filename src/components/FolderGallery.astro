@@ -34,7 +34,7 @@ const { id, title, subtitle, href, emptyMessage, tiled = false } = Astro.props;
   .stage-views button[aria-pressed="true"]::after { content: ''; position: absolute; inset: auto 2px 0; height: 1px; background: currentColor; opacity: .3; }
   .stage-views button:hover { color: var(--ink); }
   .stage-views [data-icon] { width: 16px; height: 16px; }
-  .stage-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #0000000c; border-radius: 50%; color: var(--muted); background: #ffffffb3; cursor: pointer; }
+  .stage-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; box-shadow: 0 1px 2px #0000000e, 0 4px 10px #0000000e; color: var(--muted); background: #ffffffb3; cursor: pointer; }
   .stage-cards { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
   /* Horizontal swipes switch cards in the stack, so the browser must not claim them as a pan. */
   .stage-viewport { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y pinch-zoom; }

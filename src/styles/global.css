@@ -6,7 +6,6 @@
   --body: #2c2c2c;
   --muted: #717171;
   --accent: #1a1a1a;
-  --gold: #98723b;
   --line: #e8e8e8;
   /* Quote rules and checkbox edges: a line that has to be seen. */
   --line-strong: #cccccc;
@@ -17,6 +16,10 @@
   /* The one colour: the notes card's tape, selected text, and the underline under links in notes. */
   --highlight: #c5e3b5;
   --link-underline: #9fc58f;
+  /* The tape's green, deep enough to read as text: dates and dots on the notes card. */
+  --highlight-ink: #4d7a40;
+  /* The folders' soft, layered shadow, for anything that sits on the page like a card. */
+  --soft-shadow: 0 1px 2px #0000000e, 0 6px 12px #0000000e, 0 18px 32px #00000010;
   --surface-edge-shadow: inset 0 0 0 1px #ffffff99,0 -2px 6px -1px #00000014;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-synthesis: none;
