@@ -437,10 +437,10 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.equal(beans.id, 'beans');
     assert.match(beans.card, /thing-placeholder/, 'a thing without a picture shows a placeholder');
     assert.doesNotMatch(beans.card, /card-note|card-link/);
+    // The page has no entry in the nav yet; it is reached by its address.
     for (const path of ['index.html', 'posts/index.html', 'things/index.html']) {
-      assert.match(read(path), /<a href="\/things\/"[^>]*>物件<\/a>/, `${path} links to things once there are some`);
+      assert.doesNotMatch(read(path).match(/<nav class="primary-nav"[\s\S]*?<\/nav>/)[0], /\/things\//, `${path} keeps things out of the nav`);
     }
-    assert.match(read('things/kettle/index.html'), /<a href="\/things\/" aria-current="true">物件<\/a>/);
     assert.match(read('sitemap-0.xml'), /\/things\/kettle\//);
   });
 
@@ -528,7 +528,6 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       // Before the CMS has saved any things, the page waits quietly: no nav link and nothing to index.
       assert.match(read('things/index.html'), /还没有添加物件/);
       assert.match(read('things/index.html'), /noindex, follow/);
-      assert.doesNotMatch(read('index.html'), /href="\/things\/"/);
       assert.ok(!existsSync(join(fixture, 'dist/things/kettle')));
       assert.match(read('index.html'), /暂无笔记/);
       assert.match(read('posts/index.html'), /暂无笔记/);

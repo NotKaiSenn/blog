@@ -9,7 +9,7 @@ export const getStaticPaths = (() => things.map(thing => ({ params: { id: thing.
 interface Props { thing: Thing }
 const { thing } = Astro.props;
 ---
-<SiteLayout title={thing.name} description={thing.note ?? [thing.name, thing.brand].filter(Boolean).join(' ')} breadcrumbs={[{ label: '物件', href: '/things/' }, { label: thing.name }]} wide>
+<SiteLayout title={thing.name} description={thing.note ?? [thing.name, thing.brand].filter(Boolean).join(' ')} breadcrumbs={[{ label: '物件', href: '/things/' }, { label: thing.name }]}>
   <header class="page-heading"><h1>物件</h1></header>
   <ThingShelf open={thing.id} listTitle="物件" />
 </SiteLayout>

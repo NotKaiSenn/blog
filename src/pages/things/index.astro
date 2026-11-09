@@ -5,7 +5,7 @@ import { things } from '../../lib/site-data';
 
 const title = '物件';
 ---
-<SiteLayout title={title} description="日常在用、也喜欢的东西。" noindex={things.length === 0} wide>
+<SiteLayout title={title} description="日常在用、也喜欢的东西。" noindex={things.length === 0}>
   <header class="page-heading"><h1>{title}</h1></header>
   {things.length > 0 ? <ThingShelf listTitle={title} /> : <div class="empty-state"><p>还没有添加物件</p></div>}
 </SiteLayout>
