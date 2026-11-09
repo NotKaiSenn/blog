@@ -65,7 +65,7 @@ const categories = thingCategories(things);
   .thing-sheet::backdrop, .thing-sheet[open]:not(:modal) { background: color-mix(in srgb, var(--background) 40%, transparent); -webkit-backdrop-filter: blur(14px) saturate(150%); backdrop-filter: blur(14px) saturate(150%); }
   .thing-sheet::backdrop { opacity: 0; transition: opacity 320ms ease; }
   .thing-sheet.is-shown::backdrop { opacity: 1; }
-  .thing-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; width: min(760px, 100%); border-radius: 28px; background: linear-gradient(#ffffff8c, #ffffff59); -webkit-backdrop-filter: blur(20px) saturate(190%); backdrop-filter: blur(20px) saturate(190%); box-shadow: inset 0 1px 0 #ffffffe6, inset 0 0 0 1px #ffffff80, 0 1px 2px #0000000a, 0 24px 60px -18px #00000030; }
+  .thing-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; width: min(760px, 100%); border-radius: 28px; background: linear-gradient(#ffffff8c, #ffffff59); -webkit-backdrop-filter: blur(20px) saturate(190%); backdrop-filter: blur(20px) saturate(190%); box-shadow: var(--surface-edge-shadow), 0 1px 2px #0000000e, 0 6px 12px #0000000e, 0 24px 60px -18px #00000030; }
   .thing-card[hidden] { display: none; }
   .card-art { height: 360px; padding: 44px; }
   .card-text { align-self: stretch; display: flex; flex-direction: column; padding: 56px 48px 44px 16px; }
