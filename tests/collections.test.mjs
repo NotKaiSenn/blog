@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePhotos, parseFriends, parseProfile, parseWorks } from '../src/lib/collections.ts';
+import { parsePhotos, parseFriends, parseProfile, parseThings, parseWorks, thingUrl } from '../src/lib/collections.ts';
 
 const photo = { id: 'window', title: '窗边', date: '2026-09-21', src: '/uploads/window.webp', alt: '窗外的树', width: 1600, height: 900 };
 
@@ -149,4 +149,27 @@ test('the profile is validated like other CMS data, with links taking priority o
   }
   assert.throws(() => parseProfile({ ...profile, avatarUrl: '/uploads/avatar.webp' }), /Profile\.avatarUrl.*HTTPS/);
   assert.throws(() => parseProfile({ ...profile, favicon: '/uploads/../private.png' }), /Profile\.favicon/);
+});
+
+test('things keep CMS order, prefer an image link and trim optional text', () => {
+  const things = parseThings({ items: [
+    {},
+    { id: 'kettle', name: ' 手冲壶 ', brand: '', image: '/uploads/kettle.png', imageUrl: 'https://images.example.com/kettle.webp', note: '好用\n也好看', link: '' },
+    { id: '阅读器', name: '阅读器', image: '/uploads/reader.png', width: 600, height: 800 },
+  ] });
+  assert.deepEqual(things, [
+    { id: 'kettle', name: '手冲壶', brand: undefined, note: '好用\n也好看', link: undefined, image: 'https://images.example.com/kettle.webp', width: 1, height: 1 },
+    { id: '阅读器', name: '阅读器', brand: undefined, note: undefined, link: undefined, image: '/uploads/reader.png', width: 600, height: 800 },
+  ]);
+  assert.equal(thingUrl('阅读器'), '/things/%E9%98%85%E8%AF%BB%E5%99%A8/');
+});
+
+test('things reject duplicate or unsafe addresses and missing names', () => {
+  const thing = { id: 'kettle', name: '手冲壶' };
+  assert.throws(() => parseThings({ items: [thing, thing] }), /Duplicate thing id: kettle/);
+  assert.throws(() => parseThings({ items: [{ ...thing, id: '../x' }] }), /Thing 1\.id/);
+  assert.throws(() => parseThings({ items: [{}, { ...thing, name: '' }] }), /Thing 2\.name/);
+  assert.throws(() => parseThings({ items: [{ ...thing, link: 'http://example.com/' }] }), /Thing 1\.link/);
+  assert.throws(() => parseThings({ items: [{ ...thing, image: '/uploads/../secret.png' }] }), /Thing 1\.image/);
+  assert.throws(() => parseThings({ items: [{ ...thing, imageUrl: 'javascript:alert(1)' }] }), /Thing 1\.imageUrl/);
 });

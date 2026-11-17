@@ -3,9 +3,10 @@ import { runInNewContext } from 'node:vm';
 import { setMaxListeners } from 'node:events';
 import ts from 'typescript';
 import { gridPoses, stagePoses } from '../../src/lib/folder-poses.ts';
+import { EASE_SETTLE } from '../../src/scripts/motion.ts';
 
 const script = ts.transpileModule(readFileSync(new URL('../../src/scripts/folder-gallery.ts', import.meta.url), 'utf8')
-  .replace(/^import .*?;\n/, ''), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  .replace(/^import .*?;\n/gm, ''), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 
 export function galleryBrowser({ count = 3, decorationCount = 0, reducedMotion = false, showModalFails = false, tiled = false } = {}) {
   const animations = new Set();
@@ -225,7 +226,7 @@ export function galleryBrowser({ count = 3, decorationCount = 0, reducedMotion =
   const window = new Element();
   Object.assign(window, { innerWidth: 1280, innerHeight: 900, matchMedia: query => query.includes('reduced') ? reduced : { matches: true } });
   runInNewContext(script, {
-    document, window, gridPoses, stagePoses, performance: { now: () => now },
+    document, window, gridPoses, stagePoses, EASE_SETTLE, performance: { now: () => now },
     AbortController: class extends AbortController {
       constructor() { super(); setMaxListeners(0, this.signal); }
     },

@@ -9,6 +9,7 @@
   --line: #dfe6dc;
   /* Fills a picture's place until it arrives; opaque photos cover it completely once loaded. */
   --placeholder: #e9eee5;
+  --soft-shadow: 0 1px 3px #28332820, 0 6px 12px #28332818, 0 18px 32px #28332818;
   --surface-edge-shadow: inset 0 0 0 1px #ffffff99,0 -2px 6px -1px #00000014;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   font-synthesis: none;
@@ -22,8 +23,8 @@ a:hover { color: var(--green); }
 /* Pressing anything clickable answers at once, before the next page arrives: text dims, cards press in. */
 a { transition: opacity 120ms ease; }
 a:active { opacity: .6; }
-:is(.card-content, .photo-entry, .work-print, .friend-card), .folder-object { transition: transform 120ms ease; }
-:is(.card-content, .photo-entry, .work-print, .friend-card):active, .folder:has(.folder-trigger:active) .folder-object { opacity: 1; transform: scale(.98); }
+:is(.card-content, .photo-entry, .work-print, .friend-card, .thing-link), .folder-object { transition: transform 120ms ease; }
+:is(.card-content, .photo-entry, .work-print, .friend-card, .thing-link):active, .folder:has(.folder-trigger:active) .folder-object { opacity: 1; transform: scale(.98); }
 button, input { font: inherit; }
 svg[data-icon] { display: block; width: 1em; height: 1em; flex-shrink: 0; }
 img { display: block; max-width: 100%; height: auto; }

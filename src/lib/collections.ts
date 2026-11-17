@@ -35,7 +35,18 @@ export interface Work {
   height: number;
 }
 
-// Note filenames, photo IDs and work IDs all become URLs.
+export interface Thing {
+  id: string;
+  name: string;
+  brand?: string;
+  note?: string;
+  link?: string;
+  image?: string;
+  width: number;
+  height: number;
+}
+
+// Note filenames, photo, work and thing IDs all become URLs.
 export const SLUG_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u;
 
 function record(value: unknown, label: string): Record<string, unknown> {
@@ -197,4 +208,26 @@ export function parseWorks(value: unknown): Work[] {
   });
 }
 
+export function parseThings(value: unknown): Thing[] {
+  const ids = new Set<string>();
+  return entries(value, 'Things').map(({ item, index }) => {
+    const label = `Thing ${index + 1}`;
+    const thing = record(item, label);
+    const id = slug(thing.id, `${label}.id`);
+    if (ids.has(id)) throw new Error(`Duplicate thing id: ${id}`);
+    ids.add(id);
+    return {
+      id,
+      name: text(thing.name, `${label}.name`),
+      brand: optionalText(thing.brand, `${label}.brand`),
+      note: optionalText(thing.note, `${label}.note`),
+      link: optionalHttpsUrl(thing.link, `${label}.link`),
+      image: preferredImage(thing, 'imageUrl', 'image', label),
+      width: dimension(thing.width, `${label}.width`, 1),
+      height: dimension(thing.height, `${label}.height`, 1),
+    };
+  });
+}
+
 export const photoUrl = (id: string): string => `/photos/${encodeURIComponent(id)}/`;
+export const thingUrl = (id: string): string => `/things/${encodeURIComponent(id)}/`;

@@ -9,7 +9,7 @@ export function localImageDimensions(publicDir: URL) {
   const uploadsDir = resolve(fileURLToPath(publicDir), 'uploads');
   const dimensions = new Map<string, Promise<Dimensions>>();
 
-  return async (src: string, kind: 'photo' | 'work' | 'note image'): Promise<Dimensions | undefined> => {
+  return async (src: string, kind: 'photo' | 'work' | 'thing' | 'note image'): Promise<Dimensions | undefined> => {
     if (!src.startsWith('/uploads/')) return undefined;
     const imagePath = resolve(uploadsDir, decodeURIComponent(src.slice('/uploads/'.length)));
     const relativePath = relative(uploadsDir, imagePath);
@@ -31,7 +31,7 @@ export function localImageDimensions(publicDir: URL) {
 }
 
 /** Gives each item the real size of its uploaded image. Remote images keep the size entered in the CMS. */
-export async function withImageDimensions<T extends Dimensions>(items: readonly T[], publicDir: URL, kind: 'photo' | 'work', source: (item: T) => string | undefined): Promise<T[]> {
+export async function withImageDimensions<T extends Dimensions>(items: readonly T[], publicDir: URL, kind: 'photo' | 'work' | 'thing', source: (item: T) => string | undefined): Promise<T[]> {
   const readDimensions = localImageDimensions(publicDir);
   return Promise.all(items.map(async item => {
     const src = source(item);

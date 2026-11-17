@@ -1,4 +1,5 @@
 import { stagePoses, gridPoses, type CardSize, type CardPose } from '../lib/folder-poses';
+import { EASE_SETTLE } from './motion';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -16,7 +17,7 @@ const MOTION = {
   close: 400, closeStagger: 30, closeDecorations: 350, closeFlap: 300,
   // However many cards there are, the last one never trails the first by more than this.
   staggerLimit: 100,
-  easing: 'cubic-bezier(.22,.85,.24,1)',
+  easing: EASE_SETTLE,
 };
 
 // The shortest wait between two switches. The wheel cannot switch again sooner, and a tap this soon after
