@@ -1,3 +1,13 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "DualSense",
+      "name": "DualSense无线手柄",
+      "brand": "Sony",
+      "image": "/uploads/mwklvr12-xif37c4h.png",
+      "note": "By送的手柄",
+      "link": "https://www.playstation.com/en-us/accessories/dualsense-wireless-controller/",
+      "width": 62
+    }
+  ]
 }
