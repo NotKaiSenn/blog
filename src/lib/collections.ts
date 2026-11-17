@@ -39,7 +39,6 @@ export interface Thing {
   id: string;
   name: string;
   brand?: string;
-  category: string;
   note?: string;
   link?: string;
   image?: string;
@@ -221,7 +220,6 @@ export function parseThings(value: unknown): Thing[] {
       id,
       name: text(thing.name, `${label}.name`),
       brand: optionalText(thing.brand, `${label}.brand`),
-      category: text(thing.category, `${label}.category`),
       note: optionalText(thing.note, `${label}.note`),
       link: optionalHttpsUrl(thing.link, `${label}.link`),
       image: preferredImage(thing, 'imageUrl', 'image', label),
@@ -229,13 +227,6 @@ export function parseThings(value: unknown): Thing[] {
       height: dimension(thing.height, `${label}.height`, 1),
     };
   });
-}
-
-// Categories in the order they first appear, so the list's order sets the filter's order too.
-export function thingCategories(things: Thing[]): Array<{ name: string; count: number }> {
-  const counts = new Map<string, number>();
-  for (const { category } of things) counts.set(category, (counts.get(category) ?? 0) + 1);
-  return [...counts].map(([name, count]) => ({ name, count }));
 }
 
 export const photoUrl = (id: string): string => `/photos/${encodeURIComponent(id)}/`;

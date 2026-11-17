@@ -41,28 +41,11 @@ class ThingShelf extends HTMLElement {
   connectedCallback() {
     this.lifecycle = new AbortController();
     const { signal } = this.lifecycle;
-    this.setUpFilter(signal);
     this.setUpCards(signal);
   }
 
   disconnectedCallback() {
     this.lifecycle?.abort();
-  }
-
-  // Filtering only hides items, so without scripts every thing is still listed and the filter stays hidden.
-  private setUpFilter(signal: AbortSignal) {
-    const filter = this.querySelector<HTMLElement>('.thing-filter');
-    if (!filter) return;
-    const buttons = [...filter.querySelectorAll<HTMLButtonElement>('button')];
-    const items = [...this.querySelectorAll<HTMLElement>('.thing-grid > li')];
-    filter.hidden = false;
-    filter.addEventListener('click', event => {
-      const button = (event.target as Element).closest('button');
-      if (!button) return;
-      const category = button.dataset.category;
-      for (const each of buttons) each.setAttribute('aria-pressed', String(each === button));
-      for (const item of items) item.hidden = Boolean(category) && item.dataset.category !== category;
-    }, { signal });
   }
 
   private setUpCards(signal: AbortSignal) {

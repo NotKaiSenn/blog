@@ -1,24 +1,17 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ThingArt from './ThingArt.astro';
-import { thingCategories, thingUrl } from '../lib/collections';
+import { thingUrl } from '../lib/collections';
 import { linkProps } from '../lib/links';
 import { things } from '../lib/site-data';
 interface Props { open?: string; listTitle: string; }
 const { open, listTitle } = Astro.props;
-const categories = thingCategories(things);
 ---
 <thing-shelf data-list-url="/things/" data-list-title={listTitle}>
-  {categories.length > 1 && <div class="thing-filter" role="group" aria-label="按分类筛选" hidden>
-    <button type="button" aria-pressed="true" data-category="">全部<span>{things.length}</span></button>
-    {categories.map(({ name, count }) => <button type="button" aria-pressed="false" data-category={name}>{name}<span>{count}</span></button>)}
-  </div>}
-  <ul class="thing-grid">{things.map(thing => <li data-category={thing.category}>
+  <ul class="thing-grid">{things.map(thing => <li>
     {/* The card opens in place, so the thing's own page is only fetched when someone really goes there. */}
     <a class="thing-link" href={thingUrl(thing.id)} data-thing={thing.id} data-astro-prefetch="false" aria-label={[thing.brand, thing.name].filter(Boolean).join(' ')}>
-      <div class="thing-frame"><ThingArt thing={thing} sizes="(max-width: 479px) 40vw, 160px" /></div>
-      <h2>{thing.name}</h2>
-      {thing.brand && <p>{thing.brand}</p>}
+      <div class="thing-frame" style={`--thing-ratio:${thing.width}/${thing.height}`}><ThingArt thing={thing} sizes="(max-width: 540px) 45vw, 320px" /></div>
     </a>
   </li>)}</ul>
   {/* A thing's own page is this list with its card already open, so both read the same. */}
@@ -39,22 +32,12 @@ const categories = thingCategories(things);
 <script>import '../scripts/thing-shelf';</script>
 <style>
   thing-shelf { display: block; }
-  .thing-filter { display: flex; gap: 8px; margin: -10px -10px 36px; overflow-x: auto; scrollbar-width: none; }
-  .thing-filter[hidden] { display: none; }
-  .thing-filter button { display: inline-flex; align-items: baseline; gap: 6px; flex-shrink: 0; height: 32px; padding: 0 10px; border: 0; color: var(--muted); background: none; font-size: .875rem; line-height: 32px; cursor: pointer; }
-  .thing-filter button span { font-size: .75rem; font-variant-numeric: tabular-nums; opacity: .8; }
-  .thing-filter button:hover { color: var(--ink); }
-  .thing-filter button[aria-pressed="true"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
-  .thing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 20px; padding: 0; margin: 0; list-style: none; }
-  .thing-grid li[hidden] { display: none; }
-  .thing-link { display: block; text-align: center; border-radius: 12px; }
-  .thing-frame { height: 112px; transition: transform 300ms cubic-bezier(.22,1,.36,1); }
-  .thing-link:hover .thing-frame { transform: scale(1.04); }
+  .thing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; align-items: start; padding: 0; margin: 0; list-style: none; }
+  .thing-link { display: block; border-radius: 12px; }
+  .thing-frame { width: 100%; aspect-ratio: var(--thing-ratio); }
   .thing-link:hover { color: inherit; }
   /* While its card is open, the thing has flown out of the grid. */
   .thing-link.is-away .thing-frame { visibility: hidden; }
-  .thing-grid h2 { margin-top: 16px; font-size: .9375rem; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
-  .thing-grid p { margin-top: 2px; color: var(--muted); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
 
   /* The card floats on the page, blurred behind it, as a pane of the same frosted glass as the folders. */
   :global(html:has(.thing-sheet[open])) { overflow: hidden; }
@@ -80,7 +63,6 @@ const categories = thingCategories(things);
   :global(.thing-flight) { position: fixed; z-index: 2147483647; margin: 0; pointer-events: none; object-fit: contain; transform-origin: 0 0; }
 
   @media (max-width: 639px) {
-    .thing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .thing-sheet { align-items: end; padding: 12px; }
     .thing-card { grid-template-columns: minmax(0, 1fr); gap: 0; border-radius: 26px; }
     .card-art { height: 240px; padding: 36px 36px 8px; }
@@ -88,12 +70,11 @@ const categories = thingCategories(things);
     .card-text h2 { font-size: 1.3125rem; }
     .card-note { margin-top: 16px; }
   }
-  @media (max-width: 479px) {
-    .thing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 14px; }
-    .thing-frame { height: 96px; }
+  @media (max-width: 540px) {
+    .thing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; }
+    .thing-frame { aspect-ratio: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .thing-frame { transition: none; }
     .thing-sheet::backdrop { transition: none; }
   }
 </style>

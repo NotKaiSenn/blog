@@ -164,7 +164,7 @@ content:
       - name: items
         label: 物件
         type: object
-        description: 按列表顺序展示；分类按第一次出现的顺序排成筛选。
+        description: 按列表顺序展示。
         list:
           collapsible:
             collapsed: true
@@ -185,11 +185,6 @@ content:
           - name: brand
             label: 品牌
             type: string
-          - name: category
-            label: 分类
-            type: string
-            required: true
-            description: 例如：数码、咖啡、书、衣物。写法相同的会归到同一分类。
           - name: image
             label: 图片
             type: image

@@ -13,6 +13,6 @@ const { thing, sizes, eager = false } = Astro.props;
 <style>
   /* Things are photographed as cutouts, so each one sits in a box of the same height and keeps its own shape. */
   .thing-art { display: flex; align-items: center; justify-content: center; height: 100%; }
-  img { width: auto; max-width: 100%; height: auto; max-height: 100%; min-width: 0; min-height: 0; object-fit: contain; }
+  img { width: auto; max-width: 100%; height: auto; max-height: 100%; min-width: 0; min-height: 0; object-fit: contain; filter: drop-shadow(0 1px 1px #29322816) drop-shadow(0 6px 8px #2932281a); }
   .thing-art :global(.thing-placeholder) { width: 40%; max-width: 64px; height: auto; color: #a3a3a3; }
 </style>

@@ -86,9 +86,9 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
   // The things list only exists once the CMS saves it, so the fixture writes one and the empty test removes it.
   const thingsPath = join(fixture, 'src/data/things.json');
   const fixtureThings = [
-    { id: 'kettle', name: '手冲壶', brand: '测试品牌', category: '咖啡', image: '/uploads/wide.png', note: '第一行感受。\n第二行感受。', link: 'https://shop.example.com/kettle' },
-    { id: 'reader', name: '阅读器', category: '数码', imageUrl: 'https://images.example.com/reader.webp', width: 600, height: 800 },
-    { id: 'beans', name: '咖啡豆', brand: '烘焙店', category: '咖啡' },
+    { id: 'kettle', name: '手冲壶', brand: '测试品牌', image: '/uploads/wide.png', note: '第一行感受。\n第二行感受。', link: 'https://shop.example.com/kettle' },
+    { id: 'reader', name: '阅读器', imageUrl: 'https://images.example.com/reader.webp', width: 600, height: 800 },
+    { id: 'beans', name: '咖啡豆', brand: '烘焙店' },
   ];
   writeFileSync(thingsPath, JSON.stringify({ items: fixtureThings }));
   const profilePath = join(fixture, 'src/data/site.json');
@@ -386,16 +386,12 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.doesNotMatch(nav('index.html'), /aria-current/);
   });
 
-  await t.test('things list in CMS order, filter by category and each get a page of their own', () => {
+  await t.test('things list in CMS order and each get a page of their own', () => {
     const list = read('things/index.html');
     const grid = list.match(/<ul class="thing-grid"[^>]*>([\s\S]*?)<\/ul>/)?.[1] ?? '';
-    const names = [...grid.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(([, name]) => name);
-    assert.deepEqual(names, ['手冲壶', '阅读器', '咖啡豆']);
-    // Categories keep the order they first appear in, each with its count; the filter waits for its script.
-    const filter = list.match(/<div class="thing-filter"[^>]*hidden[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
-    assert.deepEqual([...filter.matchAll(/data-category="([^"]*)"[^>]*>([^<]+)<span[^>]*>(\d+)<\/span>/g)].map(([, key, label, count]) => [key, label, count]),
-      [['', '全部', '3'], ['咖啡', '咖啡', '2'], ['数码', '数码', '1']]);
-    assert.match(list, /<li data-category="咖啡"[^>]*>\s*<a class="thing-link"[^>]*href="\/things\/kettle\/"[^>]*aria-label="测试品牌 手冲壶"/);
+    const names = [...grid.matchAll(/<a class="thing-link"[^>]*aria-label="([^"]+)"/g)].map(([, name]) => name);
+    assert.deepEqual(names, ['测试品牌 手冲壶', '阅读器', '烘焙店 咖啡豆']);
+    assert.match(list, /<li[^>]*>\s*<a class="thing-link"[^>]*href="\/things\/kettle\/"[^>]*aria-label="测试品牌 手冲壶"/);
     assert.match(list, /srcset="[^"]*\/_uploads\/\d+\/wide\.png\.webp/, 'uploaded cutouts get WebP variants');
     assert.match(list, /src="https:\/\/images\.example\.com\/reader\.webp"[^>]*width="600" height="800"/, 'an image link takes priority and keeps its entered size');
     assert.doesNotMatch(list, /noindex/);
@@ -407,7 +403,6 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.deepEqual(cards.map(([, id]) => id), ['kettle', 'reader', 'beans']);
     const [, , kettleCard] = cards[0];
     assert.match(kettleCard, /<h2 id="thing-kettle"[^>]*>手冲壶<\/h2>\s*<p class="card-brand"[^>]*>测试品牌<\/p>/, 'the brand sits under the name');
-    assert.doesNotMatch(kettleCard, /card-category/, 'the filter already names the category');
     assert.match(kettleCard, /<p class="card-note"[^>]*>第一行感受。\n第二行感受。<\/p>/);
     assert.match(kettleCard, /href="https:\/\/shop\.example\.com\/kettle" rel="noopener noreferrer" target="_blank"/);
     assert.match(kettleCard, /<a class="card-close" href="\/things\/"[^>]*aria-label="关闭手冲壶"[^>]*autofocus/);
