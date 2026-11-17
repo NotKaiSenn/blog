@@ -83,7 +83,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     ...(index === 5 ? { image: '/uploads/work-portrait.png' } : {}),
   }));
   writeFileSync(worksPath, JSON.stringify({ items: fixtureWorks }));
-  // The things list only exists once the CMS saves it, so the fixture writes one and the empty test removes it.
+  // Seed things for route checks; the empty test also checks the missing-file fallback.
   const thingsPath = join(fixture, 'src/data/things.json');
   const fixtureThings = [
     { id: 'kettle', name: '手冲壶', brand: '测试品牌', image: '/uploads/wide.png', note: '第一行感受。\n第二行感受。', link: 'https://shop.example.com/kettle' },
@@ -520,7 +520,7 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
       rmSync(thingsPath);
       writeFileSync(profilePath, JSON.stringify({ ...fixtureProfile, avatar: '', avatarUrl: '', favicon: '', contactUrl: '' }));
       build();
-      // Before the CMS has saved any things, the page waits quietly: no nav link and nothing to index.
+      // Missing data leaves an empty page with no nav link and nothing to index.
       assert.match(read('things/index.html'), /还没有添加物件/);
       assert.match(read('things/index.html'), /noindex, follow/);
       assert.ok(!existsSync(join(fixture, 'dist/things/kettle')));

@@ -12,6 +12,6 @@ export const profile = parseProfile(profileData);
 export const friends = parseFriends(friendData);
 export const photos = await withImageDimensions(parsePhotos(photoData), root, 'photo', photo => photo.src);
 export const works = await withImageDimensions(parseWorks(workData), root, 'work', work => work.image);
-// The things list starts life in the CMS, so the site builds without it until the first item is saved.
+// Keep an empty fallback if the things data file is unavailable.
 const thingData = Object.values(import.meta.glob('../data/things.json', { eager: true, import: 'default' }))[0] ?? { items: [] };
 export const things = await withImageDimensions(parseThings(thingData), root, 'thing', thing => thing.image);

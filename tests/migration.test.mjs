@@ -47,10 +47,15 @@ test('CMS stores the same fields used by the site with safe writing defaults', (
     ['photos', 'src/data/photos.json', 'src'],
     ['friends', 'src/data/friends.json', 'avatar'],
     ['works', 'src/data/works.json', 'icon'],
+    ['things', 'src/data/things.json', 'image'],
   ]) {
     const entry = cms.content.find(entry => entry.name === name);
     assert.ok(entry, `${name} can be managed through CMS`);
     assert.equal(entry.path, path);
+    if (entry.operations?.create === false) {
+      assert.ok(existsSync(join(root, entry.path)), `${name} must exist when CMS creation is disabled`);
+      assert.doesNotThrow(() => JSON.parse(readFileSync(join(root, entry.path), 'utf8')));
+    }
     const fields = name === 'profile' ? entry.fields : entry.fields.find(field => field.name === 'items').fields;
     const image = fields.find(field => field.name === imageField);
     assert.equal(image.type, 'image');
