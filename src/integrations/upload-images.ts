@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile, realpath } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
-import sharp, { type Sharp } from 'sharp';
+import sharp, { type Region, type Sharp } from 'sharp';
 import { parseVariantPath, VARIANT_PREFIX } from '../lib/upload-variants.ts';
 
 // Follow links before checking, so a variant URL can only read files inside /uploads/.
@@ -14,8 +14,10 @@ async function uploadFile(uploadsDir: string, file: string): Promise<string> {
   return path;
 }
 
-function variant(image: Sharp, width: number): Sharp {
-  return image.clone().resize({ width, withoutEnlargement: true }).webp({ quality: 80 });
+function variant(image: Sharp, width: number, crop?: Region): Sharp {
+  const copy = image.clone();
+  if (crop) copy.extract(crop);
+  return copy.resize({ width, withoutEnlargement: true }).webp({ quality: 80 });
 }
 
 function source(path: string): Sharp {
@@ -38,7 +40,7 @@ export default function uploadImages(): AstroIntegration {
               const requested = ['GET', 'HEAD'].includes(request.method ?? '') ? parseVariantPath(request.url?.split('?')[0] ?? '') : undefined;
               if (!requested) return next();
               try {
-                const content = await variant(source(await uploadFile(uploadsDir, requested.file)), requested.width).toBuffer();
+                const content = await variant(source(await uploadFile(uploadsDir, requested.file)), requested.width, requested.crop).toBuffer();
                 response.setHeader('Content-Type', 'image/webp');
                 response.setHeader('Content-Length', content.length);
                 response.end(request.method === 'HEAD' ? undefined : content);
@@ -52,25 +54,29 @@ export default function uploadImages(): AstroIntegration {
       },
       async 'astro:build:done'({ dir, logger }) {
         const outDir = fileURLToPath(dir);
-        const requested = new Map<string, Set<number>>();
+        const requested = new Map<string, Map<string, { width: number; crop?: Region }>>();
         for (const name of await readdir(outDir, { recursive: true })) {
           if (!name.endsWith('.html')) continue;
           const html = await readFile(join(outDir, name), 'utf8');
           for (const [, value] of html.matchAll(/\ssrc(?:set)?="([^"]*)"/g)) {
             for (const candidate of value.split(',')) {
-              const found = parseVariantPath(candidate.trim().split(/\s+/)[0]);
-              if (found) requested.set(found.file, (requested.get(found.file) ?? new Set()).add(found.width));
+              const url = candidate.trim().split(/\s+/)[0];
+              const found = parseVariantPath(url);
+              if (!found) continue;
+              const variants = requested.get(found.file) ?? new Map();
+              variants.set(decodeURIComponent(url.slice(VARIANT_PREFIX.length)), found);
+              requested.set(found.file, variants);
             }
           }
         }
         let count = 0;
         // One source at a time: full-size photos are large once decoded.
-        for (const [file, widths] of requested) {
+        for (const [file, variants] of requested) {
           const image = source(await uploadFile(uploadsDir, file));
-          await Promise.all([...widths].map(async width => {
-            const target = join(outDir, VARIANT_PREFIX, String(width), `${file}.webp`);
+          await Promise.all([...variants].map(async ([path, { width, crop }]) => {
+            const target = join(outDir, VARIANT_PREFIX, path);
             await mkdir(dirname(target), { recursive: true });
-            await variant(image, width).toFile(target);
+            await variant(image, width, crop).toFile(target);
             count++;
           }));
         }

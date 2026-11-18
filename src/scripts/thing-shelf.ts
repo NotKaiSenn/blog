@@ -10,10 +10,18 @@ type Rect = { left: number; top: number; width: number; height: number };
 
 // Places a copy of a picture over `to`, then animates it from `from`, so it ends exactly where the real one sits.
 function fly(sheet: HTMLElement, picture: HTMLImageElement, from: Rect, to: Rect, duration: number) {
-  const flight = picture.cloneNode() as HTMLImageElement;
-  flight.removeAttribute('loading');
-  flight.removeAttribute('class');
+  if (!from.width || !from.height || !to.width || !to.height || !ready(picture)) return;
+  // Snapshot the displayed pixels. Cloning a responsive img starts image selection again,
+  // so its first animation frame can be empty even when the original is already visible.
+  const flight = document.createElement('canvas');
+  flight.width = Math.ceil(Math.max(from.width, to.width) * window.devicePixelRatio);
+  flight.height = Math.max(1, Math.round(flight.width * picture.naturalHeight / picture.naturalWidth));
+  const context = flight.getContext('2d');
+  if (!context) return;
+  context.drawImage(picture, 0, 0, flight.width, flight.height);
   flight.className = 'thing-flight';
+  flight.style.filter = getComputedStyle(picture).filter;
+  flight.setAttribute('aria-hidden', 'true');
   Object.assign(flight.style, { left: `${to.left}px`, top: `${to.top}px`, width: `${to.width}px`, height: `${to.height}px` });
   // The dialog sits in the top layer, so the flight must too, or the backdrop would cover it.
   sheet.append(flight);
@@ -53,6 +61,7 @@ class ThingShelf extends HTMLElement {
     if (!sheet || typeof sheet.showModal !== 'function') return;
     let open: { link: HTMLAnchorElement; card: HTMLElement } | null = null;
     let busy = false;
+    let pendingLink: HTMLAnchorElement | null = null;
 
     // Closing the card on a thing's own page leaves the list behind it, so the address and title follow.
     const listUrl = this.dataset.listUrl ?? '/things/';
@@ -73,7 +82,18 @@ class ThingShelf extends HTMLElement {
 
     const show = async (link: HTMLAnchorElement) => {
       const card = sheet.querySelector<HTMLElement>(`.thing-card[data-thing="${CSS.escape(link.dataset.thing ?? '')}"]`);
-      if (!card || busy) return;
+      if (!card || busy || open || pendingLink === link) return;
+      pendingLink = link;
+      const { spot, thumb, picture, text } = parts(link, card);
+      if (thumb && !reduced.matches && !ready(thumb)) {
+        thumb.loading = 'eager';
+        await thumb.decode().catch(() => {});
+        if (signal.aborted || pendingLink !== link) return;
+      }
+      pendingLink = null;
+      // External images can omit dimensions in the CMS. Their loaded thumbnail supplies the ratio.
+      if (thumb && ready(thumb)) card.style.setProperty('--image-ratio', String(thumb.naturalWidth / thumb.naturalHeight));
+      if (picture) picture.loading = 'eager';
       busy = true;
       open = { link, card };
       for (const each of sheet.querySelectorAll<HTMLElement>('.thing-card')) each.hidden = each !== card;
@@ -81,7 +101,6 @@ class ThingShelf extends HTMLElement {
       sheet.scrollTop = 0;
       sheet.showModal();
       sheet.classList.add('is-shown');
-      const { spot, thumb, picture, text } = parts(link, card);
       if (reduced.matches) {
         await card.animate([{ opacity: 0 }, { opacity: 1 }], { duration: MOTION.fade }).finished.catch(() => {});
         busy = false;
@@ -99,21 +118,20 @@ class ThingShelf extends HTMLElement {
         [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
         { duration: MOTION.text, delay: MOTION.textDelay + index * MOTION.textStagger, easing: EASE_SETTLE, fill: 'backwards' },
       ));
-      if (thumb && picture && landing && ready(thumb)) {
-        // The thumbnail is already decoded, so it makes the journey while the card's sharper copy loads.
-        const { flight, finished } = fly(sheet, thumb, spotRect, landing, MOTION.open);
+      const transfer = thumb && landing && fly(sheet, thumb, spotRect, landing, MOTION.open);
+      if (transfer && picture) {
+        const { flight, finished } = transfer;
         picture.style.visibility = 'hidden';
         link.classList.add('is-away');
         await finished.catch(() => {});
-        const land = () => {
+        // The thumbnail stays at the landing spot until the detail image can paint.
+        // If loading fails, it remains a usable fallback for the lifetime of this card.
+        void picture.decode().then(() => {
+          if (!flight.isConnected) return;
           picture.style.visibility = '';
-          flight.animate([{ opacity: 1 }, { opacity: 0 }], { duration: MOTION.fade, fill: 'forwards' }).finished.then(() => flight.remove(), () => flight.remove());
-        };
-        if (ready(picture)) land();
-        else {
-          picture.addEventListener('load', land, { once: true });
-          picture.addEventListener('error', land, { once: true });
-        }
+          // Swap in one paint so the two drop shadows never stack.
+          flight.remove();
+        }, () => {});
       }
       busy = false;
     };
@@ -127,13 +145,16 @@ class ThingShelf extends HTMLElement {
       const spotRect = (thumb ?? spot).getBoundingClientRect();
       const motions: Promise<unknown>[] = [];
       if (!reduced.matches) {
-        if (thumb && picture && ready(picture) && visible(spotRect)) {
-          // Fly the card's own picture home and land it on the thumbnail.
-          sheet.querySelectorAll('.thing-flight').forEach(flight => flight.remove());
-          const { flight, finished } = fly(sheet, picture, picture.getBoundingClientRect(), spotRect, MOTION.close);
-          picture.style.visibility = 'hidden';
-          link.classList.add('is-away');
-          motions.push(finished);
+        if (thumb && picture && visible(spotRect)) {
+          const previous = sheet.querySelectorAll('.thing-flight');
+          const source = ready(picture) ? picture : thumb;
+          const transfer = fly(sheet, source, picture.getBoundingClientRect(), spotRect, MOTION.close);
+          if (transfer) {
+            previous.forEach(flight => flight.remove());
+            picture.style.visibility = 'hidden';
+            link.classList.add('is-away');
+            motions.push(transfer.finished);
+          }
         }
         text.forEach(part => part.animate([{ opacity: 1 }, { opacity: 0 }], { duration: MOTION.close / 3, fill: 'forwards' }));
         motions.push(card.animate([

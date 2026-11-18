@@ -148,7 +148,14 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     assert.ok(preview?.includes(`srcset="${variants}"`), 'the homepage preview reuses the variants');
     assert.match(preview, /sizes="\(max-width: 540px\) 72vw, 400px"/);
     const generated = readdirSync(join(fixture, 'dist/_uploads'), { recursive: true }).filter(path => path.endsWith('.webp')).sort();
-    assert.deepEqual(generated, ['1000/wide.png.webp', '480/wide.png.webp', '720/wide.png.webp', '960/wide.png.webp'], 'only referenced variants are generated');
+    const crop = 'crop-1-0-999-400';
+    const expected = [
+      ...[480, 720, 960, 1000].map(w => `${w}/wide.png.webp`),
+      ...[480, 720, 960, 999].map(w => `${crop}/${w}/wide.png.webp`),
+    ];
+    assert.deepEqual(generated, expected.sort(), 'the same upload has separate note and trimmed thing variants');
+    const trimmed = await sharp(join(fixture, 'dist/_uploads', crop, '999/wide.png.webp')).metadata();
+    assert.deepEqual([trimmed.width, trimmed.height, trimmed.hasAlpha], [999, 400, true]);
     for (const width of [480, 720, 960, 1000]) {
       const metadata = await sharp(join(fixture, 'dist/_uploads', String(width), 'wide.png.webp')).metadata();
       assert.deepEqual([metadata.format, metadata.width, metadata.height, metadata.hasAlpha], ['webp', width, width * .4, true]);
@@ -392,7 +399,9 @@ test('CMS-shaped Markdown builds stable, paginated, draft-safe static pages', as
     const names = [...grid.matchAll(/<a class="thing-link"[^>]*aria-label="([^"]+)"/g)].map(([, name]) => name);
     assert.deepEqual(names, ['测试品牌 手冲壶', '阅读器', '烘焙店 咖啡豆']);
     assert.match(list, /<li[^>]*>\s*<a class="thing-link"[^>]*href="\/things\/kettle\/"[^>]*aria-label="测试品牌 手冲壶"/);
-    assert.match(list, /srcset="[^"]*\/_uploads\/\d+\/wide\.png\.webp/, 'uploaded cutouts get WebP variants');
+    const frames = [...list.matchAll(/<img[^>]+src="(\/_uploads\/crop-1-0-999-400\/999\/wide\.png\.webp)"[^>]*>/g)];
+    assert.equal(frames.length, 2, 'the shelf and detail view both use the trimmed original proportions');
+    for (const [tag] of frames) assert.match(tag, /width="999" height="400"/);
     assert.match(list, /src="https:\/\/images\.example\.com\/reader\.webp"[^>]*width="600" height="800"/, 'an image link takes priority and keeps its entered size');
     assert.doesNotMatch(list, /noindex/);
     // The grid opens cards in place, so it does not prefetch every thing's page as it scrolls by.

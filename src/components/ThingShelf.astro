@@ -11,13 +11,14 @@ const { open, listTitle } = Astro.props;
   <ul class="thing-grid">{things.map(thing => <li>
     {/* The card opens in place, so the thing's own page is only fetched when someone really goes there. */}
     <a class="thing-link" href={thingUrl(thing.id)} data-thing={thing.id} data-astro-prefetch="false" aria-label={[thing.brand, thing.name].filter(Boolean).join(' ')}>
-      <div class="thing-frame" style={`--thing-ratio:${thing.width}/${thing.height}`}><ThingArt thing={thing} sizes="(max-width: 540px) 45vw, 320px" /></div>
+      <div class="thing-frame"><ThingArt thing={thing} sizes="(max-width: 639px) 45vw, 200px" /></div>
+      <span class="thing-name">{thing.name}</span>
     </a>
   </li>)}</ul>
   {/* A thing's own page is this list with its card already open, so both read the same. */}
   <dialog class:list={['thing-sheet', { 'is-shown': open }]} open={open ? true : undefined} tabindex="-1">
     {things.map(thing => <article class="thing-card" data-thing={thing.id} aria-labelledby={`thing-${thing.id}`} hidden={thing.id !== open}>
-      <div class="card-art"><ThingArt thing={thing} sizes="(max-width: 639px) 70vw, 320px" eager={thing.id === open} /></div>
+      <div class="card-art" style={thing.width > 1 && thing.height > 1 ? `--image-ratio: ${thing.width / thing.height}; --image-width: ${thing.width}px` : undefined}><ThingArt thing={thing} sizes="(max-width: 639px) 70vw, 320px" eager={thing.id === open} /></div>
       <div class="card-text">
         <h2 id={`thing-${thing.id}`}>{thing.name}</h2>
         {thing.brand && <p class="card-brand">{thing.brand}</p>}
@@ -31,11 +32,28 @@ const { open, listTitle } = Astro.props;
 </thing-shelf>
 <script>import '../scripts/thing-shelf';</script>
 <style>
-  thing-shelf { display: block; }
-  .thing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; align-items: start; padding: 0; margin: 0; list-style: none; }
-  .thing-link { display: block; border-radius: 12px; }
-  .thing-frame { width: 100%; aspect-ratio: var(--thing-ratio); }
-  .thing-link:hover { color: inherit; }
+  thing-shelf { display: block; container-type: inline-size; }
+  .thing-grid {
+    --columns: 3;
+    --column-width: min(152px, 26cqw);
+    display: grid;
+    grid-template-columns: repeat(var(--columns), var(--column-width));
+    justify-content: space-between;
+    row-gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .thing-grid > li, .thing-link { display: grid; grid-row: span 2; grid-template-rows: subgrid; }
+  .thing-link { border-radius: 12px; text-align: center; }
+  @media (min-width: 640px) {
+    .thing-grid > li:nth-child(n + 4) .thing-frame { padding-top: 20px; }
+  }
+  .thing-frame { display: flex; align-items: flex-end; justify-content: center; }
+  .thing-frame :global(.thing-art) { height: auto; width: 100%; }
+  .thing-frame :global(img) { max-height: calc(var(--column-width) * 1.4); }
+  .thing-name { overflow-wrap: anywhere; font-size: .875rem; line-height: 1.5; color: var(--body); }
+  .thing-link:hover .thing-name { color: var(--ink); }
   /* While its card is open, the thing has flown out of the grid. */
   .thing-link.is-away .thing-frame { visibility: hidden; }
 
@@ -51,6 +69,9 @@ const { open, listTitle } = Astro.props;
   .thing-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; width: min(760px, 100%); border-radius: 28px; background: linear-gradient(#ffffff8c, #ffffff59); -webkit-backdrop-filter: blur(20px) saturate(190%); backdrop-filter: blur(20px) saturate(190%); box-shadow: var(--surface-edge-shadow), 0 1px 2px #0000000e, 0 6px 12px #0000000e, 0 24px 60px -18px #00000030; }
   .thing-card[hidden] { display: none; }
   .card-art { height: 360px; padding: 44px; }
+  /* Reserve the exact landing rectangle before the lazy detail image has decoded. */
+  .card-art :global(.thing-art) { container-type: size; }
+  .card-art :global(img) { width: min(100cqw, calc(100cqh * var(--image-ratio)), var(--image-width, 100cqw)); aspect-ratio: var(--image-ratio); }
   .card-text { align-self: stretch; display: flex; flex-direction: column; padding: 56px 48px 44px 16px; }
   .card-brand { margin-top: 4px; color: var(--muted); font-size: .875rem; }
   .card-text h2 { font-size: 1.5rem; font-weight: 550; line-height: 1.35; letter-spacing: -.02em; overflow-wrap: anywhere; }
@@ -63,6 +84,8 @@ const { open, listTitle } = Astro.props;
   :global(.thing-flight) { position: fixed; z-index: 2147483647; margin: 0; pointer-events: none; object-fit: contain; transform-origin: 0 0; }
 
   @media (max-width: 639px) {
+    .thing-grid { --columns: 2; --column-width: min(148px, 39cqw); }
+    .thing-grid > li:nth-child(n + 3) .thing-frame { padding-top: 12px; }
     .thing-sheet { align-items: end; padding: 12px; }
     .thing-card { grid-template-columns: minmax(0, 1fr); gap: 0; border-radius: 26px; }
     .card-art { height: 240px; padding: 36px 36px 8px; }
@@ -71,8 +94,7 @@ const { open, listTitle } = Astro.props;
     .card-note { margin-top: 16px; }
   }
   @media (max-width: 540px) {
-    .thing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; }
-    .thing-frame { aspect-ratio: 1; }
+    .thing-name { font-size: .8125rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .thing-sheet::backdrop { transition: none; }

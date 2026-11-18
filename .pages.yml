@@ -190,7 +190,7 @@ content:
             type: image
             options:
               media: uploads
-            description: 建议使用白底或透明背景的抠图，完整显示不裁切；填写外链时可留空。
+            description: 上传静态商品图时会自动收紧透明或纯白外边距，保留原图。
           - name: imageUrl
             label: 图片外链
             type: string
